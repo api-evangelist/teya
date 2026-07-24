@@ -1,0 +1,533 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures Print Receipts (ePOS) API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- name: Print Receipts (ePOS)
+  description: Create a receipt print job and fetch its status/events
+paths:
+  /poslink/v1/receipt-requests:
+    post:
+      tags:
+      - Print Receipts (ePOS)
+      summary: Create a receipt to print (JSON or multipart image)
+      description: "Creates a receipt print job by either:\n - Sending a JSON payload that describes the receipt content to be rendered by the service; or\n - Uploading a pre-rendered receipt image via multipart/form-data.\n\n On success, a new receipt job is created and the response contains the unique receipt_id,\n initial status (NOT_PRINTED), and creation timestamp. Clients can then subscribe to status updates via the SSE endpoint or poll for the result.\n\n Content types:\n - application/json\n - multipart/form-data (fields: store_id, terminal_id, image)\n\n Response: 201 Created with a JSON body containing identifiers and initial status.\n"
+      operationId: createPrintJob
+      parameters:
+      - name: store_id
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: terminal_id
+        in: query
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+              required:
+              - image
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceiptCreateRequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceiptCreatedResponse'
+              example:
+                receipt_id: rcpt_123
+                status: NOT_PRINTED
+                created_at: '2025-09-10T12:34:56Z'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORISED
+                description: Unauthorised
+        '403':
+          description: The server understands the request but refuses to authorise it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+  /poslink/v1/receipt-requests/{receipt_id}/status:
+    get:
+      tags:
+      - Print Receipts (ePOS)
+      summary: Get receipt print job with real-time updates
+      description: 'Streams real-time updates for a receipt print job using Server‑Sent Events (SSE) with content type text/event-stream.
+
+
+        Each message in the stream is an SSE event with:
+
+        - data: a JSON object with receipt status fields (no formal schema available for SSE payload)
+
+        - a blank line terminates each event frame
+
+
+        Semantics:
+
+        - The stream emits receipt status updates as they occur.
+
+        - When the receipt reaches a final status (for example, PRINTED or FAILED), a last event is sent and the stream is closed.
+
+        - If the receipt is already final when requested, a single event is sent and the connection is closed immediately.
+
+
+        Possible statuses:
+
+        - NOT_PRINTED
+
+        - ENQUEUED
+
+        - PRINTING
+
+        - PRINTED
+
+        - FAILED
+
+        - UNKNOWN
+
+
+        Possible status reasons:
+
+        - TIMEOUT
+
+        - BUSY
+
+        - OUT_OF_PAPER
+
+        - OVERHEATED
+
+        - COVER_OPEN
+
+        - LOW_BATTERY
+
+        - OTHER
+
+
+        Connection behavior:
+
+        - The server may close the connection after approximately one minute of inactivity; clients should reconnect if updates are still expected.
+
+
+        Wire example:
+
+        data: {"receipt_id":"...","status":"PRINTED","status_reason":null,"updated_at":"2025-09-10T12:30:45Z"}
+
+
+        Note: The response schema below describes the structure of the JSON object placed in the SSE data field, not the SSE framing itself.
+
+        '
+      operationId: streamEvents
+      parameters:
+      - name: receipt_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: 'Server-Sent Events stream with lines prefixed by data: '
+                example: "data: {\n    \"receipt_id\" : \"rcpt_123\",\n    \"status\" : \"NOT_PRINTED\",\n    \"status_reason\": null,\n    \"updated_at\" : \"2025-09-10T12:35:00Z\"\n}\n"
+                title: SSE Event Stream
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORISED
+                description: Unauthorised
+        '403':
+          description: The server understands the request but refuses to authorise it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+components:
+  schemas:
+    TextElement:
+      allOf:
+      - $ref: '#/components/schemas/Element'
+      - type: object
+        properties:
+          text:
+            type: string
+            minLength: 1
+          bold:
+            type: boolean
+          align:
+            type: string
+            enum:
+            - LEFT
+            - RIGHT
+            - CENTER
+      example:
+        type: Text
+        text: Coffee
+        bold: false
+        align: LEFT
+      required:
+      - text
+      title: TextElement
+    ReceiptCreatedResponse:
+      type: object
+      description: Response returned after a receipt print job is created
+      properties:
+        receipt_id:
+          type: string
+          description: Generated receipt identifier
+          example: rcpt_123
+        status:
+          type: string
+          description: Current status of the receipt
+          example: NOT_PRINTED
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp in ISO 8601 date-time format (e.g., 2025-09-10T12:34:56Z)
+          example: '2025-09-10T12:34:56Z'
+      title: Receipt Created Response
+    TableRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      - type: object
+        properties:
+          header_cells:
+            type: array
+            items:
+              $ref: '#/components/schemas/TableHeaderCell'
+          rows:
+            type: array
+            items:
+              $ref: '#/components/schemas/TableInnerRow'
+      example:
+        type: Table
+        header_cells:
+        - element:
+            type: Text
+            text: QTD DESIGNACAO
+          weight: 1.5
+        rows:
+        - cells:
+          - type: Text
+            text: 1 Coffee
+            align: LEFT
+      title: TableRow
+    TableHeaderCell:
+      type: object
+      example:
+        element:
+          type: Text
+          text: Header
+        weight: 1
+      properties:
+        element:
+          $ref: '#/components/schemas/Element'
+          oneOf:
+          - $ref: '#/components/schemas/TextElement'
+          - $ref: '#/components/schemas/ImageElement'
+          - $ref: '#/components/schemas/QrCodeElement'
+        weight:
+          type: number
+          format: double
+      required:
+      - element
+      title: TableHeaderCell
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
+    Error:
+      type: object
+      description: Error response
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - BAD_REQUEST
+          - UNAUTHORISED
+          - FORBIDDEN
+          - CONFLICT
+          - INTERNAL_SERVER_ERROR
+          - TOO_MANY_REQUESTS
+          - NOT_FOUND
+          - GONE
+          - UNSUPPORTED_MEDIA_TYPE
+        description:
+          type: string
+          description: The description of the error
+        invalid_params:
+          type: array
+          description: Invalid parameters
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      required:
+      - code
+      - description
+      title: Error
+    Element:
+      discriminator:
+        propertyName: type
+      example:
+        type: Text
+      oneOf:
+      - $ref: '#/components/schemas/TextElement'
+      - $ref: '#/components/schemas/QrCodeElement'
+      - $ref: '#/components/schemas/ImageElement'
+      properties:
+        type:
+          type: string
+      required:
+      - type
+      title: Element
+    Row:
+      discriminator:
+        propertyName: type
+      example:
+        type: Spacer
+      oneOf:
+      - $ref: '#/components/schemas/ItemsRow'
+      - $ref: '#/components/schemas/TableRow'
+      - $ref: '#/components/schemas/SpacerRow'
+      - $ref: '#/components/schemas/DividerRow'
+      properties:
+        type:
+          type: string
+      required:
+      - type
+      title: Row
+    SpacerRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      example:
+        type: Spacer
+      title: SpacerRow
+    ReceiptCreateRequest:
+      type: object
+      description: Request body to create a new print receipt job
+      properties:
+        store_id:
+          type: string
+          format: uuid
+          description: Store identifier
+          example: 4b33fd70-7c92-4060-9898-f066e77d3ae1
+        terminal_id:
+          type: string
+          description: Terminal identifier
+          example: 80c267d3
+        print_model:
+          $ref: '#/components/schemas/PrintDocument'
+      required:
+      - print_model
+      - store_id
+      - terminal_id
+      title: Receipt Create Request
+    TableInnerRow:
+      type: object
+      example:
+        cells:
+        - type: Text
+          text: Item
+          align: LEFT
+      properties:
+        cells:
+          type: array
+          items:
+            $ref: '#/components/schemas/Element'
+          minItems: 1
+      required:
+      - cells
+      title: TableInnerRow
+    ImageElement:
+      allOf:
+      - $ref: '#/components/schemas/Element'
+      - type: object
+        properties:
+          base64:
+            type: string
+            minLength: 1
+          align:
+            type: string
+            enum:
+            - LEFT
+            - RIGHT
+            - CENTER
+      example:
+        type: Image
+        base64: '...'
+        align: RIGHT
+      required:
+      - base64
+      title: ImageElement
+    ItemsRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Element'
+            maxItems: 10
+            minItems: 1
+      example:
+        type: Items
+        items:
+        - type: Text
+          text: Header
+          bold: true
+          align: CENTER
+      required:
+      - items
+      title: ItemsRow
+    QrCodeElement:
+      allOf:
+      - $ref: '#/components/schemas/Element'
+      - type: object
+        properties:
+          url:
+            type: string
+            minLength: 1
+          align:
+            type: string
+            enum:
+            - LEFT
+            - RIGHT
+            - CENTER
+      example:
+        type: QrCode
+        url: https://teya.com
+        align: LEFT
+      required:
+      - url
+      title: QrCodeElement
+    PrintDocument:
+      type: object
+      example:
+        rows:
+        - type: Items
+          items:
+          - type: Text
+            text: Hello
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/Row'
+          maxItems: 150
+          minItems: 1
+      required:
+      - rows
+      title: PrintDocument
+    DividerRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      example:
+        type: Divider
+      title: DividerRow

@@ -1,0 +1,1122 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures '@internal' API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- name: '''@internal'''
+paths:
+  /v2/checkout/sessions/{session_id}:
+    get:
+      description: 'API to return details of a given session.
+
+        <br><strong>Access Token Required scope:</strong> checkout/sessions/id/get
+
+        '
+      operationId: getSessionInfoV2
+      parameters:
+      - description: The session id
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: This is the id of the session that has been created and will be used to interact across different systems
+          example: 14411456-79c8-4d8c-8498-f01907093b83
+          format: uuid
+          title: Session Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/checkout_SessionInfoResponse'
+          description: Session has been returned
+        '400':
+          content:
+            application/json:
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+          description: Bad request
+        '401':
+          content:
+            application/json:
+              example:
+                code: UNAUTHORISED
+                description: Unauthorised
+          description: Lacks valid authentication credentials for the requested resource
+        '403':
+          content:
+            application/json:
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+          description: The server understands the request but refuses to authorise it
+        '404':
+          content: {}
+          description: Session not found
+        '429':
+          content:
+            application/json:
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+          description: Too many requests in a given amount of time
+        '500':
+          content:
+            application/json:
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+          description: Internal Server Error
+      security:
+      - checkout_oauth_dev: []
+      - checkout_oauth_prd: []
+      summary: Get session details
+      tags:
+      - '''@internal'''
+  /v3/refunds:
+    post:
+      tags:
+      - '''@internal'''
+      summary: Process a refund of a transaction
+      description: 'API to process the refund of a previous transaction.
+
+
+        The operation is performed as either a refund or a user-initiated reversal.'
+      operationId: cardTransactions
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        description: 'A unique key to identify the request.
+
+          If the request is repeated with the same key, the same response will be returned.
+
+          If the request is repeated with a different key or without a key, a new refund will be created.
+
+          '
+        required: false
+        schema:
+          type: string
+          description: 'A unique key to identify the request.
+
+            If the request is repeated with the same key, the same response will be returned.
+
+            If the request is repeated with a different key or without a key, a new refund will be created.
+
+            '
+          maxLength: 64
+          minLength: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRequest'
+        required: true
+      responses:
+        '201':
+          description: Refund processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+        '202':
+          description: Refund processing
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '523':
+          description: Origin Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - oauth: []
+components:
+  schemas:
+    checkout_BackendBusinessData:
+      description: The business information
+      example:
+        active: true
+        address:
+          city: New York
+          country: US
+          state: NY
+          street_address_line1: 123 Main St
+          street_address_line2: Suite 100
+          street_address_line3: Building 1
+          zipcode: '10001'
+        id: 123e4567-e89b-12d3-a456-426614174000
+        name: My Business
+        notification_email: example@email.com
+      properties:
+        active:
+          type: boolean
+        address:
+          $ref: '#/components/schemas/checkout_BusinessAddress'
+        id:
+          description: The unique identifier of a business (associated store entity)
+          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          format: uuid
+          title: Business Id
+          type: string
+        name:
+          description: The name of a business
+          example: Teya Global
+          title: Business Name
+          type: string
+        notification_email:
+          example: example@email.com
+          title: Email Address
+          type: string
+      required:
+      - active
+      - address
+      - id
+      - name
+      title: Business Data
+      type: object
+    RefundResponse:
+      type: object
+      description: A response to refund a transaction
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        refund_amount:
+          amount: 100
+          currency: GBP
+        status: SUCCESS
+        transaction_type: REFUND
+        card_acceptor_id: '5023045'
+        issuer_result:
+          approval_code: '123456'
+          response_code: '00'
+        created_at: '2021-01-01T00:00:00.000Z'
+        dcc:
+          cardholder_amount:
+            amount: 100
+            currency: CHF
+          conversion_rate: '0.9517'
+          markup: '0.03'
+          ecb_markup: '0.01'
+      properties:
+        transaction_id:
+          type: string
+          description: Unique identifier of the refund created
+        status:
+          type: string
+          description: The status of the transaction
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+        transaction_type:
+          type: string
+          description: The type of transaction
+          enum:
+          - REFUND
+        status_reason:
+          type: string
+          description: Reason for `FAILURE` status
+          enum:
+          - ACCOUNT_INVALID
+          - CANNOT_VALIDATE_AUTHENTICATION
+          - CARD_COUNT_EXCEEDED
+          - CARD_DECLINED
+          - CARD_EXPIRED
+          - CARD_LIMIT_EXCEEDED
+          - CARD_NOT_ACTIVE
+          - DISABLED_ACCOUNT
+          - DO_NOT_HONOR
+          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
+          - EXCEEDS_AMOUNT_LIMIT
+          - FORMAT_ERROR
+          - INCORRECT_CARD_AUTHENTICATION
+          - INSUFFICIENT_FUNDS
+          - INVALID_CARD_NUMBER
+          - INVALID_TRANSACTION
+          - ISSUER_DECLINED
+          - LOST_OR_STOLEN
+          - MERCHANT_CONFIGURATION
+          - PIN_LIMIT_EXCEEDED
+          - PROCESSOR_UNAVAILABLE
+          - RESTRICTED_CARD
+          - SCA_PIN_REQUIRED
+          - SCA_REQUIRED
+          - SUSPECTED_FRAUD
+          - TEMPORARY_ISSUE_RETRY
+          - TIMEOUT
+          - TRANSACTION_NOT_ALLOWED
+          - UNABLE_TO_ROUTE_TRANSACTION
+          - UNSUPPORTED_ISSUER
+          - NEGATIVE_BALANCE
+          - OTHER
+        issuer_result:
+          $ref: '#/components/schemas/RefundIssuerResult'
+          description: Result data for the refund according to issuer's response
+          title: IssuerResult
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the REFUND was created (in ISO 8601 with time-zone).
+        refund_amount:
+          $ref: '#/components/schemas/RefundedAmount'
+          description: The total amount refunded, with amount and currency
+          title: RefundedAmount
+        card_acceptor_id:
+          type: string
+          description: '`mid` or `card_acceptor_id` (ISO 8583 field standard)'
+        dcc:
+          $ref: '#/components/schemas/DccResponse'
+          description: DCC data used for the refund
+          title: DCC
+      required:
+      - card_acceptor_id
+      - issuer_result
+      - refund_amount
+      - status
+      - transaction_id
+      - transaction_type
+      title: RefundResponse
+    checkout_Amount:
+      description: 'The transaction amount in the smallest currency unit according to ISO 4217 format.
+
+        For example:
+
+        - 100 ISK (Icelandic króna): the amount is 100 (since 1 ISK = 1 subunit).
+
+        - 100 EUR (Euro): the amount is 10000 (since 1 EUR = 100 cents).
+
+        - 100 USD (US Dollar): the amount is 10000 (since 1 USD = 100 cents).
+
+        - 100 KWD (Kuwaiti Dinar): the amount is 100000 (since 1 KWD = 1000 fils).
+
+        '
+      example:
+        currency: GBP
+        value: 100
+      properties:
+        currency:
+          description: Currency code (e.g. `USD`, `GBP`, `EUR`) following ISO-4217 format.
+          enum:
+          - AED
+          - AFN
+          - ALL
+          - AMD
+          - ANG
+          - AOA
+          - ARS
+          - AUD
+          - AWG
+          - AZN
+          - BAM
+          - BBD
+          - BDT
+          - BGN
+          - BHD
+          - BIF
+          - BMD
+          - BND
+          - BOB
+          - BOV
+          - BRL
+          - BSD
+          - BTN
+          - BWP
+          - BYN
+          - BYR
+          - BZD
+          - CAD
+          - CDF
+          - CHE
+          - CHF
+          - CHW
+          - CLF
+          - CLP
+          - CNY
+          - COP
+          - COU
+          - CRC
+          - CUC
+          - CUP
+          - CVE
+          - CZK
+          - DJF
+          - DKK
+          - DOP
+          - DZD
+          - EGP
+          - ERN
+          - ETB
+          - EUR
+          - FJD
+          - FKP
+          - GBP
+          - GEL
+          - GHS
+          - GIP
+          - GMD
+          - GNF
+          - GTQ
+          - GYD
+          - HKD
+          - HNL
+          - HRK
+          - HTG
+          - HUF
+          - IDR
+          - ILS
+          - INR
+          - IQD
+          - IRR
+          - ISK
+          - JMD
+          - JOD
+          - JPY
+          - KES
+          - KGS
+          - KHR
+          - KMF
+          - KPW
+          - KRW
+          - KWD
+          - KYD
+          - KZT
+          - LAK
+          - LBP
+          - LKR
+          - LRD
+          - LSL
+          - LYD
+          - MAD
+          - MDL
+          - MGA
+          - MKD
+          - MMK
+          - MNT
+          - MOP
+          - MRO
+          - MRU
+          - MUR
+          - MVR
+          - MWK
+          - MXN
+          - MXV
+          - MYR
+          - MZN
+          - NAD
+          - NGN
+          - NIO
+          - NOK
+          - NPR
+          - NZD
+          - OMR
+          - PAB
+          - PEN
+          - PGK
+          - PHP
+          - PKR
+          - PLN
+          - PYG
+          - QAR
+          - RON
+          - RSD
+          - RUB
+          - RWF
+          - SAR
+          - SBD
+          - SCR
+          - SDG
+          - SEK
+          - SGD
+          - SHP
+          - SLE
+          - SLL
+          - SOS
+          - SRD
+          - SSP
+          - STD
+          - STN
+          - SVC
+          - SYP
+          - SZL
+          - THB
+          - TJS
+          - TMT
+          - TND
+          - TOP
+          - TRY
+          - TTD
+          - TWD
+          - TZS
+          - UAH
+          - UGX
+          - USD
+          - USN
+          - UYI
+          - UYU
+          - UZS
+          - VED
+          - VEF
+          - VES
+          - VND
+          - VUV
+          - WST
+          - XAF
+          - XCD
+          - XCG
+          - XOF
+          - XPF
+          - YER
+          - ZAR
+          - ZMW
+          - ZWL
+          format: enum
+          type: string
+        value:
+          description: The transaction amount in the smallest currency unit according to ISO 4217 format.
+          format: int64
+          maximum: 9223372036854
+          type: integer
+      required:
+      - currency
+      - value
+      title: Transaction Amount
+      type: object
+    RefundIssuerResult:
+      type: object
+      description: Issuer result data for refund transactions
+      properties:
+        approval_code:
+          type: string
+          description: Approval code from the issuer
+          example: '123456'
+        response_code:
+          type: string
+          description: Response code from the issuer
+          example: '00'
+      title: RefundIssuerResult
+    RefundedAmount:
+      type: object
+      example:
+        amount: 100
+        currency: GBP
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1)
+        currency:
+          type: string
+          description: The currency used in this transaction. Must be a valid ISO-4217 currency code
+          example: GBP
+      required:
+      - amount
+      - currency
+      title: RefundedAmount
+    InvalidParams:
+      type: object
+      description: Invalid parameter details
+      properties:
+        field:
+          type: string
+          description: The field that contains invalid data
+          example: amount.value
+        reason:
+          type: string
+          description: Reason why the field is invalid
+          example: must be greater than 0
+      required:
+      - field
+      - reason
+      title: InvalidParams
+    Error:
+      type: object
+      description: Error response
+      example:
+        code: BAD_REQUEST
+        description: Invalid input
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - AMOUNT_TOO_SMALL
+          - BAD_REQUEST
+          - BLOCKED_CARD
+          - BLOCKED_CROSS_BORDER_TRANSACTION
+          - FORBIDDEN
+          - IDEMPOTENCE_KEY_NOT_FOUND
+          - INTERNAL_SERVER_ERROR
+          - INVALID_AUTHENTICATION_ID
+          - LOST_OR_STOLEN
+          - NEGATIVE_BALANCE_LIMIT
+          - NOT_FOUND
+          - PENDING_TRANSACTION_CANNOT_BE_REVERSED
+          - PRE_AUTH_UNSUPPORTED_SCHEME
+          - SERVICE_UNAVAILABLE
+          - TRANSACTION_CANNOT_BE_REVERSED
+          - TRANSACTION_NOT_FOUND
+          - UNAUTHORISED
+          - UNKNOWN
+          - UNSUPPORTED_ISSUER
+          - UNSUPPORTED_SCHEME
+        description:
+          type: string
+          description: The description of the error
+        invalid_params:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      required:
+      - code
+      - description
+      title: Error
+      x-internal: 'true'
+    DccResponse:
+      type: object
+      description: Dynamic Currency Conversion response
+      properties:
+        conversion_rate:
+          type: string
+          description: Exchange rate used for conversion
+          example: '0.9517'
+        markup:
+          type: string
+          description: Markup applied to the exchange rate
+          example: '0.03'
+        ecb_markup:
+          type: string
+          description: ECB markup rate
+          example: '0.01'
+        cardholder_amount:
+          $ref: '#/components/schemas/Amount'
+          description: Amount in cardholder's currency
+      title: DccResponse
+    RefundRequest:
+      type: object
+      description: A request to refund a transaction
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        terminal_id: '12345678'
+        amount: 100
+      properties:
+        transaction_id:
+          type: string
+          description: The id of the original transaction that needs to be refunded
+        terminal_id:
+          type: string
+          description: The ID of the terminal processing the transaction. Only required when using a non-Teya terminal.
+          maxLength: 8
+          minLength: 1
+        merchant_reference:
+          type: string
+          description: An ID referencing the transaction on the client's side
+          maxLength: 60
+          minLength: 1
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1). The currency is the same as the original transaction.
+        reason:
+          type: string
+          description: A reason for the refund (e.g. 'customer returned the goods')
+      required:
+      - amount
+      - transaction_id
+      title: RefundRequest
+    Amount:
+      type: object
+      description: Amount object
+      properties:
+        amount:
+          type: integer
+          description: Amount in the smallest currency unit (e.g., cents)
+          minimum: 1
+          example: 1000
+        currency:
+          type: string
+          description: 3-letter ISO currency code
+          pattern: ^[A-Z]{3}$
+          example: USD
+      required:
+      - amount
+      - currency
+      title: Amount
+    checkout_Customer:
+      example:
+        email: emailaddress@example.com
+        name: John Doe
+        phone_number: '+447911123456'
+      properties:
+        email:
+          description: Customer email address
+          type: string
+        name:
+          description: Customer name, used to prefill the hosted checkout form
+          type: string
+        phone_number:
+          description: 'Customer phone number
+
+            An international phone number including the country code, formatted according to the E.164 standard.
+
+            '
+          type: string
+      title: Customer Information
+      type: object
+    checkout_DccOfferInfo:
+      description: Dynamic Currency Conversion offer info for a session.
+      properties:
+        cardholder_amount:
+          $ref: '#/components/schemas/checkout_Amount'
+        ecb_markup:
+          description: Markup of the offered exchange rate (i.e. amount added) over the latest ECB exchange rate for a currency pair (decimal format, with 6 decimal places). Only provided when both currencies are EEA currencies.
+          example: '0.005000'
+          type: string
+        exchange_rate:
+          description: Latest exchange rate for a currency pair (decimal format, with 6 decimal places)
+          example: '1.234567'
+          type: string
+        markup:
+          description: Markup of the offered exchange rate (i.e. amount added) over the latest exchange rate for a currency pair (decimal format)
+          example: '0.010000'
+          type: string
+      required:
+      - cardholder_amount
+      - exchange_rate
+      - markup
+      title: DccOfferInfo
+      type: object
+    checkout_BusinessAddress:
+      description: The address of a business
+      example:
+        city: New York
+        country: US
+        state: NY
+        street_address_line1: Main Street
+        street_address_line2: No. 1
+        street_address_line3: Building 1
+        zipcode: '10001'
+      properties:
+        city:
+          description: The city where the business is located
+          example: New York
+          title: City
+          type: string
+        country:
+          description: The country where the business is located (ISO-3166-1 alpha2)
+          example: ES
+          title: Country
+          type: string
+        state:
+          description: The state where the business is located
+          example: NY
+          title: State
+          type: string
+        street_address_line1:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        street_address_line2:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        street_address_line3:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        zipcode:
+          description: The zipcode where the business is located
+          example: '10001'
+          title: Zipcode
+          type: string
+      required:
+      - country
+      title: Business Address
+      type: object
+    checkout_SessionInfoResponse:
+      description: Returns the Hosted Checkout session information that will be used to process an Ecommerce transaction
+      example:
+        amount:
+          currency: USD
+          value: 100
+        billing_address:
+          city: London
+          country: GB
+          state: London
+          street_address_line1: Main Street
+          street_address_line2: No. 1
+          street_address_line3: Building 1
+          zipcode: '10001'
+        business_data:
+          active: true
+          address:
+            city: New York
+            country: US
+            state: NY
+            street_address_line1: 123 Main St
+            street_address_line2: Suite 100
+            street_address_line3: Building 1
+            zipcode: '10001'
+          id: 123e4567-e89b-12d3-a456-426614174000
+          name: My Business
+        cancel_url: https://mywebsite.com/checkout/cart
+        customer:
+          email: emailaddress@example.com
+          name: John Doe
+          phone_number: '+447911123456'
+        customer_success_email: john.doe@example.com
+        failure_url: https://mywebsite.com/checkout/failure
+        language: en-GB
+        line_items:
+        - description: Product 1
+          quantity: 1
+          unit_price: 50
+        - description: Product 2
+          quantity: 2
+          unit_price: 25
+        merchant_reference: '1234567890'
+        merchant_success_email: customer@mywebsite.com
+        metadata:
+          campaign: summer_sale
+          order_id: '12345'
+        payment_link_id: 01960f72-872c-7894-a7da-98b0eaaf6588
+        payment_link_type: SINGLE_USE
+        payment_status: NONE
+        post_success_payment: SHOW_SUCCESS_PAGE
+        required_customer_fields:
+        - SHIPPING_ADDRESS
+        - EMAIL
+        - PHONE
+        session_id: 14411456-79c8-4d8c-8498-f01907093b83
+        session_status: ACTIVE
+        source_reference_id: '1234567890'
+        success_url: https://mywebsite.com/checkout/success
+        transaction_id: tr_72302a4d-b2f9-4663-93f8-d9260e5370c8
+        type: SALE
+        logo_url: https://example.cloudfront.net/stores/123/logo.png
+        checkout_custom_note: Thank you for shopping with us!
+        privacy_policy_url: https://mywebsite.com/privacy
+        terms_url: https://mywebsite.com/terms
+      properties:
+        amount:
+          $ref: '#/components/schemas/checkout_Amount'
+        billing_address:
+          $ref: '#/components/schemas/checkout_BillingAddress'
+          description: Billing address of the customer
+          example:
+            city: London
+            country: GB
+            state: London
+            street_address_line1: Main Street
+            street_address_line2: No. 1
+            street_address_line3: Building 1
+            zipcode: '10001'
+        business_data:
+          $ref: '#/components/schemas/checkout_BackendBusinessData'
+        cancel_url:
+          description: URL to bring back the customer to the cart. If included in the call we will render the “Back” button in the HostedCheckout UI
+          type: string
+        customer:
+          $ref: '#/components/schemas/checkout_Customer'
+        customer_success_email:
+          description: If present, an e-mail is sent to the merchant customer upon successful payment with the receipt.
+          type: string
+        dcc:
+          $ref: '#/components/schemas/checkout_DccOfferInfo'
+          description: Dynamic Currency Conversion offer info for the session.
+        enabled_card_brands:
+          description: List of enabled card brands for the session.
+          example:
+          - VISA
+          - MASTERCARD
+          - AMEX
+          items:
+            enum:
+            - AMEX
+            - CALLIO
+            - CARDCO
+            - UNION_PAY
+            - DINERS
+            - DISCOVER
+            - DOXX
+            - GENERALI
+            - JCB
+            - KH
+            - MAESTRO
+            - MASTERCARD
+            - OTHER
+            - OTP
+            - PATIKA
+            - PREMIUM
+            - SODEXO
+            - UP
+            - VISA
+            - VITAMIN
+            type: string
+            uniqueItems: true
+          type: array
+          uniqueItems: true
+        failure_url:
+          description: URL to redirect the customer once the transaction has finished with error
+          type: string
+        language:
+          description: The language to be used in the Hosted Checkout session. IETF BCP 47. If not provided we will use for rendering in HC the Accept-Language request header.
+          example: en-GB
+          type: string
+        line_items:
+          description: Basket information to be shown in the payment screen
+          example:
+          - description: Product 1
+            quantity: 1
+            unit_price: 100
+          - description: Product 2
+            quantity: 2
+            unit_price: 50
+          items:
+            $ref: '#/components/schemas/checkout_SessionLineItem'
+          type: array
+        merchant_reference:
+          description: An identifier that can be used to reference the transaction on the merchant's side. Overrides 'source_reference_id
+          example: '1234567890'
+          maxLength: 60
+          type: string
+        merchant_success_email:
+          description: If present, an e-mail is sent to the merchant upon successful payment with the receipt.
+          type: string
+        metadata:
+          additionalProperties:
+            type: string
+          description: Metadata key-value pairs for the session. Maximum 10 keys allowed. Keys must not exceed 40 characters and values must not exceed 500 characters.
+          type: object
+        payment_link_id:
+          description: A unique identifier for the created payment link
+          example: 20eb276c-5b6b-4474-a5a1-49bcd6193148
+          format: uuid
+          type: string
+        payment_link_type:
+          description: Type of the payment link used to create the session
+          enum:
+          - SINGLE_USE
+          format: enum
+          type: string
+        payment_status:
+          description: Status of the payment, only present when the session status is COMPLETED.
+          enum:
+          - NONE
+          - SUCCESS
+          - FAILED
+          example: SUCCESS
+          format: enum
+          title: 'Status of the payment.
+
+            NONE: No payment has been processed
+
+            SUCCESS: Payment has been successful
+
+            FAILED: Payment has failed
+
+            '
+          type: string
+        post_success_payment:
+          description: "Where the customer browser will be sent after a successful transaction.\nPossible values:\n    SHOW_SUCCESS_PAGE (Display the HostedCheckout payment completed page with a button to redirect to the success_url),\n    REDIRECT (Redirect the customer browser directly to the success_url).\nNote: For transactions with Dynamic currency conversion (DCC), we will not redirect and will show success page if no\ncustomer_success_email is sent. Because we are required to show the rates to the customer.\n"
+          enum:
+          - SHOW_SUCCESS_PAGE
+          - REDIRECT
+          example: SHOW_SUCCESS_PAGE
+          format: enum
+          title: Post Success Payment Options
+          type: string
+        session_id:
+          description: This is the id of the session that has been created and will be used to interact across different systems
+          example: 14411456-79c8-4d8c-8498-f01907093b83
+          format: uuid
+          title: Session Id
+          type: string
+        session_status:
+          description: Indicates whether the session is still available for use. New payments can only happen when the status is ACTIVE
+          enum:
+          - ACTIVE
+          - PROCESSING
+          - COMPLETED
+          - EXPIRED
+          example: ACTIVE
+          format: enum
+          title: 'Status of the session
+
+            ACTIVE: Session has been created but the payment processing has not started
+
+            PROCESSING: A payment has started but has not been completed
+
+            COMPLETED: Session has been finished because a payment has succeeded or failed
+
+            EXPIRED: Session has expired
+
+            '
+          type: string
+        required_customer_fields:
+          description: Customer fields that must be collected during checkout
+          items:
+            enum:
+            - SHIPPING_ADDRESS
+            - PHONE
+            - EMAIL
+            type: string
+          type: array
+        success_url:
+          description: URL to redirect the customer once the transaction has successfully finished
+          type: string
+        logo_url:
+          description: Public URL of the merchant's logo to display on the checkout page. Configured in the Teya Business Portal.
+          example: https://example.cloudfront.net/stores/123/logo.png
+          type: string
+        checkout_custom_note:
+          description: Custom note to display on the checkout page. Maximum 1000 characters. Configured in the Teya Business Portal.
+          example: Thank you for shopping with us!
+          maxLength: 1000
+          type: string
+        privacy_policy_url:
+          description: HTTPS URL linking to the merchant's privacy policy. Displayed on the checkout page. Configured in the Teya Business Portal.
+          example: https://mywebsite.com/privacy
+          type: string
+        terms_url:
+          description: HTTPS URL linking to the merchant's terms and conditions. Displayed on the checkout page. Configured in the Teya Business Portal.
+          example: https://mywebsite.com/terms
+          type: string
+        transaction_id:
+          description: The unique identifier for the new transaction
+          example: tr_72302a4d-b2f9-4663-93f8-d9260e5370c8
+          type: string
+        type:
+          description: Whether this transaction is a SALE or PRE-AUTHORIZATION.
+          enum:
+          - PRE_AUTHORISATION
+          - SALE
+          format: enum
+          type: string
+      required:
+      - amount
+      - business_data
+      - payment_status
+      - session_id
+      - session_status
+      - type
+      title: SessionInfoResponse
+      type: object
+    checkout_SessionLineItem:
+      description: Basket information to be shown in the payment screen
+      example:
+        description: Shipping
+        quantity: 1
+        unit_price: 100
+      properties:
+        description:
+          description: This a description for a item in the basket
+          type: string
+        quantity:
+          description: The number of items, Must to be a positive value
+          format: int32
+          type: integer
+        unit_price:
+          description: The price of a single item including VAT, Can be negative for discounts
+          format: int32
+          type: integer
+      required:
+      - description
+      - quantity
+      - unit_price
+      title: SessionLineItem
+      type: object
+    checkout_BillingAddress:
+      description: Customer's Billing Address
+      example:
+        city: London
+        country: GB
+        state: London
+        street_address_line1: Main Street
+        street_address_line2: No. 1
+        street_address_line3: Building 1
+        zipcode: '10001'
+      properties:
+        city:
+          description: The city where the business is located
+          example: New York
+          title: City
+          type: string
+        country:
+          description: The country where the business is located (ISO-3166-1 alpha2)
+          example: ES
+          title: Country
+          type: string
+        state:
+          description: The state where the business is located
+          example: NY
+          title: State
+          type: string
+        street_address_line1:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        street_address_line2:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        street_address_line3:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        zipcode:
+          description: The zipcode where the business is located
+          example: '10001'
+          title: Zipcode
+          type: string
+      required:
+      - country
+      title: Billing Address
+      type: object

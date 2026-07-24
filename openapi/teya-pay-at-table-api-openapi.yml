@@ -1,0 +1,3331 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures Pay at Table API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- name: Pay at Table
+paths:
+  /poslink/v1/tabs:
+    get:
+      tags:
+      - Pay at Table
+      summary: List tabs for a store
+      description: "Returns tabs for the specified store, cursor-paginated.\n\nSupports optional filters:\n- `status`: repeatable. When omitted, defaults to active tabs only\n  (`OPEN`, `PAYING`, `PAUSED`). To include archived tabs, pass\n  `status=COMPLETED` and/or `status=CLOSED` explicitly.\n- `merchant_reference`: merchant-assigned reference. Unique per store, so the\n  filtered response will contain at most one tab.\n"
+      operationId: listTabs
+      parameters:
+      - name: store_id
+        in: query
+        description: The store identifier
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: status
+        in: query
+        description: 'Tab statuses to include. Repeatable (e.g., `status=OPEN&status=PAUSED`).
+
+          When omitted, returns only active tabs (`OPEN`, `PAYING`, `PAUSED`).
+
+          To include archived tabs, pass `status=COMPLETED` and/or `status=CLOSED` explicitly.
+
+          '
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - OPEN
+            - PAYING
+            - PAUSED
+            - COMPLETED
+            - CLOSED
+      - name: merchant_reference
+        in: query
+        description: Merchant-assigned reference to filter by. When provided, returns the single tab matching (store_id, merchant_reference) or an empty list.
+        required: false
+        schema:
+          type: string
+      - name: after
+        in: query
+        description: Opaque cursor pointing to the last item of the current page. Use to fetch the next page. Mutually exclusive with `before`.
+        required: false
+        schema:
+          type: string
+      - name: before
+        in: query
+        description: Opaque cursor pointing to the first item of the current page. Use to fetch the previous page. Mutually exclusive with `after`.
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        description: Maximum number of results to return. Defaults to 50, capped at 300.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          maximum: 300
+          minimum: 1
+        example: 50
+      responses:
+        '200':
+          description: Tabs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TabListResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+    post:
+      tags:
+      - Pay at Table
+      summary: Create a new tab
+      description: Creates a new tab for a store. The tab starts in OPEN status.
+      operationId: createTab
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        description: 'Unique key used to safely retry the request. Repeating the request with the same key
+
+          and body returns the same tab. Reusing the same key with a different body returns
+
+          HTTP 409. Keys are scoped to the store and retained for at least 24h.
+
+          '
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+          minLength: 1
+      requestBody:
+        description: Tab creation payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTabRequest'
+            examples:
+              restaurant_table:
+                summary: Restaurant table with order reference
+                description: restaurant_table
+                value:
+                  store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+                  tab_name: Table 5
+                  merchant_reference: ORDER-2026-001
+                  epos_instance_id: epos-register-1
+                  currency_code: GBP
+              bar_guest_tab:
+                summary: Bar tab named after a guest
+                description: bar_guest_tab
+                value:
+                  store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+                  tab_name: Jane D. — bar
+                  merchant_reference: BAR-2026-117
+                  currency_code: EUR
+              retail_counter:
+                summary: Retail counter open tab
+                description: retail_counter
+                value:
+                  store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+                  tab_name: 'Counter #2'
+                  merchant_reference: CTR-2026-2031
+                  epos_instance_id: epos-register-2
+                  currency_code: USD
+        required: true
+      responses:
+        '201':
+          description: Tab created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TabResponse'
+              examples:
+                new_tab_created:
+                  summary: Freshly created tab (OPEN, zero amounts)
+                  description: new_tab_created
+                  value:
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+                    tab_name: Table 5
+                    status: OPEN
+                    total_amount:
+                      amount: 0
+                      currency: GBP
+                    total_paid: 0
+                    remaining: 0
+                    merchant_reference: ORDER-2026-001
+                    epos_instance_id: epos-register-1
+                    payment_requests: []
+                    created_at: '2026-04-21T10:00:00Z'
+                    updated_at: '2026-04-21T10:00:00Z'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '409':
+          description: Conflict — a tab with the same merchant reference already exists for this store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              examples:
+                conflict_duplicate_merchant_reference:
+                  summary: Tab already exists for this (store_id, merchant_reference)
+                  description: conflict_duplicate_merchant_reference
+                  value:
+                    code: CONFLICT
+                    description: Tab with merchant_reference already exists
+        '415':
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNSUPPORTED_MEDIA_TYPE
+                description: Unsupported Media Type
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+  /poslink/v1/tabs/{tab_id}/show-bill-intents:
+    post:
+      tags:
+      - Pay at Table
+      summary: Create a show-bill intent
+      description: 'Terminal signals intent to display the bill for a tab. The server accepts
+
+        the intent and notifies the ePOS via a `SHOW_BILL_REQUEST` SSE event, which
+
+        in turn posts bill content back to the server. At most one terminal can hold
+
+        an active show-bill intent per tab at a time.
+
+        '
+      operationId: createShowBillIntent
+      parameters:
+      - name: tab_id
+        in: path
+        description: The tab identifier
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TerminalIdRequest'
+        required: true
+      responses:
+        '202':
+          description: Show-bill intent accepted and forwarded to the ePOS
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShowBillIntentResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '404':
+          description: Tab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '409':
+          description: Conflict — a bill is already being displayed, or tab state does not allow display
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '415':
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+  /poslink/v1/tabs/{tab_id}/payment-intents:
+    post:
+      tags:
+      - Pay at Table
+      summary: Create a payment intent
+      description: 'Terminal initiates a payment intent for a tab. The tab transitions to
+
+        `PAYING` if it is in `OPEN` or `PAUSED`; PAYING tabs are no-op idempotent.
+
+        On a `PAUSED → PAYING` transition POSLink auto-emits a `TAB_RESUMED` SSE
+
+        event before the `PAY_REQUEST`. The ePOS then calls POST /v3/payment-requests
+
+        (with tab_id and payment_type) to materialise the payment. Supports FULL and
+
+        SPLIT payment types with CARD or CASH methods.
+
+        '
+      operationId: createPaymentIntent
+      parameters:
+      - name: tab_id
+        in: path
+        description: The tab identifier
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        description: Payment intent payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayIntentRequest'
+            examples:
+              card_full:
+                summary: Terminal intends to charge the full remaining balance on card
+                description: card_full
+                value:
+                  terminal_id: term-001
+                  amount:
+                    amount: 5000
+                    currency: GBP
+                  method: CARD
+                  type: FULL
+              card_split:
+                summary: Terminal intends to take a partial (split) card payment
+                description: card_split
+                value:
+                  terminal_id: term-002
+                  amount:
+                    amount: 2500
+                    currency: GBP
+                  method: CARD
+                  type: SPLIT
+              cash_full:
+                summary: Terminal signals a full cash settlement (recorded for reconciliation)
+                description: cash_full
+                value:
+                  terminal_id: term-003
+                  amount:
+                    amount: 5000
+                    currency: GBP
+                  method: CASH
+                  type: FULL
+        required: true
+      responses:
+        '202':
+          description: Payment intent accepted and forwarded to ePOS
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayIntentResponse'
+              examples:
+                intent_accepted:
+                  summary: Payment intent forwarded to the ePOS
+                  description: intent_accepted
+                  value:
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    terminal_id: term-001
+                    amount:
+                      amount: 5000
+                      currency: GBP
+                    method: CARD
+                    type: FULL
+                    status: FORWARDED
+                    show_bill_expires_at: '2026-05-26T15:30:00Z'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '404':
+          description: Tab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '409':
+          description: Conflict — tab is not in a payable state (TAB_NOT_PAYABLE), or requested amount exceeds remaining balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '415':
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+  /poslink/v1/tabs/{tab_id}/pauses:
+    post:
+      tags:
+      - Pay at Table
+      summary: Pause a tab
+      description: 'Records a pause event on the tab. Strict semantics: only a tab in
+
+        `PAYING` status can be paused — pause is a mid-split-payment
+
+        operation. On success the tab moves to `PAUSED` and the ePOS
+
+        receives a `TAB_PAUSED` SSE event.
+
+        '
+      operationId: pauseTab
+      parameters:
+      - name: tab_id
+        in: path
+        description: The tab identifier
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TerminalIdRequest'
+        required: true
+      responses:
+        '201':
+          description: Tab paused; pause event recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PauseTabResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '404':
+          description: Tab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '409':
+          description: Conflict — tab is not in a state that allows pausing (TAB_NOT_PAUSEABLE)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '415':
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+  /poslink/v1/tabs/{tab_id}/hide-bill-intents:
+    post:
+      tags:
+      - Pay at Table
+      summary: Create a hide-bill intent
+      description: 'Terminal signals intent to stop displaying the bill for a tab. Strict
+
+        semantics: the lock must currently be held by the calling terminal —
+
+        a hide racing the credit-completed path or the TTL sweeper is rejected
+
+        with `409 TAB_NO_ACTIVE_SHOW_BILL`. On success the server clears the
+
+        show-bill state on the tab and notifies the ePOS via a
+
+        `TAB_BILL_HIDDEN` SSE event.
+
+        '
+      operationId: createHideBillIntent
+      parameters:
+      - name: tab_id
+        in: path
+        description: The tab identifier
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TerminalIdRequest'
+        required: true
+      responses:
+        '202':
+          description: Hide-bill intent accepted and forwarded to the ePOS
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HideBillIntentResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '404':
+          description: Tab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '409':
+          description: Conflict — no active show-bill lock on the tab, or lock is held by a different terminal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '415':
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+  /poslink/v1/tabs/{tab_id}/errors:
+    post:
+      tags:
+      - Pay at Table
+      summary: Report a tab error
+      description: 'Reports an error from the ePOS for a specific tab (e.g., table not found, bill already settled).
+
+        The server accepts the rejection and notifies the affected terminal so it can surface
+
+        the error to the operator.
+
+        '
+      operationId: reportError
+      parameters:
+      - name: tab_id
+        in: path
+        description: The tab identifier
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        description: Error report payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TabErrorRequest'
+            examples:
+              table_not_found:
+                summary: ePOS rejects the tab because the requested table does not exist
+                description: table_not_found
+                value:
+                  terminal_id: term-001
+                  error_code: TABLE_NOT_FOUND
+                  message: Table 5 was not found in the ePOS system
+              bill_already_settled:
+                summary: ePOS rejects the tab because the bill has already been paid
+                description: bill_already_settled
+                value:
+                  terminal_id: term-001
+                  error_code: BILL_ALREADY_SETTLED
+                  message: Bill has already been paid in full
+              epos_error:
+                summary: Generic ePOS-side error surfaced to the operator
+                description: epos_error
+                value:
+                  terminal_id: term-001
+                  error_code: EPOS_ERROR
+                  message: ePOS returned an unexpected error while processing the tab
+        required: true
+      responses:
+        '202':
+          description: Rejection accepted and forwarded to the terminal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TabErrorResponse'
+              examples:
+                error_forwarded:
+                  summary: Error accepted and forwarded to the reporting terminal
+                  description: error_forwarded
+                  value:
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    status: OPEN
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '404':
+          description: Tab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '415':
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+  /poslink/v1/tabs/{tab_id}/bill:
+    get:
+      tags:
+      - Pay at Table
+      summary: Retrieve the current bill for a tab
+      description: Returns the current bill for a tab, including items, amounts, and bill image URL (if any). If the ePOS has reported a rejection via POST /v1/tabs/{tab_id}/errors before any bill content was posted, the response still returns 200 with the bill fields empty/zero and last_error_* populated so the terminal can surface the error to the user.
+      operationId: getBill
+      parameters:
+      - name: tab_id
+        in: path
+        description: The tab identifier
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Bill retrieved. `bill_file_url` is null when the ePOS POSTed the bill without a `print_model` (no print-receipt round-trip occurred), or when the ePOS reported an error and no bill content was posted (check `last_error_code`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillDetailResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '404':
+          description: Either the tab does not exist (TAB_NOT_FOUND) or it exists but no bill content has been POSTed and no error has been reported yet for the active show-bill intent (TAB_BILL_NOT_READY). Disambiguate via the body's code field.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+    post:
+      tags:
+      - Pay at Table
+      summary: Send bill content to the server
+      description: "ePOS pushes bill content for a tab. The server accepts the content and\nforwards it to the terminal currently holding the active show-bill intent.\n\nTwo request-body variants are supported, selected by `Content-Type`:\n- `application/json` — a structured `print_model` (see `ShowBillRequest`).\n- `multipart/form-data` — a pre-rendered bill image (PNG or JPEG) with\n  `terminal_id`, `total_amount` and `currency` form fields.\n"
+      operationId: sendBillContent
+      parameters:
+      - name: tab_id
+        in: path
+        description: The tab identifier
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        description: Bill content payload — either a structured `print_model` (application/json) or a pre-rendered bill image (multipart/form-data).
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShowBillRequest'
+            examples:
+              simple_bill:
+                summary: Total-only bill with a structured print_model
+                description: simple_bill
+                value:
+                  terminal_id: term-001
+                  total_amount:
+                    amount: 5000
+                    currency: GBP
+                  print_model:
+                    rows:
+                    - type: Items
+                      items:
+                      - type: Text
+                        text: Teya Cafe
+                        bold: true
+                        align: CENTER
+                    - type: Divider
+                    - type: Items
+                      items:
+                      - type: Text
+                        text: 'Total: 50.00'
+                        bold: true
+                        align: RIGHT
+              itemised_bill:
+                summary: Itemised bill with per-line names, quantities and amounts
+                description: itemised_bill
+                value:
+                  terminal_id: term-001
+                  total_amount:
+                    amount: 3200
+                    currency: GBP
+                  tab_item_data:
+                  - name: Burger
+                    quantity: 1
+                    amount: 1200
+                  - name: Fries
+                    quantity: 1
+                    amount: 500
+                  - name: Latte
+                    quantity: 2
+                    amount: 800
+                  - name: Brownie
+                    quantity: 1
+                    amount: 700
+              bill_with_service_charge:
+                summary: Itemised bill including a 12.5% service-charge line
+                description: bill_with_service_charge
+                value:
+                  terminal_id: term-001
+                  total_amount:
+                    amount: 4288
+                    currency: GBP
+                  tab_item_data:
+                  - name: Pasta
+                    quantity: 1
+                    amount: 1400
+                  - name: Wine (glass)
+                    quantity: 2
+                    amount: 1600
+                  - name: Tiramisu
+                    quantity: 1
+                    amount: 700
+                  - name: Service charge (12.5%)
+                    quantity: 1
+                    amount: 588
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SendBillImageForm'
+        required: true
+      responses:
+        '202':
+          description: Bill content accepted and forwarded to the terminal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShowBillResponse'
+              examples:
+                bill_forwarded:
+                  summary: Bill accepted and forwarded to the terminal holding the show-bill intent
+                  description: bill_forwarded
+                  value:
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    status: OPEN
+                    showing_bill_terminal_id: term-001
+                    bill_file_id: bill-file-001
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '404':
+          description: Tab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '409':
+          description: Conflict — tab is not in a state to display a bill (e.g. CLOSED)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '415':
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+  /poslink/v1/tabs/{tab_id}:
+    get:
+      tags:
+      - Pay at Table
+      summary: Retrieve a tab
+      description: Returns full details of a single tab including items and payment requests.
+      operationId: getTab
+      parameters:
+      - name: tab_id
+        in: path
+        description: The tab identifier
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Tab retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TabDetailResponse'
+              examples:
+                tab_detail_with_payments:
+                  summary: Active tab with two linked payment requests (one settled, one in flight)
+                  description: tab_detail_with_payments
+                  value:
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+                    tab_name: Table 5
+                    status: PAYING
+                    total_amount:
+                      amount: 5000
+                      currency: GBP
+                    total_paid: 2500
+                    remaining: 2500
+                    merchant_reference: ORDER-2026-001
+                    epos_instance_id: epos-register-1
+                    showing_bill_terminal_id: term-001
+                    payment_requests:
+                    - payment_request_id: 9c1a7c2c-3e2a-4d5b-9f8a-6c2e5a8c9d01
+                      merchant_reference: ORDER-2026-001-PAY-1
+                      status: SUCCESSFUL
+                      requested_amount:
+                        currency: GBP
+                        amount: 2500
+                        tip: 0
+                      payment_method: CARD
+                      payment_type: SPLIT
+                      created_at: '2026-04-21T10:05:00Z'
+                      updated_at: '2026-04-21T10:05:30Z'
+                      metadata:
+                        payment_method_details:
+                          card:
+                            last4: '4673'
+                            issuing_country: GB
+                            brand: MASTERCARD
+                            type: DEBIT
+                            bin: '123456'
+                          entry_mode: EMV_CONTACTLESS
+                          verification_method: NONE
+                          application_id: A0000000041010
+                          mid: '5006544'
+                          response_code: '00'
+                          authorisation_code: '537001'
+                        dcc:
+                          transaction_amount: 8500
+                          transaction_currency: GBP
+                          exchange_rate: '0.8650'
+                          conversion_fee: 2.5%
+                          disclaimer: I have been offered a choice of currencies and have chosen to accept DCC and pay in EUR at the exchange rate offered by Teya
+                      transaction_timestamp: '2026-04-21T10:05:28.123Z'
+                    - payment_request_id: 5f1e8d4c-1d2b-4f6a-9c3e-2d8a7b6e5f01
+                      merchant_reference: ORDER-2026-001-PAY-2
+                      status: NEW
+                      requested_amount:
+                        currency: GBP
+                        amount: 2500
+                        tip: 200
+                      payment_method: CARD
+                      payment_type: SPLIT
+                      created_at: '2026-04-21T10:06:00Z'
+                      updated_at: '2026-04-21T10:06:00Z'
+                    created_at: '2026-04-21T10:00:00Z'
+                    updated_at: '2026-04-21T10:06:00Z'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '404':
+          description: Tab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+    delete:
+      tags:
+      - Pay at Table
+      summary: Close a tab
+      description: 'Soft-deletes a tab by setting its status to CLOSED. The tab record is retained.
+
+        Allowed source states: `OPEN`, `COMPLETED`, `PAUSED`. Closing a `PAYING` tab
+
+        is rejected because a transaction is mid-flight; drive it to a stable state
+
+        first (resume or pause). Closing a `PAUSED` tab is allowed — if a late
+
+        payment-completed event lands on the now-CLOSED tab, the credit is logged
+
+        and counted via `eposconnect.tabs.credit.on_closed_tab.count` for ops
+
+        visibility (no data recovery). Already-CLOSED tabs are rejected — the
+
+        second close is treated as an error rather than an idempotent no-op.
+
+        '
+      operationId: closeTab
+      parameters:
+      - name: tab_id
+        in: path
+        description: The tab identifier
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Tab closed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloseTabResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '404':
+          description: Tab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '409':
+          description: Conflict — tab is not in a state that allows closing (TAB_NOT_CLOSEABLE)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+    patch:
+      tags:
+      - Pay at Table
+      summary: Update a tab
+      description: 'Applies an ePOS content amend to the tab (total amount and/or items).
+
+        All body fields are optional; only the ones provided are applied. The tab
+
+        must be in a state that accepts content amends (typically OPEN).
+
+
+        Tab lifecycle transitions (pause, resume, complete) are expressed as
+
+        dedicated sub-resources, not via this endpoint. Closing a tab is done
+
+        via DELETE /v1/tabs/{tab_id}.
+
+        '
+      operationId: updateTab
+      parameters:
+      - name: tab_id
+        in: path
+        description: The tab identifier
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTabRequest'
+        required: true
+      responses:
+        '200':
+          description: Tab updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TabDetailResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '404':
+          description: Tab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '409':
+          description: Conflict — tab is in a state that does not allow content amends (e.g. CLOSED)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '415':
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+  /poslink/v1/tabs/events:
+    get:
+      tags:
+      - Pay at Table
+      summary: Stream tab events for a store
+      description: "Streams real-time tab events for a store using Server-Sent Events (SSE).\n\nEvent types: SHOW_BILL_REQUEST, PAY_REQUEST, TAB_PAYMENT_STATUS_PROGRESS,\nTAB_PAYMENT_COMPLETED, TAB_PAUSED, TAB_RESUMED, TAB_COMPLETED, TAB_BILL_HIDDEN.\n\nEach event frame carries:\n- `event:` line — the event type (matches the JSON `event_type` discriminator).\n- `id:` line — a per-store monotonic event id used for `Last-Event-ID` reconnection.\n- `data:` line — a flat JSON object with `event_type`, `tab_id`, `merchant_reference`,\n  and event-specific fields.\n\nConnection behaviour:\n- The server emits a `:keepalive` SSE comment every ~20 seconds. ePOS clients should\n  reconnect if they don't receive one within 60 seconds.\n- The server closes the connection after ~10 minutes of no real events (heartbeats\n  don't count) so reconnects redistribute across replicas. ePOS should auto-reconnect.\n- On reconnect, send a `Last-Event-ID` header. POSLink replays missed events from a\n  short-lived 5-minute buffer.\n- Out-of-window reconnect: if the buffer is empty/expired, the server attaches the\n  stream silently with no replay. The ePOS MUST detect gaps by checking that the\n  first event id received is `LastEventId + 1`; if it jumps, call\n  `GET /poslink/v1/tabs/{tab_id}` to resync state for any affected tabs.\n"
+      operationId: streamTabEvents
+      parameters:
+      - name: store_id
+        in: query
+        description: The store identifier
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: SSE stream established
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/TabEvent'
+              examples:
+                SHOW_BILL_REQUEST:
+                  summary: Terminal asked the ePOS to push the bill
+                  description: SHOW_BILL_REQUEST
+                  value:
+                    event_type: SHOW_BILL_REQUEST
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    merchant_reference: ORDER-2026-001
+                    terminal_id: term-001
+                PAY_REQUEST:
+                  summary: Terminal initiated a payment intent
+                  description: PAY_REQUEST
+                  value:
+                    event_type: PAY_REQUEST
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    merchant_reference: ORDER-2026-001
+                    terminal_id: term-001
+                    type: SPLIT
+                    amount:
+                      amount: 2500
+                      currency: GBP
+                    method: CARD
+                TAB_PAYMENT_STATUS_PROGRESS:
+                  summary: Granular status update during payment
+                  description: TAB_PAYMENT_STATUS_PROGRESS
+                  value:
+                    event_type: TAB_PAYMENT_STATUS_PROGRESS
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    merchant_reference: ORDER-2026-001
+                    payment_request_detail:
+                      payment_request_id: 9c1a7c2c-3e2a-4d5b-9f8a-6c2e5a8c9d01
+                      status: IN_PROGRESS
+                      amount:
+                        amount: 2500
+                        currency: GBP
+                      method: CARD
+                      created_at: '2026-04-21T12:30:00Z'
+                TAB_PAYMENT_COMPLETED:
+                  summary: A single payment finished
+                  description: TAB_PAYMENT_COMPLETED
+                  value:
+                    event_type: TAB_PAYMENT_COMPLETED
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    merchant_reference: ORDER-2026-001
+                    payment_request_detail:
+                      payment_request_id: 9c1a7c2c-3e2a-4d5b-9f8a-6c2e5a8c9d01
+                      status: SUCCESSFUL
+                      amount:
+                        amount: 2500
+                        currency: GBP
+                      tip: 200
+                      method: CARD
+                      created_at: '2026-04-21T12:30:00Z'
+                TAB_PAUSED:
+                  summary: Terminal paused mid-split
+                  description: TAB_PAUSED
+                  value:
+                    event_type: TAB_PAUSED
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    merchant_reference: ORDER-2026-001
+                TAB_RESUMED:
+                  summary: POSLink auto-resumed a paused tab on POST /pay
+                  description: TAB_RESUMED
+                  value:
+                    event_type: TAB_RESUMED
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    merchant_reference: ORDER-2026-001
+                TAB_COMPLETED:
+                  summary: All payments done, remaining = 0
+                  description: TAB_COMPLETED
+                  value:
+                    event_type: TAB_COMPLETED
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    merchant_reference: ORDER-2026-001
+                    total_paid: 5000
+                    payment_count: 3
+                TAB_BILL_HIDDEN:
+                  summary: Show-bill cleared (terminal back-out or 5-min TTL)
+                  description: TAB_BILL_HIDDEN
+                  value:
+                    event_type: TAB_BILL_HIDDEN
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    merchant_reference: ORDER-2026-001
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+components:
+  schemas:
+    TabAmountWithCurrency:
+      type: object
+      description: Amount with currency for tab operations
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: Amount in smallest currency unit (e.g., cents)
+          example: 1500
+        currency:
+          type: string
+          description: ISO 4217 currency code
+          example: EUR
+      required:
+      - amount
+      - currency
+      title: TabAmountWithCurrency
+    ExceptionResponse:
+      type: object
+      example:
+        code: BAD_REQUEST
+        description: Bad Request
+      properties:
+        code:
+          type: string
+          format: enum
+          description: Error code
+          example: BAD_REQUEST
+        description:
+          type: string
+          description: Error description
+          example: Bad Request
+        invalid_params:
+          type: array
+          description: List of invalid request parameters. Populated for validation failures (400 / 422); omitted otherwise.
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      title: ExceptionResponse
+    RequestedAmount:
+      type: object
+      example:
+        currency: GBP
+        amount: 50
+        tip: 0
+      properties:
+        currency:
+          type: string
+          format: ISO 4217
+          description: The currency used in this payment. Must be a valid ISO 4217 currency code
+          example: USD
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the full amount to charge in the smallest currency unit (e.g., 100 cents to charge $1). Inclusive of the tip
+          example: 1500
+        tip:
+          type: integer
+          format: int64
+          description: A positive integer that represents the tip added to the payment in the smallest currency unit (e.g., 100 cents to charge $1)
+          example: 10
+      required:
+      - amount
+      - currency
+      title: RequestedAmount
+    Cursors:
+      type: object
+      description: Opaque cursors for paginating forward (after) and backward (before)
+      properties:
+        before:
+          type: string
+          description: Opaque cursor pointing to the first item of the current page
+          example: MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+        after:
+          type: string
+          description: Opaque cursor pointing to the last item of the current page
+          example: MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+      title: Cursors
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
+    TabResumedEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: TAB_RESUMED
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+      description: 'SSE event: tab has been resumed'
+      example:
+        event_type: TAB_RESUMED
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+      required:
+      - event_type
+      - merchant_reference
+      title: TabResumedEvent
+    Row:
+      discriminator:
+        propertyName: type
+      example:
+        type: Spacer
+      oneOf:
+      - $ref: '#/components/schemas/ItemsRow'
+      - $ref: '#/components/schemas/TableRow'
+      - $ref: '#/components/schemas/SpacerRow'
+      - $ref: '#/components/schemas/DividerRow'
+      properties:
+        type:
+          type: string
+      required:
+      - type
+      title: Row
+    SpacerRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      example:
+        type: Spacer
+      title: SpacerRow
+    TableInnerRow:
+      type: object
+      example:
+        cells:
+        - type: Text
+          text: Item
+          align: LEFT
+      properties:
+        cells:
+          type: array
+          items:
+            $ref: '#/components/schemas/Element'
+          minItems: 1
+      required:
+      - cells
+      title: TableInnerRow
+    PayIntentRequest:
+      type: object
+      description: Request from terminal to initiate a payment intent
+      properties:
+        terminal_id:
+          type: string
+          description: The terminal identifier
+          example: term-001
+        amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Payment amount with currency
+        method:
+          type: string
+          description: Payment method
+          enum:
+          - CARD
+          - CASH
+          example: CARD
+        type:
+          type: string
+          description: Payment type
+          enum:
+          - FULL
+          - SPLIT
+          example: SPLIT
+      required:
+      - amount
+      - method
+      - terminal_id
+      - type
+      title: PayIntentRequest
+    ShowBillResponse:
+      type: object
+      description: Response after sending bill to a terminal (ePOS-facing)
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+        showing_bill_terminal_id:
+          type: string
+          description: Terminal currently showing the bill
+          example: term-001
+        bill_file_id:
+          type: string
+          description: Bill file identifier
+          example: bill-file-001
+      title: ShowBillResponse
+    DccData:
+      type: object
+      description: Dynamic Currency Conversion data. If present, all fields are required.
+      example:
+        transaction_amount: 8500
+        transaction_currency: GBP
+        exchange_rate: '0.8650'
+        conversion_fee: 2.5%
+        disclaimer: I have been offered a choice of currencies and have chosen to accept DCC and pay in EUR at the exchange rate offered by Teya
+      properties:
+        transaction_amount:
+          type: integer
+          format: int64
+          description: Transaction amount in the smallest currency unit (8500 = £85.00)
+          example: 8500
+        transaction_currency:
+          type: string
+          description: Currency used by the cardholder in ISO 4217 format (e.g. GBP)
+          example: GBP
+          maxLength: 3
+          minLength: 3
+          pattern: ^[A-Z]{3}$
+        exchange_rate:
+          type: string
+          description: Exchange rate applied for DCC conversion (e.g. '0.8650' means 1 EUR (merchant currency) = 0.8650 GBP (cardholder currency))
+          minLength: 1
+        conversion_fee:
+          type: string
+          description: Conversion fee applied for DCC service, represented as a percentage string (e.g. '2.5%')
+          example: 2.5%
+          minLength: 1
+        disclaimer:
+          type: string
+          description: Text printed on the customer's receipt confirming DCC acceptance and exchange rate details
+          example: I have been offered a choice of currencies and have chosen to accept DCC and pay in GBP at the exchange rate offered by Teya
+          maxLength: 500
+          minLength: 1
+      required:
+      - conversion_fee
+      - disclaimer
+      - exchange_rate
+      - transaction_amount
+      - transaction_currency
+      title: DccData
+    ShowBillRequestEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: SHOW_BILL_REQUEST
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+          terminal_id:
+            type: string
+            description: Terminal requesting to show the bill
+            example: term-001
+      description: 'SSE event: terminal requested to show bill'
+      example:
+        event_type: SHOW_BILL_REQUEST
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+        terminal_id: term-001
+      required:
+      - event_type
+      - merchant_reference
+      title: ShowBillRequestEvent
+    TabItem:
+      type: object
+      description: An individual item on a tab bill
+      properties:
+        name:
+          type: string
+          description: Name of the item.
+          example: Espresso
+          maxLength: 100
+          minLength: 1
+        quantity:
+          type: integer
+          format: int32
+          description: Quantity of the item. Must be ≥ 1 (enforced by TAB-4).
+          example: 2
+          maximum: 999
+          minimum: 1
+        amount:
+          type: integer
+          format: int64
+          description: Amount in smallest currency unit. Must be > 0 (enforced by TAB-4).
+          example: 350
+          minimum: 1
+      required:
+      - amount
+      - name
+      - quantity
+      title: TabItem
+    TabErrorRequest:
+      type: object
+      description: Request to report an error on a tab
+      properties:
+        terminal_id:
+          type: string
+          description: The terminal reporting the error
+          example: term-001
+        error_code:
+          type: string
+          description: Error code
+          enum:
+          - TABLE_NOT_FOUND
+          - BILL_ALREADY_SETTLED
+          - EPOS_ERROR
+          - REQUEST_REJECTED
+          example: TABLE_NOT_FOUND
+        message:
+          type: string
+          description: Human-readable error message
+          example: Table 5 was not found in the ePOS system
+      required:
+      - error_code
+      - message
+      - terminal_id
+      title: TabErrorRequest
+    TabErrorResponse:
+      type: object
+      description: Response after reporting a tab error
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+      title: TabErrorResponse
+    ShowBillRequest:
+      type: object
+      description: Request to push a structured bill to a terminal for display
+      properties:
+        terminal_id:
+          type: string
+          description: The terminal to display the bill on
+          example: term-001
+        total_amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Total amount to display on the bill
+        print_model:
+          $ref: '#/components/schemas/PrintDocument'
+          description: Structured print model for the bill.
+        tab_item_data:
+          type: array
+          description: List of items on the bill
+          items:
+            $ref: '#/components/schemas/TabItem'
+      required:
+      - terminal_id
+      - total_amount
+      title: ShowBillRequest
+    QrCodeElement:
+      allOf:
+      - $ref: '#/components/schemas/Element'
+      - type: object
+        properties:
+          url:
+            type: string
+            minLength: 1
+          align:
+            type: string
+            enum:
+            - LEFT
+            - RIGHT
+            - CENTER
+      example:
+        type: QrCode
+        url: https://teya.com
+        align: LEFT
+      required:
+      - url
+      title: QrCodeElement
+    Element:
+      discriminator:
+        propertyName: type
+      example:
+        type: Text
+      oneOf:
+      - $ref: '#/components/schemas/TextElement'
+      - $ref: '#/components/schemas/QrCodeElement'
+      - $ref: '#/components/schemas/ImageElement'
+      properties:
+        type:
+          type: string
+      required:
+      - type
+      title: Element
+    TabDetailResponse:
+      type: object
+      description: Detailed tab response including bill state and linked payment requests.
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        store_id:
+          type: string
+          format: uuid
+          description: Store identifier
+          example: eac4d470-4731-45b2-af6b-c828f03c1f9d
+        tab_name:
+          type: string
+          description: Tab display name
+          example: Table 5
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+        total_amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Total amount with currency
+        total_paid:
+          type: integer
+          format: int64
+          description: Total amount paid so far, in the same currency as total_amount
+          example: 1500
+        remaining:
+          type: integer
+          format: int64
+          description: Remaining amount to be paid, in the same currency as total_amount
+          example: 3500
+        merchant_reference:
+          type: string
+          description: Merchant-assigned unique reference for the tab.
+          example: ORDER-2026-001
+        epos_instance_id:
+          type: string
+          description: ePOS instance identifier
+          example: epos-register-1
+        showing_bill_terminal_id:
+          type: string
+          description: Terminal currently showing the bill. Present only while a bill is being displayed.
+          example: term-001
+        bill_file_id:
+          type: string
+          description: Bill file identifier. Present only after a bill has been generated.
+          example: bill-file-001
+        payment_requests:
+          type: array
+          description: List of payment requests on this tab. Empty array when none exist; never null.
+          items:
+            $ref: '#/components/schemas/PaymentRequestSummary'
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 creation timestamp (in UTC)
+          example: '2026-04-14T10:00:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: ISO 8601 last update timestamp (in UTC)
+          example: '2026-04-14T10:05:00Z'
+        last_error_code:
+          type: string
+          description: Last ePOS-reported rejection on this tab. Present only when the ePOS POSTed /errors and no subsequent teardown event has cleared it. Polling clients use this as the fallback path for missed TAB_ERROR Pushy notifications.
+          example: BILL_ALREADY_SETTLED
+        last_error_message:
+          type: string
+          description: Human-readable error message paired with last_error_code.
+          example: Bill has already been paid in full
+        last_error_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the rejection was recorded (in UTC).
+          example: '2026-04-14T10:07:00Z'
+      required:
+      - created_at
+      - merchant_reference
+      - payment_requests
+      - remaining
+      - status
+      - store_id
+      - tab_id
+      - tab_name
+      - total_amount
+      - total_paid
+      - updated_at
+      title: TabDetailResponse
+    PaymentMethodDetails:
+      type: object
+      example:
+        card:
+          last4: '4673'
+          issuing_country: GB
+          brand: MASTERCARD
+          type: DEBIT
+          bin: '123456'
+        entry_mode: EMV_CONTACTLESS
+        verification_method: NONE
+        application_id: A0000000041010
+        response_code: '00'
+        authorisation_code: '537001'
+      properties:
+        card:
+          $ref: '#/components/schemas/Card'
+          description: Card
+        entry_mode:
+          type: string
+          description: The method by which the card was used
+          example: ECOM, EMV_PIN, CONTACT_ICC, EMV_CONTACTLESS, KEYED, MAGSTRIPE_SWIPED, ON_FILE, MAGSTRIPE_FALLBACK
+        verification_method:
+          type: string
+          description: The method by which the card was verified
+          example: NONE, ELECTRONIC_SIGNATURE, ON_DEVICE, MANUAL, SIGNATURE, OFFLINE_PIN, ONLINE_PIN, OFFLINE_PIN_PLUS_SIGNATURE, SECURED_ELECTRONIC_COMMERCE
+        application_name:
+          type: string
+          description: Application preferred name, a human-readable name of the EMV card application selected by the terminal during a chip card transaction
+          example: Debit MasterCard
+        application_id:
+          type: string
+          description: Application ID that uniquely identifies the card type
+          example: A0000000041010
+        mid:
+          type: string
+          description: Merchant acquiring MID
+          example: MID5006544
+        response_code:
+          type: string
+          description: Transaction response code provided by the schemes
+          example: '00'
+        authorisation_code:
+          type: string
+          description: Authorisation code used to approve a transaction
+          example: A8RLR8
+      title: PaymentMethodDetails
+    CreateTabRequest:
+      type: object
+      description: Request to create a new tab
+      properties:
+        store_id:
+          type: string
+          format: uuid
+          description: The store identifier
+          example: eac4d470-4731-45b2-af6b-c828f03c1f9d
+        tab_name:
+          type: string
+          description: Display name for the tab.
+          example: Table 5
+          maxLength: 100
+          minLength: 1
+        merchant_reference:
+          type: string
+          description: Merchant-assigned reference for this tab. Unique per store.
+          example: ORDER-2026-001
+          maxLength: 100
+          minLength: 1
+        epos_instance_id:
+          type: string
+          description: External ID of the ePOS instance that opened the tab.
+          example: epos-register-1
+          maxLength: 100
+          minLength: 0
+        currency_code:
+          type: string
+          description: ISO 4217 currency code for the tab
+          example: GBP
+          maxLength: 3
+      required:
+      - currency_code
+      - merchant_reference
+      - store_id
+      - tab_name
+      title: CreateTabRequest
+    BillDetailResponse:
+      type: object
+      description: Detailed bill information for terminal
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        tab_name:
+          type: string
+          description: Tab display name
+          example: Table 5
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+        total_amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Total amount with currency
+        total_paid:
+          type: integer
+          format: int64
+          description: Total amount paid so far, in the same currency as total_amount
+          example: 0
+        remaining:
+          type: integer
+          format: int64
+          description: Remaining amount to be paid, in the same currency as total_amount
+          example: 5000
+        merchant_reference:
+          type: string
+          description: Merchant-assigned unique reference for the tab.
+          example: ORDER-2026-001
+        bill_file_url:
+          type: string
+          format: uri
+          description: Presigned URL to the bill file/image. Null when the ePOS POSTed the bill without a print_model (no print-receipt round-trip occurred).
+          example: https://files.example.com/bills/bill-file-001.png
+        showing_bill_terminal_id:
+          type: string
+          description: Terminal currently holding the show-bill intent. Null when no show-bill intent is active for the tab (e.g. bill_posted was reset, or the intent expired).
+          example: term-001
+        show_bill_expires_at:
+          type: string
+          format: date-time
+          description: ISO 8601 expiry timestamp for show-bill (in UTC). Null when no show-bill intent is active.
+          example: '2026-04-14T10:05:00Z'
+        last_error_code:
+          type: string
+          description: Last ePOS-reported rejection on this tab. Present only when the ePOS POSTed /errors and no subsequent teardown event has cleared it.
+          example: BILL_ALREADY_SETTLED
+        last_error_message:
+          type: string
+          description: Human-readable error message paired with last_error_code.
+          example: Bill has already been paid in full
+        last_error_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the rejection was recorded (in UTC).
+          example: '2026-04-14T10:07:00Z'
+      required:
+      - merchant_reference
+      - remaining
+      - status
+      - tab_id
+      - tab_name
+      - total_amount
+      - total_paid
+      title: BillDetailResponse
+    TabSummary:
+      type: object
+      description: Summary of a tab
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        tab_name:
+          type: string
+          description: Tab display name
+          example: Table 5
+        merchant_reference:
+          type: string
+          description: Merchant-assigned unique reference for the tab.
+          example: ORDER-2026-001
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+        total_amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Total amount with currency
+        total_paid:
+          type: integer
+          format: int64
+          description: Total amount paid so far, in the same currency as total_amount
+          example: 0
+        remaining:
+          type: integer
+          format: int64
+          description: Remaining amount to be paid, in the same currency as total_amount
+          example: 5000
+        showing_bill_terminal_id:
+          type: string
+          description: Terminal currently showing the bill. Present only while a bill is being displayed.
+          example: term-001
+      required:
+      - merchant_reference
+      - remaining
+      - status
+      - tab_id
+      - tab_name
+      - total_amount
+      - total_paid
+      title: TabSummary
+    TableRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      - type: object
+        properties:
+          header_cells:
+            type: array
+            items:
+              $ref: '#/components/schemas/TableHeaderCell'
+          rows:
+            type: array
+            items:
+              $ref: '#/components/schemas/TableInnerRow'
+      example:
+        type: Table
+        header_cells:
+        - element:
+            type: Text
+            text: QTD DESIGNACAO
+          weight: 1.5
+        rows:
+        - cells:
+          - type: Text
+            text: 1 Coffee
+            align: LEFT
+      title: TableRow
+    TabPausedEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: TAB_PAUSED
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+      description: 'SSE event: tab has been paused'
+      example:
+        event_type: TAB_PAUSED
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+      required:
+      - event_type
+      - merchant_reference
+      title: TabPausedEvent
+    TabCompletedEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: TAB_COMPLETED
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+          total_paid:
+            type: integer
+            format: int64
+            description: Total amount paid, in the tab's currency
+            example: 5000
+          payment_count:
+            type: integer
+            format: int32
+            description: Number of payments made
+            example: 3
+      description: 'SSE event: tab fully paid and completed'
+      example:
+        event_type: TAB_COMPLETED
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+        total_paid: 5000
+        payment_count: 3
+      required:
+      - event_type
+      - merchant_reference
+      title: TabCompletedEvent
+    HideBillIntentResponse:
+      type: object
+      description: Response for a hide-bill intent — the request has been accepted and forwarded to the ePOS
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+      title: HideBillIntentResponse
+    TabPaymentCompletedEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: TAB_PAYMENT_COMPLETED
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+          payment_request_detail:
+            $ref: '#/components/schemas/PaymentRequestSummary'
+            description: Payment request details
+      description: 'SSE event: individual payment completed'
+      example:
+        event_type: TAB_PAYMENT_COMPLETED
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+        payment_request_detail:
+          payment_request_id: 9c1a7c2c-3e2a-4d5b-9f8a-6c2e5a8c9d01
+          status: SUCCESSFUL
+          amount:
+            amount: 2500
+            currency: GBP
+          tip: 200
+          method: CARD
+          created_at: '2026-04-21T12:30:00Z'
+      required:
+      - event_type
+      - merchant_reference
+      title: TabPaymentCompletedEvent
+    PrintDocument:
+      type: object
+      example:
+        rows:
+        - type: Items
+          items:
+          - type: Text
+            text: Hello
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/Row'
+          maxItems: 150
+          minItems: 1
+      required:
+      - rows
+      title: PrintDocument
+    TabPaymentProgressEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: TAB_PAYMENT_STATUS_PROGRESS
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+          payment_request_detail:
+            $ref: '#/components/schemas/PaymentRequestSummary'
+            description: Payment request details
+      description: 'SSE event: payment progress update'
+      example:
+        event_type: TAB_PAYMENT_STATUS_PROGRESS
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+        payment_request_detail:
+          payment_request_id: 9c1a7c2c-3e2a-4d5b-9f8a-6c2e5a8c9d01
+          status: IN_PROGRESS
+          amount:
+            amount: 2500
+            currency: GBP
+          method: CARD
+          created_at: '2026-04-21T12:30:00Z'
+      required:
+      - event_type
+      - merchant_reference
+      title: TabPaymentProgressEvent
+    CursorPaging:
+      type: object
+      example:
+        cursors:
+          before: MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+          after: MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+        paths:
+          previous: /poslink/v1/tabs?store_id=eac4d470-4731-45b2-af6b-c828f03c1f9d&limit=20&before=MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+          next: /poslink/v1/tabs?store_id=eac4d470-4731-45b2-af6b-c828f03c1f9d&limit=20&after=MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+      properties:
+        cursors:
+          $ref: '#/components/schemas/Cursors'
+        paths:
+          $ref: '#/components/schemas/Paths'
+      title: CursorPaging
+    TabEvent:
+      description: Union of all SSE events emitted by the tab stream. See discriminator `event_type` for the concrete variant.
+      discriminator:
+        propertyName: event_type
+        mapping:
+          SHOW_BILL_REQUEST: '#/components/schemas/ShowBillRequestEvent'
+          PAY_REQUEST: '#/components/schemas/PayRequestEvent'
+          TAB_PAYMENT_STATUS_PROGRESS: '#/components/schemas/TabPaymentProgressEvent'
+          TAB_PAYMENT_COMPLETED: '#/components/schemas/TabPaymentCompletedEvent'
+          TAB_PAUSED: '#/components/schemas/TabPausedEvent'
+          TAB_RESUMED: '#/components/schemas/TabResumedEvent'
+          TAB_COMPLETED: '#/components/schemas/TabCompletedEvent'
+          TAB_BILL_HIDDEN: '#/components/schemas/TabBillHiddenEvent'
+      example: event_type=SHOW_BILL_REQUEST; see oneOf variants for full payload shapes
+      oneOf:
+      - $ref: '#/components/schemas/ShowBillRequestEvent'
+      - $ref: '#/components/schemas/PayRequestEvent'
+      - $ref: '#/components/schemas/TabPaymentProgressEvent'
+      - $ref: '#/components/schemas/TabPaymentCompletedEvent'
+      - $ref: '#/components/schemas/TabPausedEvent'
+      - $ref: '#/components/schemas/TabResumedEvent'
+      - $ref: '#/components/schemas/TabCompletedEvent'
+      - $ref: '#/components/schemas/TabBillHiddenEvent'
+      properties:
+        event_type:
+          type: string
+      required:
+      - event_type
+      title: TabEvent
+    TabBillHiddenEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: TAB_BILL_HIDDEN
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+      description: 'SSE event: bill has been hidden from terminal'
+      example:
+        event_type: TAB_BILL_HIDDEN
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+      required:
+      - event_type
+      - merchant_reference
+      title: TabBillHiddenEvent
+    PayRequestEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: PAY_REQUEST
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+          terminal_id:
+            type: string
+            description: Terminal requesting payment
+            example: term-001
+          type:
+            type: string
+            description: Payment type
+            example: SPLIT
+          amount:
+            $ref: '#/components/schemas/TabAmountWithCurrency'
+            description: Payment amount with currency
+          method:
+            type: string
+            description: Payment method
+            example: CARD
+      description: 'SSE event: terminal initiated a payment request'
+      example:
+        event_type: PAY_REQUEST
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+        terminal_id: term-001
+        type: SPLIT
+        amount:
+          amount: 2500
+          currency: GBP
+        method: CARD
+      required:
+      - event_type
+      - merchant_reference
+      title: PayRequestEvent
+    TabListResponse:
+      type: object
+      description: Paginated list of tabs
+      properties:
+        tabs:
+          type: array
+          description: Page of tab summaries
+          items:
+            $ref: '#/components/schemas/TabSummary'
+        paging:
+          $ref: '#/components/schemas/CursorPaging'
+          description: Cursor pagination envelope
+      title: TabListResponse
+    PaymentRequestSummary:
+      type: object
+      description: Summary of a payment request on a tab
+      properties:
+        payment_request_id:
+          type: string
+          format: uuid
+          description: Payment request identifier
+          example: 9c1a7c2c-3e2a-4d5b-9f8a-6c2e5a8c9d01
+        merchant_reference:
+          type: string
+          description: Merchant-assigned reference for this payment request.
+          example: ORDER_123
+          maxLength: 100
+        status:
+          type: string
+          description: Payment status
+          enum:
+          - NEW
+          - IN_PROGRESS
+          - SUCCESSFUL
+          - FAILED
+          - CANCELLING
+          - CANCELLED
+          example: SUCCESSFUL
+        requested_amount:
+          $ref: '#/components/schemas/RequestedAmount'
+          description: Requested amount including tip and currency.
+        payment_method:
+          type: string
+          description: Payment method used for this request. Optional — may be unset if the ePOS did not specify one.
+          enum:
+          - CARD
+          - CASH
+          example: CARD
+        payment_type:
+          type: string
+          description: Pay-at-Table payment type. Set whenever the payment request was created against a tab.
+          enum:
+          - FULL
+          - SPLIT
+          example: FULL
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the payment was created (in UTC)
+          example: '2026-04-14T10:00:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the payment was last updated (in UTC)
+          example: '2026-04-14T10:05:00Z'
+        metadata:
+          $ref: '#/components/schemas/TransactionMetadata'
+          description: Transaction metadata; present only on SUCCESSFUL payments.
+        transaction_timestamp:
+          type: string
+          format: date-time
+          description: When the terminal completed the transaction (ISO 8601, UTC). Present only on SUCCESSFUL payments.
+          example: '2026-04-14T10:04:30Z'
+      required:
+      - created_at
+      - payment_request_id
+      - requested_amount
+      - status
+      - updated_at
+      title: PaymentRequestSummary
+    DividerRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      example:
+        type: Divider
+      title: DividerRow
+    TextElement:
+      allOf:
+      - $ref: '#/components/schemas/Element'
+      - type: object
+        properties:
+          text:
+            type: string
+            minLength: 1
+          bold:
+            type: boolean
+          align:
+            type: string
+            enum:
+            - LEFT
+            - RIGHT
+            - CENTER
+      example:
+        type: Text
+        text: Coffee
+        bold: false
+        align: LEFT
+      required:
+      - text
+      title: TextElement
+    SendBillImageForm:
+      type: object
+      description: multipart/form-data payload for pushing a pre-rendered bill image
+      properties:
+        terminal_id:
+          type: string
+          description: The terminal to display the bill on
+          example: term-001
+        total_amount:
+          type: integer
+          format: int64
+          description: Total amount in the smallest currency unit
+          example: 3200
+        currency:
+          type: string
+          description: ISO 4217 currency code
+          example: GBP
+        image:
+          type: string
+          format: binary
+          description: Pre-rendered bill image (PNG or JPEG)
+          example: bill.png
+      required:
+      - currency
+      - image
+      - terminal_id
+      - total_amount
+      title: SendBillImageForm
+    TableHeaderCell:
+      type: object
+      example:
+        element:
+          type: Text
+          text: Header
+        weight: 1
+      properties:
+        element:
+          $ref: '#/components/schemas/Element'
+          oneOf:
+          - $ref: '#/components/schemas/TextElement'
+          - $ref: '#/components/schemas/ImageElement'
+          - $ref: '#/components/schemas/QrCodeElement'
+        weight:
+          type: number
+          format: double
+      required:
+      - element
+      title: TableHeaderCell
+    Card:
+      type: object
+      example:
+        last4: '4673'
+        issuing_country: GB
+        brand: MASTERCARD
+        type: DEBIT
+        bin: '123456'
+      properties:
+        last4:
+          type: string
+          description: The last 4 digits of a card
+          example: L1234
+        issuing_country:
+          type: string
+          description: The Country code (ISO 3166-1 alpha-2) where the card was issued
+          example: GB
+        brand:
+          type: string
+          description: The brand of the payment network used by the card
+          example: VISA,MASTERCARD,UNION_PAY,JCB,DINERS,AMEX,OTHER
+        type:
+          type: string
+          description: The type of the card
+          example: DEBIT,CREDIT,PREPAID,CHARGE,UNKNOWN
+        bin:
+          type: string
+          description: The bin number to identify the issuer of the card holder
+          example: BIN123456
+      title: Card
+    TerminalIdRequest:
+      type: object
+      description: Request containing a terminal identifier
+      properties:
+        terminal_id:
+          type: string
+          description: The terminal identifier
+          example: term-001
+      required:
+      - terminal_id
+      title: TerminalIdRequest
+    Paths:
+      type: object
+      description: Relative paths for navigating to the previous and next pages
+      properties:
+        previous:
+          type: string
+          description: Relative path to retrieve the previous page
+          example: /poslink/v1/tabs?store_id=eac4d470-4731-45b2-af6b-c828f03c1f9d&limit=20&before=MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+        next:
+          type: string
+          description: Relative path to retrieve the next page
+          example: /poslink/v1/tabs?store_id=eac4d470-4731-45b2-af6b-c828f03c1f9d&limit=20&after=MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+      title: Paths
+    CloseTabResponse:
+      type: object
+      description: Response for tab closure (soft delete)
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        status:
+          type: string
+          description: Tab status after closure
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: CLOSED
+        closed_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of closure (in UTC)
+          example: '2026-04-14T12:00:00Z'
+      required:
+      - closed_at
+      - status
+      - tab_id
+      title: CloseTabResponse
+    ShowBillIntentResponse:
+      type: object
+      description: Response for a show-bill intent — the request has been accepted and forwarded to the ePOS
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+        showing_bill_terminal_id:
+          type: string
+          description: Terminal that requested the bill display
+          example: term-001
+        show_bill_expires_at:
+          type: string
+          format: date-time
+          description: ISO 8601 expiry timestamp for the show-bill intent (in UTC)
+          example: '2026-04-14T10:05:00Z'
+      title: ShowBillIntentResponse
+    ImageElement:
+      allOf:
+      - $ref: '#/components/schemas/Element'
+      - type: object
+        properties:
+          base64:
+            type: string
+            minLength: 1
+          align:
+            type: string
+            enum:
+            - LEFT
+            - RIGHT
+            - CENTER
+      example:
+        type: Image
+        base64: '...'
+        align: RIGHT
+      required:
+      - base64
+      title: ImageElement
+    ItemsRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Element'
+            maxItems: 10
+            minItems: 1
+      example:
+        type: Items
+        items:
+        - type: Text
+          text: Header
+          bold: true
+          align: CENTER
+      required:
+      - items
+      title: ItemsRow
+    TransactionMetadata:
+      type: object
+      example:
+        payment_method_details:
+          card:
+            last4: '4673'
+            issuing_country: GB
+            brand: MASTERCARD
+            type: DEBIT
+            bin: '123456'
+          entry_mode: EMV_CONTACTLESS
+          verification_method: NONE
+          application_id: A0000000041010
+          mid: '5006544'
+          response_code: '00'
+          authorisation_code: '537001'
+      properties:
+        payment_method_details:
+          $ref: '#/components/schemas/PaymentMethodDetails'
+          description: The payment method details
+        dcc:
+          $ref: '#/components/schemas/DccData'
+          description: Dynamic Currency Conversion data. Optional field
+      title: TransactionMetadata
+    PayIntentResponse:
+      type: object
+      description: Response after creating a pay intent
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        terminal_id:
+          type: string
+          description: Terminal that initiated the pay intent
+          example: term-001
+        amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Payment amount with currency
+        method:
+          type: string
+          description: Payment method
+          enum:
+          - CARD
+          - CASH
+          example: CARD
+        type:
+          type: string
+          description: Payment type
+          enum:
+          - FULL
+          - SPLIT
+          example: SPLIT
+        status:
+          type: string
+          description: Intent status
+          enum:
+          - FORWARDED
+          example: FORWARDED
+        show_bill_expires_at:
+          type: string
+          format: date-time
+          description: Show-bill expiry timestamp (ISO 8601, UTC), updated by this pay intent. Null when no show-bill is active for the tab.
+          example: '2026-05-26T15:30:00Z'
+      title: PayIntentResponse
+    UpdateTabRequest:
+      type: object
+      description: Request to update a tab's content. All fields optional; only the ones provided are applied.
+      properties:
+        total_amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Updated total amount for the tab
+        tab_item_data:
+          type: array
+          description: Updated list of tab items.
+          items:
+            $ref: '#/components/schemas/TabItem'
+          maxItems: 100
+          minItems: 0
+      title: UpdateTabRequest
+    PauseTabResponse:
+      type: object
+      description: Response after pausing a tab
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        status:
+          type: string
+          description: Tab status after pause
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: PAUSED
+        total_paid:
+          type: integer
+          format: int64
+          description: Total amount paid so far, in the tab's currency
+          example: 1500
+        remaining:
+          type: integer
+          format: int64
+          description: Remaining amount to be paid, in the tab's currency
+          example: 3500
+      title: PauseTabResponse
+    TabResponse:
+      type: object
+      description: Response for tab creation
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        store_id:
+          type: string
+          format: uuid
+          description: Store identifier
+          example: eac4d470-4731-45b2-af6b-c828f03c1f9d
+        tab_name:
+          type: string
+          description: Tab display name
+          example: Table 5
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+        total_amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Total amount with currency
+        total_paid:
+          type: integer
+          format: int64
+          description: Total amount paid so far, in the same currency as total_amount
+          example: 0
+        remaining:
+          type: integer
+          format: int64
+          description: Remaining amount to be paid, in the same currency as total_amount
+          example: 5000
+        merchant_reference:
+          type: string
+          description: Merchant-assigned unique reference for the tab.
+          example: ORDER-2026-001
+        epos_instance_id:
+          type: string
+          description: ePOS instance identifier
+          example: epos-register-1
+        payment_requests:
+          type: array
+          description: List of payment requests on this tab. Empty array on creation; never null.
+          items:
+            $ref: '#/components/schemas/PaymentRequestSummary'
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 creation timestamp (in UTC)
+          example: '2026-04-14T10:00:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: ISO 8601 last update timestamp (in UTC)
+          example: '2026-04-14T10:00:00Z'
+      required:
+      - created_at
+      - merchant_reference
+      - payment_requests
+      - remaining
+      - status
+      - store_id
+      - tab_id
+      - tab_name
+      - total_amount
+      - total_paid
+      - updated_at
+      title: TabResponse

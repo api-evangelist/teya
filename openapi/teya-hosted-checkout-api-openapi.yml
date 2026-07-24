@@ -1,0 +1,1002 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures Hosted Checkout API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- description: APIs exposed for session management
+  name: Hosted Checkout
+  x-displayName: Hosted Checkout
+paths:
+  /v2/checkout/sessions:
+    post:
+      description: 'API to create a hosted checkout session.
+
+        <br><strong>Access Token Required scope:</strong> checkout/sessions/create
+
+        '
+      operationId: createSessionV2
+      parameters:
+      - description: 'A unique key to identify the request.
+
+          If the request is repeated with the same key, the same response will be returned.
+
+          If the request is repeated with a different key or without a key, a new session will be created.
+
+          '
+        in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          description: 'A unique key to identify the request.
+
+            If the request is repeated with the same key, the same response will be returned.
+
+            If the request is repeated with a different key or without a key, a new session will be created.
+
+            '
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/checkout_CreateSessionRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/checkout_CreateSessionResponse'
+          description: Session has been created
+        '400':
+          content:
+            application/json:
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+          description: Bad request
+        '401':
+          content:
+            application/json:
+              example:
+                code: UNAUTHORISED
+                description: Unauthorised
+          description: Lacks valid authentication credentials for the requested resource
+        '403':
+          content:
+            application/json:
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+          description: The server understands the request but refuses to authorise it
+        '409':
+          content: {}
+          description: Request already processed
+        '429':
+          content:
+            application/json:
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+          description: Too many requests in a given amount of time
+        '500':
+          content:
+            application/json:
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+          description: Internal Server Error
+      security:
+      - checkout_oauth_dev: []
+      - checkout_oauth_prd: []
+      summary: Creates a new hosted checkout session
+      tags:
+      - Hosted Checkout
+  /v2/checkout/sessions/{session_id}:
+    get:
+      description: 'API to return details of a given session.
+
+        <br><strong>Access Token Required scope:</strong> checkout/sessions/id/get
+
+        '
+      operationId: getSessionInfoV2
+      parameters:
+      - description: The session id
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: This is the id of the session that has been created and will be used to interact across different systems
+          example: 14411456-79c8-4d8c-8498-f01907093b83
+          format: uuid
+          title: Session Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/checkout_SessionInfoResponse'
+          description: Session has been returned
+        '400':
+          content:
+            application/json:
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+          description: Bad request
+        '401':
+          content:
+            application/json:
+              example:
+                code: UNAUTHORISED
+                description: Unauthorised
+          description: Lacks valid authentication credentials for the requested resource
+        '403':
+          content:
+            application/json:
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+          description: The server understands the request but refuses to authorise it
+        '404':
+          content: {}
+          description: Session not found
+        '429':
+          content:
+            application/json:
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+          description: Too many requests in a given amount of time
+        '500':
+          content:
+            application/json:
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+          description: Internal Server Error
+      security:
+      - checkout_oauth_dev: []
+      - checkout_oauth_prd: []
+      summary: Get session details
+      tags:
+      - Hosted Checkout
+components:
+  schemas:
+    checkout_BackendBusinessData:
+      description: The business information
+      example:
+        active: true
+        address:
+          city: New York
+          country: US
+          state: NY
+          street_address_line1: 123 Main St
+          street_address_line2: Suite 100
+          street_address_line3: Building 1
+          zipcode: '10001'
+        id: 123e4567-e89b-12d3-a456-426614174000
+        name: My Business
+        notification_email: example@email.com
+      properties:
+        active:
+          type: boolean
+        address:
+          $ref: '#/components/schemas/checkout_BusinessAddress'
+        id:
+          description: The unique identifier of a business (associated store entity)
+          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          format: uuid
+          title: Business Id
+          type: string
+        name:
+          description: The name of a business
+          example: Teya Global
+          title: Business Name
+          type: string
+        notification_email:
+          example: example@email.com
+          title: Email Address
+          type: string
+      required:
+      - active
+      - address
+      - id
+      - name
+      title: Business Data
+      type: object
+    checkout_Amount:
+      description: 'The transaction amount in the smallest currency unit according to ISO 4217 format.
+
+        For example:
+
+        - 100 ISK (Icelandic króna): the amount is 100 (since 1 ISK = 1 subunit).
+
+        - 100 EUR (Euro): the amount is 10000 (since 1 EUR = 100 cents).
+
+        - 100 USD (US Dollar): the amount is 10000 (since 1 USD = 100 cents).
+
+        - 100 KWD (Kuwaiti Dinar): the amount is 100000 (since 1 KWD = 1000 fils).
+
+        '
+      example:
+        currency: GBP
+        value: 100
+      properties:
+        currency:
+          description: Currency code (e.g. `USD`, `GBP`, `EUR`) following ISO-4217 format.
+          enum:
+          - AED
+          - AFN
+          - ALL
+          - AMD
+          - ANG
+          - AOA
+          - ARS
+          - AUD
+          - AWG
+          - AZN
+          - BAM
+          - BBD
+          - BDT
+          - BGN
+          - BHD
+          - BIF
+          - BMD
+          - BND
+          - BOB
+          - BOV
+          - BRL
+          - BSD
+          - BTN
+          - BWP
+          - BYN
+          - BYR
+          - BZD
+          - CAD
+          - CDF
+          - CHE
+          - CHF
+          - CHW
+          - CLF
+          - CLP
+          - CNY
+          - COP
+          - COU
+          - CRC
+          - CUC
+          - CUP
+          - CVE
+          - CZK
+          - DJF
+          - DKK
+          - DOP
+          - DZD
+          - EGP
+          - ERN
+          - ETB
+          - EUR
+          - FJD
+          - FKP
+          - GBP
+          - GEL
+          - GHS
+          - GIP
+          - GMD
+          - GNF
+          - GTQ
+          - GYD
+          - HKD
+          - HNL
+          - HRK
+          - HTG
+          - HUF
+          - IDR
+          - ILS
+          - INR
+          - IQD
+          - IRR
+          - ISK
+          - JMD
+          - JOD
+          - JPY
+          - KES
+          - KGS
+          - KHR
+          - KMF
+          - KPW
+          - KRW
+          - KWD
+          - KYD
+          - KZT
+          - LAK
+          - LBP
+          - LKR
+          - LRD
+          - LSL
+          - LYD
+          - MAD
+          - MDL
+          - MGA
+          - MKD
+          - MMK
+          - MNT
+          - MOP
+          - MRO
+          - MRU
+          - MUR
+          - MVR
+          - MWK
+          - MXN
+          - MXV
+          - MYR
+          - MZN
+          - NAD
+          - NGN
+          - NIO
+          - NOK
+          - NPR
+          - NZD
+          - OMR
+          - PAB
+          - PEN
+          - PGK
+          - PHP
+          - PKR
+          - PLN
+          - PYG
+          - QAR
+          - RON
+          - RSD
+          - RUB
+          - RWF
+          - SAR
+          - SBD
+          - SCR
+          - SDG
+          - SEK
+          - SGD
+          - SHP
+          - SLE
+          - SLL
+          - SOS
+          - SRD
+          - SSP
+          - STD
+          - STN
+          - SVC
+          - SYP
+          - SZL
+          - THB
+          - TJS
+          - TMT
+          - TND
+          - TOP
+          - TRY
+          - TTD
+          - TWD
+          - TZS
+          - UAH
+          - UGX
+          - USD
+          - USN
+          - UYI
+          - UYU
+          - UZS
+          - VED
+          - VEF
+          - VES
+          - VND
+          - VUV
+          - WST
+          - XAF
+          - XCD
+          - XCG
+          - XOF
+          - XPF
+          - YER
+          - ZAR
+          - ZMW
+          - ZWL
+          format: enum
+          type: string
+        value:
+          description: The transaction amount in the smallest currency unit according to ISO 4217 format.
+          format: int64
+          maximum: 9223372036854
+          type: integer
+      required:
+      - currency
+      - value
+      title: Transaction Amount
+      type: object
+    checkout_CreateSessionResponse:
+      description: Result of the creation of a Hosted Checkout session that will be used to process an Ecommerce transaction
+      example:
+        session_id: 14411456-79c8-4d8c-8498-f01907093b83
+        session_url: https://checkout.teya.com/pay/14411456-79c8-4d8c-8498-f01907093b83
+      properties:
+        session_id:
+          description: This is the id of the session that has been created and will be used to interact across different systems
+          example: 14411456-79c8-4d8c-8498-f01907093b83
+          format: uuid
+          title: Session Id
+          type: string
+        session_url:
+          description: The hosted checkout session url that the merchant can use to redirect the customer once the session has been created
+          example: https://checkout.teya.com/pay/_0XBPWQQ_7c35b74c-4ce3-4d33-8928-c2aa62970ce2
+          format: url
+          type: string
+      required:
+      - session_id
+      - session_url
+      title: CreateSessionResponse
+      type: object
+    checkout_Customer:
+      example:
+        email: emailaddress@example.com
+        name: John Doe
+        phone_number: '+447911123456'
+      properties:
+        email:
+          description: Customer email address
+          type: string
+        name:
+          description: Customer name, used to prefill the hosted checkout form
+          type: string
+        phone_number:
+          description: 'Customer phone number
+
+            An international phone number including the country code, formatted according to the E.164 standard.
+
+            '
+          type: string
+      title: Customer Information
+      type: object
+    checkout_DccOfferInfo:
+      description: Dynamic Currency Conversion offer info for a session.
+      properties:
+        cardholder_amount:
+          $ref: '#/components/schemas/checkout_Amount'
+        ecb_markup:
+          description: Markup of the offered exchange rate (i.e. amount added) over the latest ECB exchange rate for a currency pair (decimal format, with 6 decimal places). Only provided when both currencies are EEA currencies.
+          example: '0.005000'
+          type: string
+        exchange_rate:
+          description: Latest exchange rate for a currency pair (decimal format, with 6 decimal places)
+          example: '1.234567'
+          type: string
+        markup:
+          description: Markup of the offered exchange rate (i.e. amount added) over the latest exchange rate for a currency pair (decimal format)
+          example: '0.010000'
+          type: string
+      required:
+      - cardholder_amount
+      - exchange_rate
+      - markup
+      title: DccOfferInfo
+      type: object
+    checkout_BusinessAddress:
+      description: The address of a business
+      example:
+        city: New York
+        country: US
+        state: NY
+        street_address_line1: Main Street
+        street_address_line2: No. 1
+        street_address_line3: Building 1
+        zipcode: '10001'
+      properties:
+        city:
+          description: The city where the business is located
+          example: New York
+          title: City
+          type: string
+        country:
+          description: The country where the business is located (ISO-3166-1 alpha2)
+          example: ES
+          title: Country
+          type: string
+        state:
+          description: The state where the business is located
+          example: NY
+          title: State
+          type: string
+        street_address_line1:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        street_address_line2:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        street_address_line3:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        zipcode:
+          description: The zipcode where the business is located
+          example: '10001'
+          title: Zipcode
+          type: string
+      required:
+      - country
+      title: Business Address
+      type: object
+    checkout_SessionInfoResponse:
+      description: Returns the Hosted Checkout session information that will be used to process an Ecommerce transaction
+      example:
+        amount:
+          currency: USD
+          value: 100
+        billing_address:
+          city: London
+          country: GB
+          state: London
+          street_address_line1: Main Street
+          street_address_line2: No. 1
+          street_address_line3: Building 1
+          zipcode: '10001'
+        business_data:
+          active: true
+          address:
+            city: New York
+            country: US
+            state: NY
+            street_address_line1: 123 Main St
+            street_address_line2: Suite 100
+            street_address_line3: Building 1
+            zipcode: '10001'
+          id: 123e4567-e89b-12d3-a456-426614174000
+          name: My Business
+        cancel_url: https://mywebsite.com/checkout/cart
+        customer:
+          email: emailaddress@example.com
+          name: John Doe
+          phone_number: '+447911123456'
+        customer_success_email: john.doe@example.com
+        failure_url: https://mywebsite.com/checkout/failure
+        language: en-GB
+        line_items:
+        - description: Product 1
+          quantity: 1
+          unit_price: 50
+        - description: Product 2
+          quantity: 2
+          unit_price: 25
+        merchant_reference: '1234567890'
+        merchant_success_email: customer@mywebsite.com
+        metadata:
+          campaign: summer_sale
+          order_id: '12345'
+        payment_link_id: 01960f72-872c-7894-a7da-98b0eaaf6588
+        payment_link_type: SINGLE_USE
+        payment_status: NONE
+        post_success_payment: SHOW_SUCCESS_PAGE
+        required_customer_fields:
+        - SHIPPING_ADDRESS
+        - EMAIL
+        - PHONE
+        session_id: 14411456-79c8-4d8c-8498-f01907093b83
+        session_status: ACTIVE
+        source_reference_id: '1234567890'
+        success_url: https://mywebsite.com/checkout/success
+        transaction_id: tr_72302a4d-b2f9-4663-93f8-d9260e5370c8
+        type: SALE
+        logo_url: https://example.cloudfront.net/stores/123/logo.png
+        checkout_custom_note: Thank you for shopping with us!
+        privacy_policy_url: https://mywebsite.com/privacy
+        terms_url: https://mywebsite.com/terms
+      properties:
+        amount:
+          $ref: '#/components/schemas/checkout_Amount'
+        billing_address:
+          $ref: '#/components/schemas/checkout_BillingAddress'
+          description: Billing address of the customer
+          example:
+            city: London
+            country: GB
+            state: London
+            street_address_line1: Main Street
+            street_address_line2: No. 1
+            street_address_line3: Building 1
+            zipcode: '10001'
+        business_data:
+          $ref: '#/components/schemas/checkout_BackendBusinessData'
+        cancel_url:
+          description: URL to bring back the customer to the cart. If included in the call we will render the “Back” button in the HostedCheckout UI
+          type: string
+        customer:
+          $ref: '#/components/schemas/checkout_Customer'
+        customer_success_email:
+          description: If present, an e-mail is sent to the merchant customer upon successful payment with the receipt.
+          type: string
+        dcc:
+          $ref: '#/components/schemas/checkout_DccOfferInfo'
+          description: Dynamic Currency Conversion offer info for the session.
+        enabled_card_brands:
+          description: List of enabled card brands for the session.
+          example:
+          - VISA
+          - MASTERCARD
+          - AMEX
+          items:
+            enum:
+            - AMEX
+            - CALLIO
+            - CARDCO
+            - UNION_PAY
+            - DINERS
+            - DISCOVER
+            - DOXX
+            - GENERALI
+            - JCB
+            - KH
+            - MAESTRO
+            - MASTERCARD
+            - OTHER
+            - OTP
+            - PATIKA
+            - PREMIUM
+            - SODEXO
+            - UP
+            - VISA
+            - VITAMIN
+            type: string
+            uniqueItems: true
+          type: array
+          uniqueItems: true
+        failure_url:
+          description: URL to redirect the customer once the transaction has finished with error
+          type: string
+        language:
+          description: The language to be used in the Hosted Checkout session. IETF BCP 47. If not provided we will use for rendering in HC the Accept-Language request header.
+          example: en-GB
+          type: string
+        line_items:
+          description: Basket information to be shown in the payment screen
+          example:
+          - description: Product 1
+            quantity: 1
+            unit_price: 100
+          - description: Product 2
+            quantity: 2
+            unit_price: 50
+          items:
+            $ref: '#/components/schemas/checkout_SessionLineItem'
+          type: array
+        merchant_reference:
+          description: An identifier that can be used to reference the transaction on the merchant's side. Overrides 'source_reference_id
+          example: '1234567890'
+          maxLength: 60
+          type: string
+        merchant_success_email:
+          description: If present, an e-mail is sent to the merchant upon successful payment with the receipt.
+          type: string
+        metadata:
+          additionalProperties:
+            type: string
+          description: Metadata key-value pairs for the session. Maximum 10 keys allowed. Keys must not exceed 40 characters and values must not exceed 500 characters.
+          type: object
+        payment_link_id:
+          description: A unique identifier for the created payment link
+          example: 20eb276c-5b6b-4474-a5a1-49bcd6193148
+          format: uuid
+          type: string
+        payment_link_type:
+          description: Type of the payment link used to create the session
+          enum:
+          - SINGLE_USE
+          format: enum
+          type: string
+        payment_status:
+          description: Status of the payment, only present when the session status is COMPLETED.
+          enum:
+          - NONE
+          - SUCCESS
+          - FAILED
+          example: SUCCESS
+          format: enum
+          title: 'Status of the payment.
+
+            NONE: No payment has been processed
+
+            SUCCESS: Payment has been successful
+
+            FAILED: Payment has failed
+
+            '
+          type: string
+        post_success_payment:
+          description: "Where the customer browser will be sent after a successful transaction.\nPossible values:\n    SHOW_SUCCESS_PAGE (Display the HostedCheckout payment completed page with a button to redirect to the success_url),\n    REDIRECT (Redirect the customer browser directly to the success_url).\nNote: For transactions with Dynamic currency conversion (DCC), we will not redirect and will show success page if no\ncustomer_success_email is sent. Because we are required to show the rates to the customer.\n"
+          enum:
+          - SHOW_SUCCESS_PAGE
+          - REDIRECT
+          example: SHOW_SUCCESS_PAGE
+          format: enum
+          title: Post Success Payment Options
+          type: string
+        session_id:
+          description: This is the id of the session that has been created and will be used to interact across different systems
+          example: 14411456-79c8-4d8c-8498-f01907093b83
+          format: uuid
+          title: Session Id
+          type: string
+        session_status:
+          description: Indicates whether the session is still available for use. New payments can only happen when the status is ACTIVE
+          enum:
+          - ACTIVE
+          - PROCESSING
+          - COMPLETED
+          - EXPIRED
+          example: ACTIVE
+          format: enum
+          title: 'Status of the session
+
+            ACTIVE: Session has been created but the payment processing has not started
+
+            PROCESSING: A payment has started but has not been completed
+
+            COMPLETED: Session has been finished because a payment has succeeded or failed
+
+            EXPIRED: Session has expired
+
+            '
+          type: string
+        required_customer_fields:
+          description: Customer fields that must be collected during checkout
+          items:
+            enum:
+            - SHIPPING_ADDRESS
+            - PHONE
+            - EMAIL
+            type: string
+          type: array
+        success_url:
+          description: URL to redirect the customer once the transaction has successfully finished
+          type: string
+        logo_url:
+          description: Public URL of the merchant's logo to display on the checkout page. Configured in the Teya Business Portal.
+          example: https://example.cloudfront.net/stores/123/logo.png
+          type: string
+        checkout_custom_note:
+          description: Custom note to display on the checkout page. Maximum 1000 characters. Configured in the Teya Business Portal.
+          example: Thank you for shopping with us!
+          maxLength: 1000
+          type: string
+        privacy_policy_url:
+          description: HTTPS URL linking to the merchant's privacy policy. Displayed on the checkout page. Configured in the Teya Business Portal.
+          example: https://mywebsite.com/privacy
+          type: string
+        terms_url:
+          description: HTTPS URL linking to the merchant's terms and conditions. Displayed on the checkout page. Configured in the Teya Business Portal.
+          example: https://mywebsite.com/terms
+          type: string
+        transaction_id:
+          description: The unique identifier for the new transaction
+          example: tr_72302a4d-b2f9-4663-93f8-d9260e5370c8
+          type: string
+        type:
+          description: Whether this transaction is a SALE or PRE-AUTHORIZATION.
+          enum:
+          - PRE_AUTHORISATION
+          - SALE
+          format: enum
+          type: string
+      required:
+      - amount
+      - business_data
+      - payment_status
+      - session_id
+      - session_status
+      - type
+      title: SessionInfoResponse
+      type: object
+    checkout_SessionLineItem:
+      description: Basket information to be shown in the payment screen
+      example:
+        description: Shipping
+        quantity: 1
+        unit_price: 100
+      properties:
+        description:
+          description: This a description for a item in the basket
+          type: string
+        quantity:
+          description: The number of items, Must to be a positive value
+          format: int32
+          type: integer
+        unit_price:
+          description: The price of a single item including VAT, Can be negative for discounts
+          format: int32
+          type: integer
+      required:
+      - description
+      - quantity
+      - unit_price
+      title: SessionLineItem
+      type: object
+    checkout_BillingAddress:
+      description: Customer's Billing Address
+      example:
+        city: London
+        country: GB
+        state: London
+        street_address_line1: Main Street
+        street_address_line2: No. 1
+        street_address_line3: Building 1
+        zipcode: '10001'
+      properties:
+        city:
+          description: The city where the business is located
+          example: New York
+          title: City
+          type: string
+        country:
+          description: The country where the business is located (ISO-3166-1 alpha2)
+          example: ES
+          title: Country
+          type: string
+        state:
+          description: The state where the business is located
+          example: NY
+          title: State
+          type: string
+        street_address_line1:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        street_address_line2:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        street_address_line3:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        zipcode:
+          description: The zipcode where the business is located
+          example: '10001'
+          title: Zipcode
+          type: string
+      required:
+      - country
+      title: Billing Address
+      type: object
+    checkout_CreateSessionRequest:
+      description: Creates a Hosted Checkout session that will be used to process an Ecommerce transaction
+      example:
+        amount:
+          currency: USD
+          value: 100
+        billing_address:
+          city: London
+          country: GB
+          state: London
+          street_address_line1: Main Street
+          street_address_line2: No. 1
+          street_address_line3: Building 1
+          zipcode: '10001'
+        cancel_url: https://mywebsite.com/checkout/cart
+        customer:
+          email: emailaddress@example.com
+          name: John Doe
+          phone_number: '+447911123456'
+        customer_success_email: john.doe@example.com
+        failure_url: https://mywebsite.com/checkout/failure
+        language: en-GB
+        line_items:
+        - description: Product 1
+          quantity: 1
+          unit_price: 100
+        - description: Product 2
+          quantity: 2
+          unit_price: 50
+        merchant_reference: '1234567890'
+        merchant_success_email: customer@mywebsite.com
+        metadata:
+          campaign: summer_sale
+          order_id: '12345'
+        post_success_payment: SHOW_SUCCESS_PAGE
+        required_customer_fields:
+        - SHIPPING_ADDRESS
+        - EMAIL
+        store_id: 123e4567-e89b-12d3-a456-426614174000
+        success_url: https://mywebsite.com/checkout/success
+        type: SALE
+      properties:
+        amount:
+          $ref: '#/components/schemas/checkout_Amount'
+        billing_address:
+          $ref: '#/components/schemas/checkout_BillingAddress'
+          description: Billing address of the customer
+        cancel_url:
+          description: URL to bring back the customer to the cart. If included in the call we will render the “Back” button in the HostedCheckout UI
+          type: string
+        customer:
+          $ref: '#/components/schemas/checkout_Customer'
+          description: Customer information
+        customer_success_email:
+          description: If present, an e-mail is sent to the merchant customer upon successful payment with the receipt.
+          type: string
+        failure_url:
+          description: URL to redirect the customer once the transaction has finished with error
+          type: string
+        language:
+          description: "The language to be used in the Hosted Checkout session in case the Accept-Language from the Customer browser does not exist or doesn’t match any of the allowed languages. It follows IETF BCP 47 and:\n - If provided, it should match any of the supported languages: en-GB, hu-HU, is-IS, cs-CZ, hr-HR, sk-SK, pt-PT, pt-BR, de-DE, es-ES, fr-FR, it-IT, pl-PL\nIf it's different, the request will be rejected with BAD_REQUEST\n - If not provided, en-GB will be used when the Accept-Language from the Customer browser doesn't match"
+          example: en-GB
+          type: string
+        line_items:
+          description: Basket information to be shown in payment page
+          items:
+            $ref: '#/components/schemas/checkout_SessionLineItem'
+          type: array
+        merchant_reference:
+          description: An identifier that can be used to reference the transaction on the merchant's side. Overrides 'source_reference_id
+          example: '1234567890'
+          maxLength: 60
+          type: string
+        merchant_success_email:
+          description: If present, an e-mail is sent to the merchant upon successful payment with the receipt.
+          type: string
+        metadata:
+          additionalProperties:
+            type: string
+          description: Metadata key-value pairs for the session. Maximum 10 keys allowed. Keys must not exceed 40 characters and values must not exceed 500 characters.
+          type: object
+        post_success_payment:
+          description: "Where the customer browser will be sent after a successful transaction.\nPossible values:\n    SHOW_SUCCESS_PAGE (Display the HostedCheckout payment completed page with a button to redirect to the success_url),\n    REDIRECT (Redirect the customer browser directly to the success_url).\nNote: For transactions with Dynamic currency conversion (DCC), we will not redirect and will show success page if no\ncustomer_success_email is sent. Because we are required to show the rates to the customer.\n"
+          enum:
+          - SHOW_SUCCESS_PAGE
+          - REDIRECT
+          example: SHOW_SUCCESS_PAGE
+          format: enum
+          title: Post Success Payment Options
+          type: string
+        required_customer_fields:
+          description: Customer fields that must be collected during checkout
+          items:
+            enum:
+            - SHIPPING_ADDRESS
+            - PHONE
+            - EMAIL
+            type: string
+          type: array
+        store_id:
+          description: Store ID for the session. If not provided, it will be attempted to retrieve the store_id from the association with the client_id.
+          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          format: uuid
+          title: Store Id
+          type: string
+        success_url:
+          description: URL to redirect the customer once the transaction has successfully finished
+          type: string
+        type:
+          description: 'Whether this transaction is a SALE or PRE-AUTHORISATION.
+
+            NOTE: only SALE is supported at the moment
+
+            '
+          enum:
+          - PRE_AUTHORISATION
+          - SALE
+          format: enum
+          type: string
+      required:
+      - amount
+      - type
+      title: CreateSessionRequest
+      type: object

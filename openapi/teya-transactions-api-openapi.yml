@@ -1,0 +1,2399 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures Transactions API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- description: Transactions
+  name: Transactions
+  x-displayName: Transactions
+paths:
+  /v3/transactions/online:
+    post:
+      description: 'API to process an online transaction v3.
+
+        <br><strong>Access Token Required scope:</strong> transactions/online/create
+
+        '
+      operationId: processOnlineTransactionV3
+      parameters:
+      - description: 'A unique key to identify the request.
+
+          If the request is repeated with the same key, the same response will be returned.
+
+          If the request is repeated with a different key or without a key, a new transaction will be created.
+
+          '
+        in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          description: 'A unique key to identify the request.
+
+            If the request is repeated with the same key, the same response will be returned.
+
+            If the request is repeated with a different key or without a key, a new transaction will be created.
+
+            '
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_ProcessTransactionRequestV2'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_ProcessTransactionResponseV2'
+          description: New transaction has been created and processed by host
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_ProcessTransactionResponseV2'
+          description: New transaction has been created and still being processed (for example waiting for 3ds challenge to be completed)
+        '400':
+          content: {}
+          description: Bad request due to wrong input
+        '401':
+          content: {}
+          description: Unauthorized request because of missing or invalid authentication token
+        '403':
+          content: {}
+          description: Forbidden request due to lack of permissions
+        '409':
+          content: {}
+          description: Request is already being processed
+        '422':
+          content: {}
+          description: Can not process the request because of an idempotency conflict
+        '500':
+          content: {}
+          description: Internal Server Error
+      security:
+      - Ecommerce_Transaction_Payments_-_Public_oauth: []
+      summary: Process an online transaction v3
+      tags:
+      - Transactions
+  /v2/transactions/online/{authentication_id}:
+    get:
+      description: 'API to return details of a given online transaction by its authentication id.
+
+        <br><strong>Access Token Required scope:</strong> transactions/online/id/get
+
+        '
+      operationId: getOnlineTransactionV2
+      parameters:
+      - description: The authentication id
+        in: path
+        name: authentication_id
+        required: true
+        schema:
+          description: The unique identifier for the new transaction by its authentication id
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_OnlineTransaction'
+          description: Transaction has been returned
+        '400':
+          content: {}
+          description: Bad request due to wrong input
+        '401':
+          content: {}
+          description: Unauthorized request because of missing or invalid authentication token
+        '403':
+          content: {}
+          description: Forbidden request due to lack of permissions
+        '404':
+          content: {}
+          description: Transaction not found
+        '500':
+          content: {}
+          description: Internal Server Error
+      security:
+      - Ecommerce_Transaction_Payments_-_Public_oauth: []
+      summary: Get an online transaction
+      tags:
+      - Transactions
+  /v3/refunds:
+    post:
+      tags:
+      - Transactions
+      summary: Process a refund of a transaction
+      description: 'API to process the refund of a previous transaction.
+
+        <br><strong>Access Token Required scope:</strong> refunds/create
+
+        '
+      operationId: refunds
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        description: 'A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.
+
+          If the request is repeated with a different key or without a key, a new refund will be created.
+
+          '
+        required: false
+        schema:
+          type: string
+          description: 'A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.
+
+            If the request is repeated with a different key or without a key, a new refund will be created.
+
+            '
+          maxLength: 64
+          minLength: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRequest'
+        required: true
+      responses:
+        '201':
+          description: Refund processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+        '202':
+          description: Refund processing
+        '400':
+          description: Bad Request
+          content: {}
+        '401':
+          description: Unauthorised
+          content: {}
+        '403':
+          description: Forbidden
+          content: {}
+        '404':
+          description: Not Found
+          content: {}
+        '409':
+          description: Conflict
+          content: {}
+        '460':
+          description: Challenge Required
+          content: {}
+        '500':
+          description: Internal Server Error
+          content: {}
+        '503':
+          description: Service Unavailable
+          content: {}
+        '523':
+          description: Origin Unavailable
+          content: {}
+      security:
+      - Payments_Refunds_Wrapper_API_oauth_dev: []
+      - Payments_Refunds_Wrapper_API_oauth_prd: []
+  /v1/transactions/{transaction_id}/receipts:
+    post:
+      tags:
+      - Transactions
+      summary: Create a digital receipt for a transaction
+      description: 'API to allow merchants to request the generation of a digital receipt for a transaction.
+
+        <br><strong>Access Token Required scope:</strong> transactions/id/receipts/create
+
+        '
+      operationId: createReceipt
+      parameters:
+      - name: transaction_id
+        in: path
+        description: Transaction id whose receipt we want to generate
+        required: true
+        schema:
+          type: string
+          description: Transaction id whose receipt we want to generate
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Teya_Digital_Receipts_Service_CreateReceiptRequest'
+        required: true
+      responses:
+        '202':
+          description: Receipt successfully enqueued for generation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teya_Digital_Receipts_Service_CreateReceiptResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teya_Digital_Receipts_Service_Error'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teya_Digital_Receipts_Service_Error'
+              example:
+                code: UNAUTHORISED
+                description: Unauthorised
+        '403':
+          description: The server understands the request but refuses to authorise it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teya_Digital_Receipts_Service_Error'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teya_Digital_Receipts_Service_Error'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teya_Digital_Receipts_Service_Error'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+  /v1/transactions/{id}/capture:
+    post:
+      tags:
+      - Transactions
+      summary: Capture a pre-auth
+      description: API to process a pre-auth capture
+      operationId: captureRequest
+      parameters:
+      - name: id
+        in: path
+        description: 'A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.
+
+          If the request is repeated with a different key or without a key, a new transaction will be created.
+
+          '
+        required: true
+        schema:
+          type: string
+          description: 'A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.
+
+            If the request is repeated with a different key or without a key, a new transaction will be created.
+
+            '
+          maxLength: 64
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaptureRequest'
+        required: true
+      responses:
+        '201':
+          description: Capture processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptureResponse'
+        '202':
+          description: Capture processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptureResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - oauth: []
+  /v1/transactions/moto:
+    post:
+      tags:
+      - Transactions
+      summary: Process a mail order or telephone order transaction
+      description: API to process a transaction where card details are entered by the merchant via a virtual terminal
+      operationId: motoTransactions
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        description: 'A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.
+
+          If the request is repeated with a different key or without a key, a new transaction will be created.
+
+          '
+        required: false
+        schema:
+          type: string
+          description: 'A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.
+
+            If the request is repeated with a different key or without a key, a new transaction will be created.
+
+            '
+          maxLength: 64
+          minLength: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MotoTransactionRequest'
+        required: true
+      responses:
+        '201':
+          description: Transaction processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MotoTransactionResponse'
+        '202':
+          description: Transaction processing
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '522':
+          description: Transaction not processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '523':
+          description: Transaction failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - oauth: []
+  /v1/transactions/card-present:
+    post:
+      tags:
+      - Transactions
+      summary: Process a transaction with card present
+      description: API to process a transaction with a physical or virtual card present at a payment terminal
+      operationId: cardTransactions_2
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        description: 'A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.
+
+          If the request is repeated with a different key or without a key, a new transaction will be created.
+
+          '
+        required: false
+        schema:
+          type: string
+          description: 'A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.
+
+            If the request is repeated with a different key or without a key, a new transaction will be created.
+
+            '
+          maxLength: 64
+          minLength: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+        required: true
+      responses:
+        '201':
+          description: Transaction processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '202':
+          description: Transaction processing
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '523':
+          description: Origin Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - oauth: []
+components:
+  schemas:
+    EncryptedTrack:
+      type: object
+      description: Encrypted track data from card reader
+      properties:
+        encryption_key_id:
+          type: string
+          description: Key identifier used for encryption
+          example: 5EE0
+        encrypted_track:
+          type: string
+          description: Encrypted track data
+          example: 5188340000000011D241212099999999
+        encryption_ksn:
+          type: string
+          description: Key serial number for encryption
+          example: '123456789012'
+      required:
+      - encryption_key_id
+      - encrypted_track
+      - encryption_ksn
+      title: EncryptedTrack
+    TransactionRequest:
+      type: object
+      description: A request to process a transaction
+      example:
+        type: SALE
+        entry_mode: CONTACT_MAGSTRIPE
+        verification_method: SIGNATURE
+        merchant_reference: '1234567890'
+        authentication_retry: false
+        amounts:
+          amount: 100
+          tip: 10
+          currency: USD
+        terminal_id: '12345678'
+        emv_data: 9F38039F1A02
+        terminal_data:
+          entry_mode_extra_capabilities:
+          - CONTACTLESS_EMV
+          cvm_extra_capabilities:
+          - CONSUMER_DEVICE
+        track_data:
+          encryption_key_id: 5EE0
+          encrypted_track: 5188340000000011D241212099999999
+          encryption_ksn: '123456789012'
+        pin_block:
+          block: 1234567890ABCDEF
+          format: ISO_FORMAT_0
+          encryption_key_id: 74FF
+          encryption_ksn: '123456789012'
+        transacted_at: '2021-01-01T00:00:00.000Z'
+        dcc:
+          quoted_at: '2024-01-01T10:00:00.000Z'
+          cardholder_amount:
+            amount: 78
+            currency: GBP
+      properties:
+        type:
+          type: string
+          format: enum
+          description: Whether this transaction is a SALE or PRE-AUTHORISATION.
+          enum:
+          - SALE
+          - PRE_AUTHORISATION
+        entry_mode:
+          type: string
+          format: enum
+          description: This field refers to how the card entry was made on the terminal device
+          enum:
+          - CONTACTLESS_EMV
+          - CONTACT_EMV
+          - CONTACT_MAGSTRIPE
+          - CONTACT_MAGSTRIPE_FALLBACK
+          - CONTACTLESS_MAGSTRIPE
+          - MANUAL_ENTRY
+        verification_method:
+          type: string
+          format: enum
+          description: This field refers to how the cardholder was verified on the terminal device
+          enum:
+          - CONSUMER_DEVICE
+          - NO_CVM
+          - ONLINE_PIN
+          - OFFLINE_ENCRYPTED_PIN
+          - OFFLINE_PLAINTEXT_PIN
+          - SIGNATURE
+        merchant_reference:
+          type: string
+          description: An identifier that can be used to reference the transaction on the merchant's side
+          maxLength: 60
+          minLength: 1
+        authentication_retry:
+          type: boolean
+          description: 'Whether this transaction is re-attempt with extra authentication provided (e.g.: SCA PIN request).'
+        amounts:
+          $ref: '#/components/schemas/RequestedAmounts'
+          description: The total amount charged to the customer
+          title: PurchaseAmount
+        terminal_id:
+          type: string
+          description: The ID of the terminal processing the transaction. Only required when using a non-Teya terminal.
+          maxLength: 8
+          minLength: 1
+        emv_data:
+          type: string
+          description: 'This field refers to the data hex-encoded as specified by the EMV standard. It includes data such as:
+
+
+            * Application Data: This includes data related to the card application, such as the Application Identifier (AID), Application Cryptogram, and other application-specific data.
+
+            * Cardholder Verification Method (CVM) Results: These indicate the outcome of cardholder verification methods used during the transaction, such as PIN verification or signature verification.
+
+            * Terminal Data: Information specific to the payment terminal, including Terminal Verification Results (TVR), Terminal Transaction Qualifiers (TTQ), and other terminal-specific data.
+
+            * Cryptogram Information: This includes various cryptograms used to secure the transaction, such as the Authorization Request Cryptogram (ARQC) and Authorization Response Cryptogram (ARPC).
+
+            * Transaction Data: Details related to the transaction, such as the amount, currency, transaction type, and other transaction-specific information.
+
+
+            This field should be encoded in TLV (tag-length-value ) format.
+
+
+            An example of `emv_data` is `5F2A02097882021C00` which is the hex-encoded value of the EMV tag `5F2A` with length `02` and value `0978` (which is the currency code for EUR) and the EMV tag
+
+            `82` with length `02` and value `1C00`.
+
+            '
+        terminal_data:
+          $ref: '#/components/schemas/TerminalData'
+          description: This field refers to the extra data about the terminal device used to initiate the card transaction
+          title: TerminalData
+        track_data:
+          $ref: '#/components/schemas/EncryptedTrack'
+          description: Encrypted track data for card present transaction
+          title: EncryptedTrack
+        pin_block:
+          $ref: '#/components/schemas/PinBlock'
+          description: Pin block data
+          title: PinBlock
+        transacted_at:
+          type: string
+          format: date-time
+          description: The datetime with time-zone when the transaction took place (ISO-8601)
+        card_data:
+          $ref: '#/components/schemas/CardData'
+          description: This field refers to the extra data about the card used to initiate the card transaction
+          title: CardData
+        dcc:
+          $ref: '#/components/schemas/DccRequest'
+          description: DCC data to be used for the transaction
+          title: DccRequest
+      required:
+      - amounts
+      - emv_data
+      - entry_mode
+      - track_data
+      - transacted_at
+      - type
+      title: TransactionRequest
+    Teya_Digital_Receipts_Service_CreateReceiptRequest:
+      type: object
+      description: Request to initiate creation of digital receipts
+      example:
+        country_code: GB
+        language: en-GB
+        recipient_phone_numbers:
+        - '+123456789'
+        - '+987654321'
+        recipient_emails:
+        - johndoe@mail.com
+        - examplemail@email.com
+      properties:
+        country_code:
+          type: string
+          description: Country code (ISO 3166 format)
+          example: HU
+        language:
+          type: string
+          description: 'The language to be used to generate the receipt.
+
+            It should follow BCP-47 https://www.rfc-editor.org/info/bcp47 format.
+
+            If provided using the wrong format, the request will be rejected. If not provided, the receipt will be generated using the default language of the merchant.
+
+            '
+          example: en-GB
+        recipient_phone_numbers:
+          type: array
+          description: List of phone numbers to send the receipt link to
+          items:
+            type: string
+            description: List of phone numbers to send the receipt link to
+            example: '+123456789'
+        recipient_emails:
+          type: array
+          description: List of emails to send the receipt link to
+          items:
+            type: string
+            description: List of emails to send the receipt link to
+            example: email@example.com
+        receipt_email_type:
+          type: string
+          default: CUSTOMER
+          description: Type that indicates which email template to use
+      required:
+      - country_code
+      title: CreateReceiptRequest
+    InvalidParams:
+      type: object
+      description: Invalid parameter details
+      properties:
+        field:
+          type: string
+          description: The field that contains invalid data
+          example: amount.value
+        reason:
+          type: string
+          description: Reason why the field is invalid
+          example: must be greater than 0
+      required:
+      - field
+      - reason
+      title: InvalidParams
+    RefundRequest:
+      type: object
+      description: A request to refund a transaction
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        amount: 100
+      properties:
+        transaction_id:
+          type: string
+          description: The id of the original transaction that needs to be refunded
+          minLength: 1
+        merchant_reference:
+          type: string
+          description: An ID referencing the transaction on the client's side
+          maxLength: 30
+          minLength: 1
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1). The currency is the same as the original transaction.
+      required:
+      - amount
+      - transaction_id
+      title: RefundRequest
+    Ecommerce_Transaction_Payments_-_Public_ApplePayAuthenticationData:
+      description: Represents the decrypted data from an Apple Pay payment token, including card details, transaction information, and merchant metadata.
+      example:
+        application_primary_account_number: '4895370012345678'
+        eci_code: '05'
+        expiry_month: '10'
+        expiry_year: '2025'
+        online_payment_cryptogram: SGVsbG8sIHdvcmxkIQ==
+      properties:
+        application_primary_account_number:
+          description: Device-specific account number of the card that funds this transaction
+          type: string
+        eci_code:
+          description: ECI code for the transaction
+          type: string
+        expiry_month:
+          description: Card expiration month
+          type: string
+        expiry_year:
+          description: Card expiration year
+          type: string
+        online_payment_cryptogram:
+          description: Apple pay online payment cryptogram
+          type: string
+      required:
+      - application_primary_account_number
+      - expiry_month
+      - expiry_year
+      - online_payment_cryptogram
+      title: ApplePayAuthenticationData
+      type: object
+    RequestedAmounts:
+      type: object
+      example:
+        amount: 100
+        tip: 10
+        currency: USD
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: 'A positive integer representing the total amount to be charged to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
+
+            Note that tip amount is included in this total
+
+            '
+        tip:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount that was tipped in the smallest currency unit (e.g., 100 cents to charge $1).
+          minimum: 0
+        currency:
+          type: string
+          description: Currency code (e.g. `USD`, `GBP`, `EUR`) following ISO-4217 format.
+      required:
+      - amount
+      - currency
+      title: PurchaseAmount
+    MotoIssuerResult:
+      type: object
+      example:
+        approval_code: '123456'
+        response_code: '00'
+      properties:
+        approval_code:
+          type: string
+          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+        response_code:
+          type: string
+          description: Response code returned by the issuer, indicating the result of the operation
+      title: MotoIssuerResult
+    CardData:
+      type: object
+      description: Card details for payment
+      properties:
+        number:
+          type: string
+          description: Card number (PAN)
+          pattern: ^[0-9]{13,19}$
+          example: '4111111111111111'
+        expiry_month:
+          type: string
+          description: Card expiry month (MM)
+          pattern: ^(0[1-9]|1[0-2])$
+          example: '12'
+        expiry_year:
+          type: string
+          description: Card expiry year (YYYY)
+          pattern: ^[0-9]{4}$
+          example: '2030'
+        cvv2:
+          type: string
+          description: Card verification value
+          pattern: ^[0-9]{3,4}$
+          example: '123'
+      required:
+      - number
+      - expiry_month
+      - expiry_year
+      title: CardData
+    PinBlock:
+      type: object
+      description: PIN block data
+      properties:
+        block:
+          type: string
+          description: Encrypted PIN block
+          example: 1234567890ABCDEF
+        format:
+          type: string
+          description: PIN block format
+          enum:
+          - ISO_FORMAT_0
+          - ISO_FORMAT_1
+          - ISO_FORMAT_3
+          example: ISO_FORMAT_0
+        encryption_key_id:
+          type: string
+          description: Key identifier used for encryption
+          example: 74FF
+        encryption_ksn:
+          type: string
+          description: Key serial number for encryption
+          example: '123456789012'
+      required:
+      - block
+      - format
+      - encryption_key_id
+      - encryption_ksn
+      title: PinBlock
+    Payments_Refunds_Wrapper_API_Amount:
+      type: object
+      example:
+        amount: 100
+        currency: GBP
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount in the smallest currency unit (e.g., 100 cents to charge $1)
+        currency:
+          type: string
+          description: Currency code (e.g. `USD`, `GBP`, `EUR`) following ISO-4217 format.
+      required:
+      - amount
+      - currency
+      title: Amount
+    Ecommerce_Transaction_Payments_-_Public_BrowserData:
+      description: Browser information transmitted during the authentication request process to enhance verification accuracy.
+      example:
+        accept_language: en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6
+        ip_address: 192.16.1.1
+        screen_height: 1080
+        screen_width: 1920
+        user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1234.0 Safari/537.36
+      properties:
+        accept_language:
+          description: User preferred language from the browser
+          type: string
+        ip_address:
+          description: IP address of the browser
+          type: string
+        screen_height:
+          description: Screen height of the browser
+          format: int32
+          type: integer
+        screen_width:
+          description: Screen width of the browser
+          format: int32
+          type: integer
+        user_agent:
+          description: User agent of the browser
+          type: string
+      required:
+      - ip_address
+      - screen_height
+      - screen_width
+      title: BrowserData
+      type: object
+    Payments_Refunds_Wrapper_API_DccResponse:
+      type: object
+      example:
+        cardholder_amount:
+          amount: 100
+          currency: CHF
+        conversion_rate: '0.9517'
+        markup: '0.03'
+        ecb_markup: '0.01'
+      properties:
+        cardholder_amount:
+          $ref: '#/components/schemas/Payments_Refunds_Wrapper_API_Amount'
+          description: 'The total amount refunded to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
+
+            '
+        conversion_rate:
+          type: string
+          description: Conversion rate used to calculate the cardholder amount
+        markup:
+          type: string
+          description: Markup of the exchange rate
+        ecb_markup:
+          type: string
+          description: Markup of the exchange rate over the ECB exchange rate. Only provided when both currencies are EEA currencies.
+      required:
+      - cardholder_amount
+      - conversion_rate
+      - markup
+      title: DccResponse
+    Ecommerce_Transaction_Payments_-_Public_Address:
+      description: Customer's address
+      example:
+        name: John Doe
+        city: London
+        country: GB
+        state: London
+        street_address_line1: Main Street
+        street_address_line2: No. 1
+        street_address_line3: Building 1
+        zipcode: '10001'
+      properties:
+        name:
+          description: Name associated with the address
+          example: John Doe
+          type: string
+        city:
+          description: City name
+          example: London
+          title: City
+          type: string
+        country:
+          description: ISO 3166-1 alpha-2 country code
+          example: GB
+          title: Country
+          type: string
+        state:
+          description: State or region
+          example: Greater London
+          title: State
+          type: string
+        street_address_line1:
+          description: Primary street address
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        street_address_line2:
+          description: Secondary street address (apt, suite, etc.)
+          example: Flat 4
+          title: Street Address Line
+          type: string
+        street_address_line3:
+          description: Additional address line
+          example: Building A
+          title: Street Address Line
+          type: string
+        zipcode:
+          description: Postal/ZIP code
+          example: SW1A 1AA
+          title: Zipcode
+          type: string
+      required:
+      - country
+      title: Address
+      type: object
+    Ecommerce_Transaction_Payments_-_Public_Card:
+      example:
+        cvc: '123'
+        expiry_month: '02'
+        expiry_year: '2030'
+        number: '4111111111111111'
+      properties:
+        cvc:
+          description: 3 or 4 digit card verification code for the card
+          type: string
+        expiry_month:
+          description: 2-digit month of expiration for the card
+          type: string
+        expiry_year:
+          description: 4-digit year of expiration for the card
+          type: string
+        number:
+          description: Primary Account Number (PAN) of a card. Sent without spaces or dashes
+          type: string
+      required:
+      - cvc
+      - expiry_month
+      - expiry_year
+      - number
+      title: Card
+      type: object
+    Ecommerce_Transaction_Payments_-_Public_Cardholder:
+      description: Information about the cardholder
+      example:
+        email: john.doe@example.com
+        name: John Doe
+        phone_number: '+34610123456'
+      properties:
+        email:
+          description: Email address of the cardholder
+          example: john.doe@example.com
+          type: string
+        name:
+          description: Full name of the cardholder
+          example: John Doe
+          title: Cardholder Name
+          type: string
+        phone_number:
+          description: Phone number of the cardholder
+          example: '+34610123456'
+          type: string
+      required:
+      - name
+      title: Cardholder
+      type: object
+    Teya_Digital_Receipts_Service_CreateReceiptResponse:
+      type: object
+      description: Creates a url for customers to view their receipt.
+      example:
+        receipt_id: 01916f63-c6e0-75a9-9ef4-764ba287b2c6
+        transaction_id: 60cca1c7-38c5-4218-ba71-fb4a96836619
+        url: https://receipts.teya.com/01916f63-c6e0-75a9-9ef4-764ba287b2c6
+      properties:
+        receipt_id:
+          type: string
+          format: uuid
+          description: Id of the created receipt
+        transaction_id:
+          type: string
+          description: Transaction id, the same as in the request
+        url:
+          type: string
+          description: Url for receipt or error page in case or receipt generation failure
+      required:
+      - receipt_id
+      - transaction_id
+      - url
+      title: CreateReceiptResponse
+    RefundResponse:
+      type: object
+      description: A response to refund a transaction
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        refund_amount:
+          amount: 100
+          currency: GBP
+        card_acceptor_id: '5023045'
+        status: SUCCESS
+        issuer_result:
+          approval_code: '123456'
+          response_code: '00'
+        created_at: '2021-01-01T00:00:00.000Z'
+        dcc:
+          cardholder_amount:
+            amount: 100
+            currency: CHF
+          conversion_rate: '0.9517'
+          markup: '0.03'
+          ecb_markup: '0.01'
+      properties:
+        transaction_id:
+          type: string
+          description: Unique identifier of the refund created
+        status:
+          type: string
+          description: The status of the transaction
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+        status_reason:
+          type: string
+          description: Reason for `FAILURE` status
+          enum:
+          - ACCOUNT_INVALID
+          - CANNOT_VALIDATE_AUTHENTICATION
+          - CARD_COUNT_EXCEEDED
+          - CARD_DECLINED
+          - CARD_EXPIRED
+          - CARD_LIMIT_EXCEEDED
+          - CARD_NOT_ACTIVE
+          - DISABLED_ACCOUNT
+          - DO_NOT_HONOR
+          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
+          - EXCEEDS_AMOUNT_LIMIT
+          - FORMAT_ERROR
+          - INCORRECT_CARD_AUTHENTICATION
+          - INSUFFICIENT_FUNDS
+          - INVALID_CARD_NUMBER
+          - INVALID_TRANSACTION
+          - ISSUER_DECLINED
+          - LOST_OR_STOLEN
+          - MERCHANT_CONFIGURATION
+          - PIN_LIMIT_EXCEEDED
+          - PROCESSOR_UNAVAILABLE
+          - RESTRICTED_CARD
+          - SCA_PIN_REQUIRED
+          - SCA_REQUIRED
+          - SUSPECTED_FRAUD
+          - TEMPORARY_ISSUE_RETRY
+          - TIMEOUT
+          - TRANSACTION_NOT_ALLOWED
+          - UNABLE_TO_ROUTE_TRANSACTION
+          - UNSUPPORTED_ISSUER
+          - NEGATIVE_BALANCE_LIMIT
+          - OTHER
+        issuer_result:
+          $ref: '#/components/schemas/Payments_Refunds_Wrapper_API_RefundIssuerResult'
+          description: Result data for the refund according to issuer's response
+          title: IssuerResult
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the refund was created (in ISO 8601 with time-zone).
+        refund_amount:
+          $ref: '#/components/schemas/Payments_Refunds_Wrapper_API_Amount'
+          description: A positive integer representing the total amount refunded in the smallest currency unit (e.g., 100 cents to charge $1)
+          title: Amount
+        card_acceptor_id:
+          type: string
+          description: '`mid` or `card_acceptor_id` (ISO 8583 field standard).
+
+            Used to unique identify the merchant in the transaction.
+
+            '
+        dcc:
+          $ref: '#/components/schemas/Payments_Refunds_Wrapper_API_DccResponse'
+          description: DCC data used for the refund
+          title: DCC
+      required:
+      - card_acceptor_id
+      - issuer_result
+      - refund_amount
+      - status
+      - transaction_id
+      title: RefundResponse
+    Ecommerce_Transaction_Payments_-_Public_RedirectTransactionResponse:
+      description: 'The response for a transaction request where 3DS challenge is returned '
+      example:
+        authentication_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        created_at: '2022-03-01T15:29:59Z'
+        redirect_html: <html>...</html>
+        status: PENDING
+        transaction_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        updated_at: '2022-03-01T15:35:00Z'
+      properties:
+        authentication_id:
+          description: The unique identifier for the authentication
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          format: uuid
+          type: string
+        created_at:
+          description: The datetime that the transaction was created (ISO 8601 format)
+          example: '2022-03-01T15:29:59Z'
+          format: date-time
+          type: string
+        redirect_html:
+          description: 3DS html content to present to a client
+          example: https://merchant.com/callback
+          type: string
+        status:
+          description: The status of the transaction
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+          example: PENDING
+          type: string
+        transaction_id:
+          description: The unique identifier for the new transaction
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          format: uuid
+          type: string
+        updated_at:
+          description: The datetime that the transaction was updated (ISO 8601 format)
+          example: '2022-03-01T15:35:00Z'
+          format: date-time
+          type: string
+      required:
+      - authentication_id
+      - created_at
+      - redirect_html
+      - status
+      - transaction_id
+      - updated_at
+      title: RedirectTransactionResponse
+      type: object
+    CaptureRequest:
+      type: object
+      description: A request to capture pre-authorised transaction
+      example:
+        amount: 10
+        terminal_id: '12345678'
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: 'A positive integer representing the total amount to be charged to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
+
+            Note that it must be less than or equal to the original amount.
+
+            '
+        terminal_id:
+          type: string
+          description: The ID of the terminal processing the transaction. Only required when using a non-Teya terminal.
+          maxLength: 8
+          minLength: 1
+      required:
+      - amount
+      title: CaptureRequest
+    IssuerResult:
+      type: object
+      description: Result data from the issuer
+      properties:
+        approval_code:
+          type: string
+          description: Approval code from the issuer
+          example: '123456'
+        response_code:
+          type: string
+          description: Response code from the issuer
+          example: '00'
+        original_network_response_code:
+          type: string
+          description: Original network response code
+          example: '00'
+        emv_response:
+          type: string
+          description: Hex-encoded EMV response data returned by the issuer, in TLV format
+          example: 9F2608F8E8D9F2701809F101307010103A0A800010A01
+      title: IssuerResult
+    Ecommerce_Transaction_Payments_-_Public_LineItem:
+      example:
+        description: Shipping
+        quantity: 1
+        unit_price: 100
+      properties:
+        description:
+          description: This is a description for an item in the basket
+          type: string
+        quantity:
+          description: The number of items, must be a positive value
+          format: int32
+          type: integer
+        unit_price:
+          description: The price of a single item including VAT, Can be negative for discounts
+          format: int32
+          type: integer
+      required:
+      - description
+      - quantity
+      - unit_price
+      title: LineItem
+      type: object
+    Ecommerce_Transaction_Payments_-_Public_Amount:
+      description: 'The transaction amount in the smallest currency unit according to ISO 4217 format.
+
+        For example:
+
+        - 100 ISK (Icelandic króna): the amount is 100 (since 1 ISK = 1 subunit).
+
+        - 100 EUR (Euro): the amount is 10000 (since 1 EUR = 100 cents).
+
+        - 100 USD (US Dollar): the amount is 10000 (since 1 USD = 100 cents).
+
+        - 100 KWD (Kuwaiti Dinar): the amount is 100000 (since 1 KWD = 1000 fils).
+
+        '
+      example:
+        currency: GBP
+        value: 100
+      properties:
+        currency:
+          description: Currency code (e.g. `USD`, `GBP`, `EUR`) following ISO-4217 format.
+          enum:
+          - AED
+          - AFN
+          - ALL
+          - AMD
+          - ANG
+          - AOA
+          - ARS
+          - AUD
+          - AWG
+          - AZN
+          - BAM
+          - BBD
+          - BDT
+          - BGN
+          - BHD
+          - BIF
+          - BMD
+          - BND
+          - BOB
+          - BOV
+          - BRL
+          - BSD
+          - BTN
+          - BWP
+          - BYN
+          - BYR
+          - BZD
+          - CAD
+          - CDF
+          - CHE
+          - CHF
+          - CHW
+          - CLF
+          - CLP
+          - CNY
+          - COP
+          - COU
+          - CRC
+          - CUC
+          - CUP
+          - CVE
+          - CZK
+          - DJF
+          - DKK
+          - DOP
+          - DZD
+          - EGP
+          - ERN
+          - ETB
+          - EUR
+          - FJD
+          - FKP
+          - GBP
+          - GEL
+          - GHS
+          - GIP
+          - GMD
+          - GNF
+          - GTQ
+          - GYD
+          - HKD
+          - HNL
+          - HRK
+          - HTG
+          - HUF
+          - IDR
+          - ILS
+          - INR
+          - IQD
+          - IRR
+          - ISK
+          - JMD
+          - JOD
+          - JPY
+          - KES
+          - KGS
+          - KHR
+          - KMF
+          - KPW
+          - KRW
+          - KWD
+          - KYD
+          - KZT
+          - LAK
+          - LBP
+          - LKR
+          - LRD
+          - LSL
+          - LYD
+          - MAD
+          - MDL
+          - MGA
+          - MKD
+          - MMK
+          - MNT
+          - MOP
+          - MRO
+          - MRU
+          - MUR
+          - MVR
+          - MWK
+          - MXN
+          - MXV
+          - MYR
+          - MZN
+          - NAD
+          - NGN
+          - NIO
+          - NOK
+          - NPR
+          - NZD
+          - OMR
+          - PAB
+          - PEN
+          - PGK
+          - PHP
+          - PKR
+          - PLN
+          - PYG
+          - QAR
+          - RON
+          - RSD
+          - RUB
+          - RWF
+          - SAR
+          - SBD
+          - SCR
+          - SDG
+          - SEK
+          - SGD
+          - SHP
+          - SLE
+          - SLL
+          - SOS
+          - SRD
+          - SSP
+          - STD
+          - STN
+          - SVC
+          - SYP
+          - SZL
+          - THB
+          - TJS
+          - TMT
+          - TND
+          - TOP
+          - TRY
+          - TTD
+          - TWD
+          - TZS
+          - UAH
+          - UGX
+          - USD
+          - USN
+          - UYI
+          - UYU
+          - UZS
+          - VED
+          - VEF
+          - VES
+          - VND
+          - VUV
+          - WST
+          - XAF
+          - XCD
+          - XCG
+          - XOF
+          - XPF
+          - YER
+          - ZAR
+          - ZMW
+          - ZWL
+          format: enum
+          type: string
+        value:
+          description: The transaction amount in the smallest currency unit according to ISO 4217 format.
+          format: int64
+          maximum: 9223372036854
+          type: integer
+      required:
+      - currency
+      - value
+      title: Transaction Amount
+      type: object
+    Ecommerce_Transaction_Payments_-_Public_OnlineTransaction:
+      description: The response for a transaction request
+      example:
+        authentication_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        created_at: '2022-03-01T15:29:59Z'
+        issuer_result:
+          approval_code: '123456'
+          response_code: '00'
+        status: SUCCESS
+        transaction_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        updated_at: '2022-03-01T15:35:00Z'
+      properties:
+        authentication_id:
+          description: The unique identifier for the authentication
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          format: uuid
+          type: string
+        created_at:
+          description: The datetime that the transaction was created (ISO 8601 format)
+          format: date-time
+          type: string
+        issuer_result:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_IssuerResult'
+        status:
+          description: The status of the transaction
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+          example: SUCCESS
+          type: string
+        status_reason:
+          description: Detailed reasons for the transaction failure status. This is provided when the transaction response status is FAILURE and is null when the payment succeeds or is pending.
+          enum:
+          - ACCOUNT_INVALID
+          - BLOCKED_CARD
+          - BLOCKED_CROSS_BORDER_TRANSACTION
+          - AMOUNT_TOO_SMALL
+          - CANNOT_VALIDATE_AUTHENTICATION
+          - CARD_COUNT_EXCEEDED
+          - CARD_DECLINED
+          - CARD_EXPIRED
+          - CARD_LIMIT_EXCEEDED
+          - CARD_NOT_ACTIVE
+          - DISABLED_ACCOUNT
+          - DO_NOT_HONOR
+          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
+          - EXCEEDS_AMOUNT_LIMIT
+          - FORMAT_ERROR
+          - INCORRECT_CARD_AUTHENTICATION
+          - INSUFFICIENT_FUNDS
+          - INVALID_CARD_NUMBER
+          - INVALID_TRANSACTION
+          - ISSUER_DECLINED
+          - LOST_OR_STOLEN
+          - MERCHANT_CONFIGURATION
+          - NEGATIVE_BALANCE
+          - PIN_LIMIT_EXCEEDED
+          - PROCESSOR_UNAVAILABLE
+          - RESTRICTED_CARD
+          - SCA_PIN_REQUIRED
+          - SCA_REQUIRED
+          - SUSPECTED_FRAUD
+          - TEMPORARY_ISSUE_RETRY
+          - TIMEOUT
+          - TRANSACTION_NOT_ALLOWED
+          - UNABLE_TO_ROUTE_TRANSACTION
+          - UNSUPPORTED_ISSUER
+          - OTHER
+          format: enum
+          type: string
+        token_response:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_TokenCreationResponse'
+          description: The details of the created token
+        transaction_id:
+          description: The unique identifier for the new transaction
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          format: uuid
+          type: string
+        updated_at:
+          description: The datetime that the transaction was updated (ISO 8601 format)
+          format: date-time
+          type: string
+      required:
+      - authentication_id
+      - created_at
+      - status
+      - transaction_id
+      - updated_at
+      title: OnlineTransaction
+      type: object
+    Error:
+      type: object
+      description: Error response
+      example:
+        code: BAD_REQUEST
+        description: Invalid input
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - AMOUNT_TOO_SMALL
+          - BAD_REQUEST
+          - BLOCKED_CARD
+          - BLOCKED_CROSS_BORDER_TRANSACTION
+          - FORBIDDEN
+          - IDEMPOTENCE_KEY_NOT_FOUND
+          - INTERNAL_SERVER_ERROR
+          - INVALID_AUTHENTICATION_ID
+          - LOST_OR_STOLEN
+          - NEGATIVE_BALANCE_LIMIT
+          - NOT_FOUND
+          - PENDING_TRANSACTION_CANNOT_BE_REVERSED
+          - PRE_AUTH_UNSUPPORTED_SCHEME
+          - SERVICE_UNAVAILABLE
+          - TRANSACTION_CANNOT_BE_REVERSED
+          - TRANSACTION_NOT_FOUND
+          - UNAUTHORISED
+          - UNKNOWN
+          - UNSUPPORTED_ISSUER
+          - UNSUPPORTED_SCHEME
+        description:
+          type: string
+          description: The description of the error
+        invalid_params:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      required:
+      - code
+      - description
+      title: Error
+      x-internal: 'true'
+    MotoTransactionRequest:
+      type: object
+      description: A request to process a MOTO transaction
+      example:
+        type: SALE
+        terminal_id: '12345678'
+        merchant_reference: '1234567890'
+        amounts:
+          amount: 100
+          currency: USD
+        card_details:
+          encryption_key_id: 5EE0
+          encrypted_card_data: '34363136363937323538313530393338443235303444323539'
+          encryption_ksn: '123456789012'
+        transacted_at: '2021-01-01T00:00:00.000Z'
+        dcc:
+          quoted_at: '2024-01-01T10:00:00.000Z'
+          cardholder_amount:
+            amount: 78
+            currency: GBP
+      properties:
+        type:
+          type: string
+          format: enum
+          description: Whether this transaction is a SALE or PRE-AUTHORISATION.
+          enum:
+          - SALE
+          - PRE_AUTHORISATION
+        terminal_id:
+          type: string
+          description: The ID of the terminal processing the transaction. Only required when using a non-Teya terminal.
+          maxLength: 8
+          minLength: 1
+        merchant_reference:
+          type: string
+          description: An identifier to reference the transaction on the merchant's side
+          maxLength: 60
+          minLength: 1
+        amounts:
+          $ref: '#/components/schemas/Amount'
+          description: The total amount charged to the customer
+          title: PurchaseAmount
+        card_details:
+          $ref: '#/components/schemas/EncryptedMotoCard'
+          description: The details of the card used in the transaction
+          title: CardDetails
+        transacted_at:
+          type: string
+          format: date-time
+          description: The datetime with time-zone when the transaction took place (ISO-8601)
+        dcc:
+          $ref: '#/components/schemas/DccRequest'
+          description: DCC data to be used for the transaction
+          title: DccRequest
+      required:
+      - amounts
+      - card_details
+      - transacted_at
+      - type
+      title: MotoTransactionRequest
+    Ecommerce_Transaction_Payments_-_Public_Token:
+      description: A saved payment method token for recurring or card-on-file transactions
+      example:
+        token_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        recurring_payment_type: CARD_ON_FILE
+      properties:
+        token_id:
+          description: The unique identifier of the saved token
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          format: uuid
+          type: string
+        recurring_payment_type:
+          description: The type of recurring payment
+          enum:
+          - CARD_ON_FILE
+          - RECURRING
+          - INSTALLMENT
+          format: enum
+          type: string
+      required:
+      - token_id
+      - recurring_payment_type
+      title: Token
+      type: object
+    EncryptedMotoCard:
+      type: object
+      example:
+        encryption_key_id: 5EE0
+        encrypted_card_data: '34363136363937323538313530393338443235303444323539'
+        encryption_ksn: '123456789012'
+        encryption_mode: ECB
+        encryption_padding: F_PADDING
+      properties:
+        encryption_key_id:
+          type: string
+          description: Identifier of the encryption key used for encrypting the card number
+          minLength: 1
+        encrypted_card_data:
+          type: string
+          description: 'Encrypted card data for a card not present transaction.
+
+
+            Card Data structure:
+
+
+            | Field Name | Length | Comments |
+
+            | --- | --- | --- |
+
+            | Primary Account Number (PAN) | up to 19 digits | Credit/debit card number |
+
+            | Field Separator (FS) | 1 character | Delimits Data fields; set to ''='' |
+
+            | Expiration Date (ED) | 4 digits | Always in the format YYMM |
+
+            | Field Separator (FS) | 1 character | Delimits Data fields; set to ''='' |
+
+            | Card Verification Value 2 (CVV2) | 3 or 4 digits | Card''s CVV2 value |
+
+            '
+          minLength: 1
+        encryption_ksn:
+          type: string
+          description: Identifier of the encryption key serial number (KSN) used for encrypting the card data
+          maxLength: 20
+          minLength: 12
+        encryption_mode:
+          type: string
+          format: enum
+          default: ECB
+          description: Encryption mode used for encrypting the card data (ECB or CBC)
+          enum:
+          - ECB
+          - CBC
+        encryption_padding:
+          type: string
+          format: enum
+          default: F_PADDING
+          description: Padding method used for encrypting the card data (F_PADDING or PKCS7)
+          enum:
+          - F_PADDING
+          - PKCS7
+      required:
+      - encrypted_card_data
+      - encryption_key_id
+      - encryption_ksn
+      title: EncryptedMotoCard
+    Ecommerce_Transaction_Payments_-_Public_TokenCreationResponse:
+      description: Details of the token which was created and if any failures will have the failure reason
+      example:
+        token_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        token_status: SUCCESS
+      properties:
+        failure_reason:
+          description: Failure reason
+          example: Card not valid for tokenization
+          type: string
+        token_id:
+          description: ID for the token which can be used for future payments
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          title: TokenId
+          type: string
+        token_status:
+          description: Status of the token creation
+          enum:
+          - SUCCESS
+          - FAILED
+          format: enum
+          type: string
+      required:
+      - token_status
+      title: TokenResponse
+      type: object
+    Ecommerce_Transaction_Payments_-_Public_IssuerResult:
+      description: Result data for the transaction according to issuer's response
+      example:
+        approval_code: '123456'
+        response_code: '00'
+      properties:
+        approval_code:
+          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+          type: string
+        response_code:
+          description: Response code returned by the issuer, indicating the result of the operation as per ISO-8583 (https://en.wikipedia.org/wiki/ISO_8583#Ver_1987)
+          type: string
+      title: IssuerResult
+      type: object
+    Ecommerce_Transaction_Payments_-_Public_ProcessTransactionResponseV2:
+      description: The response for a transaction request
+      example:
+        online_transaction:
+          authentication_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          created_at: '2022-03-01T15:29:59Z'
+          issuer_result:
+            approval_code: '123456'
+            response_code: '00'
+          status: SUCCESS
+          token_response:
+            token_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+            token_status: SUCCESS
+          transaction_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          updated_at: '2022-03-01T15:35:00Z'
+        type: ONLINE_TRANSACTION
+      properties:
+        online_transaction:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_OnlineTransaction'
+        redirect_transaction_response:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_RedirectTransactionResponse'
+        type:
+          enum:
+          - ONLINE_TRANSACTION
+          - REDIRECT_TRANSACTION_RESPONSE
+          type: string
+      title: ProcessTransactionResponseV2
+      type: object
+    MotoTransactionResponse:
+      type: object
+      description: The response for a processed MOTO transaction
+      example:
+        transaction_id: tr_5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        status: SUCCESS
+        issuer_result:
+          approval_code: '123456'
+          response_code: '00'
+        processed_at: '2021-01-01T00:00:00.000Z'
+      properties:
+        transaction_id:
+          type: string
+          description: The unique identifier for the processed transaction
+        status:
+          type: string
+          description: The transaction status
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+        status_reason:
+          type: string
+          description: If the transaction fails, the reason why it failed
+          enum:
+          - ACCOUNT_INVALID
+          - CANNOT_VALIDATE_AUTHENTICATION
+          - CARD_COUNT_EXCEEDED
+          - CARD_DECLINED
+          - CARD_EXPIRED
+          - CARD_LIMIT_EXCEEDED
+          - CARD_NOT_ACTIVE
+          - DISABLED_ACCOUNT
+          - DO_NOT_HONOR
+          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
+          - EXCEEDS_AMOUNT_LIMIT
+          - FORMAT_ERROR
+          - INCORRECT_CARD_AUTHENTICATION
+          - INSUFFICIENT_FUNDS
+          - INVALID_CARD_NUMBER
+          - INVALID_TRANSACTION
+          - ISSUER_DECLINED
+          - LOST_OR_STOLEN
+          - MERCHANT_CONFIGURATION
+          - PIN_LIMIT_EXCEEDED
+          - PROCESSOR_UNAVAILABLE
+          - RESTRICTED_CARD
+          - SCA_PIN_REQUIRED
+          - SCA_REQUIRED
+          - SUSPECTED_FRAUD
+          - TEMPORARY_ISSUE_RETRY
+          - TIMEOUT
+          - TRANSACTION_NOT_ALLOWED
+          - UNABLE_TO_ROUTE_TRANSACTION
+          - UNSUPPORTED_ISSUER
+          - NEGATIVE_BALANCE
+          - INSUFFICIENT_MERCHANT_BALANCE
+          - OTHER
+        issuer_result:
+          $ref: '#/components/schemas/MotoIssuerResult'
+          description: Result data for the transaction according to issuer's response
+          title: MotoIssuerResult
+        processed_at:
+          type: string
+          format: date-time
+          description: The datetime in UTC when the transaction was processed (ISO-8601)
+      required:
+      - issuer_result
+      - status
+      - transaction_id
+      title: MotoTransactionResponse
+    CaptureResponse:
+      type: object
+      description: The response for a processed capture
+      example:
+        transaction_id: tr_5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        card_acceptor_id: '50001325'
+        status: SUCCESS
+        issuer_result:
+          response_code: '00'
+          approval_code: '123456'
+        processed_at: '2021-01-01T00:00:00.000Z'
+      properties:
+        transaction_id:
+          type: string
+          description: The unique identifier for the created capture
+        card_acceptor_id:
+          type: string
+          description: '`mid` or `card_acceptor_id` (ISO 8583 field standard)'
+        status:
+          type: string
+          description: The status of the transaction
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+        status_reason:
+          type: string
+          description: Reason for `FAILURE` status
+          enum:
+          - ACCOUNT_INVALID
+          - CANNOT_VALIDATE_AUTHENTICATION
+          - CARD_COUNT_EXCEEDED
+          - CARD_DECLINED
+          - CARD_EXPIRED
+          - CARD_LIMIT_EXCEEDED
+          - CARD_NOT_ACTIVE
+          - DISABLED_ACCOUNT
+          - DO_NOT_HONOR
+          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
+          - EXCEEDS_AMOUNT_LIMIT
+          - FORMAT_ERROR
+          - INCORRECT_CARD_AUTHENTICATION
+          - INSUFFICIENT_FUNDS
+          - INVALID_CARD_NUMBER
+          - INVALID_TRANSACTION
+          - ISSUER_DECLINED
+          - LOST_OR_STOLEN
+          - MERCHANT_CONFIGURATION
+          - PIN_LIMIT_EXCEEDED
+          - PROCESSOR_UNAVAILABLE
+          - RESTRICTED_CARD
+          - SCA_PIN_REQUIRED
+          - SCA_REQUIRED
+          - SUSPECTED_FRAUD
+          - TEMPORARY_ISSUE_RETRY
+          - TIMEOUT
+          - TRANSACTION_NOT_ALLOWED
+          - UNABLE_TO_ROUTE_TRANSACTION
+          - UNSUPPORTED_ISSUER
+          - NEGATIVE_BALANCE
+          - OTHER
+        issuer_result:
+          $ref: '#/components/schemas/CaptureIssuerResult'
+          description: Result data for the transaction according to issuer's response
+          title: CaptureIssuerResult
+        processed_at:
+          type: string
+          format: date-time
+          description: The datetime in UTC when the transaction was processed (ISO-8601)
+      required:
+      - card_acceptor_id
+      - issuer_result
+      - status
+      - transaction_id
+      title: CaptureResponse
+    Ecommerce_Transaction_Payments_-_Public_PaymentMethod:
+      example:
+        card:
+          cvc: '123'
+          expiry_month: '02'
+          expiry_year: '2030'
+          number: '4111111111111111'
+        type: CARD
+      properties:
+        apple_pay_authentication_data:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_ApplePayAuthenticationData'
+          description: Apple Pay Authentication Data
+        card:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Card'
+          description: Card payment method
+        token:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Token'
+          description: Token for saved payment method
+        type:
+          description: Payment method type
+          enum:
+          - CARD
+          - TOKEN
+          - APPLE_PAY
+          format: enum
+          type: string
+      required:
+      - type
+      title: PaymentMethod
+      type: object
+    Payments_Refunds_Wrapper_API_RefundIssuerResult:
+      type: object
+      example:
+        approval_code: '123456'
+        response_code: '00'
+      properties:
+        approval_code:
+          type: string
+          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+        response_code:
+          type: string
+          description: Response code returned by the issuer, indicating the result of the operation
+      title: IssuerResult
+    TransactionResponse:
+      type: object
+      description: The response for a processed transaction
+      example:
+        transaction_id: tr_5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        card_acceptor_id: '50001325'
+        status: SUCCESS
+        issuer_result:
+          response_code: '00'
+          approval_code: '123456'
+          emv_response: 9F2608F8E8D9F2701809F101307010103A0A800010A01
+        processed_at: '2021-01-01T00:00:00.000Z'
+      properties:
+        transaction_id:
+          type: string
+          description: The unique identifier for the processed transaction
+        card_acceptor_id:
+          type: string
+          description: '`mid` or `card_acceptor_id` (ISO 8583 field standard)'
+        status:
+          type: string
+          description: The status of the transaction
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+        status_reason:
+          type: string
+          description: Reason for `FAILURE` status
+          enum:
+          - ACCOUNT_INVALID
+          - CANNOT_VALIDATE_AUTHENTICATION
+          - CARD_COUNT_EXCEEDED
+          - CARD_DECLINED
+          - CARD_EXPIRED
+          - CARD_LIMIT_EXCEEDED
+          - CARD_NOT_ACTIVE
+          - DISABLED_ACCOUNT
+          - DO_NOT_HONOR
+          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
+          - EXCEEDS_AMOUNT_LIMIT
+          - FORMAT_ERROR
+          - INCORRECT_CARD_AUTHENTICATION
+          - INSUFFICIENT_FUNDS
+          - INVALID_CARD_NUMBER
+          - INVALID_TRANSACTION
+          - ISSUER_DECLINED
+          - LOST_OR_STOLEN
+          - MERCHANT_CONFIGURATION
+          - PIN_LIMIT_EXCEEDED
+          - PROCESSOR_UNAVAILABLE
+          - RESTRICTED_CARD
+          - SCA_PIN_REQUIRED
+          - SCA_REQUIRED
+          - SUSPECTED_FRAUD
+          - TEMPORARY_ISSUE_RETRY
+          - TIMEOUT
+          - TRANSACTION_NOT_ALLOWED
+          - UNABLE_TO_ROUTE_TRANSACTION
+          - UNSUPPORTED_ISSUER
+          - NEGATIVE_BALANCE
+          - OTHER
+        issuer_result:
+          $ref: '#/components/schemas/IssuerResult'
+          description: Result data for the transaction according to issuer's response
+          title: IssuerResult
+        processed_at:
+          type: string
+          format: date-time
+          description: The datetime in UTC when the transaction was processed (ISO-8601)
+      required:
+      - card_acceptor_id
+      - issuer_result
+      - status
+      - transaction_id
+      title: TransactionResponse
+    Teya_Digital_Receipts_Service_Error:
+      type: object
+      description: Error response
+      example:
+        code: BAD_REQUEST
+        description: Invalid input
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - BAD_REQUEST
+          - UNAUTHORISED
+          - FORBIDDEN
+          - INTERNAL_SERVER_ERROR
+          - TOO_MANY_REQUESTS
+          - NOT_FOUND
+          - NOT_ACCEPTABLE
+        description:
+          type: string
+          description: The description of the error
+      required:
+      - code
+      - description
+      title: Error
+    CaptureIssuerResult:
+      type: object
+      description: Issuer result data for capture transactions
+      properties:
+        approval_code:
+          type: string
+          description: Approval code from the issuer
+          example: '123456'
+        response_code:
+          type: string
+          description: Response code from the issuer
+          example: '00'
+        original_network_response_code:
+          type: string
+          description: Original network response code
+          example: '00'
+      title: CaptureIssuerResult
+    Amount:
+      type: object
+      description: Amount object
+      properties:
+        amount:
+          type: integer
+          description: Amount in the smallest currency unit (e.g., cents)
+          minimum: 1
+          example: 1000
+        currency:
+          type: string
+          description: 3-letter ISO currency code
+          pattern: ^[A-Z]{3}$
+          example: USD
+      required:
+      - amount
+      - currency
+      title: Amount
+    Ecommerce_Transaction_Payments_-_Public_ProcessTransactionRequestV2:
+      description: A request to process a transaction
+      example:
+        amount:
+          currency: GBP
+          value: 100
+        browser_data:
+          accept_language: en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6
+          ip_address: 127.0.0.1
+          screen_height: 1080
+          screen_width: 1920
+          user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+        billing_address:
+          name: John Doe
+          country: GB
+          city: London
+          state: Greater London
+          street_address_line1: 123 High Street
+          street_address_line2: Flat 4
+          zipcode: SW1A 1AA
+        cardholder:
+          name: John Doe
+        customer_contact:
+          phone_number: '+447123456789'
+          email: john.doe@example.com
+        initiator: CUSTOMER
+        line_items:
+        - description: Product Name
+          id: 550e8400-e29b-41d4-a716-446655440000
+          quantity: 2
+          unit_price: 1000
+        merchant_reference_id: '1234567890'
+        payment_method:
+          card:
+            cvc: '123'
+            expiry_month: '02'
+            expiry_year: '2030'
+            number: '4111111111111111'
+          type: CARD
+        redirect_url: https://mywebsite.com/processing
+        shipping_address:
+          name: Jane Doe
+          country: GB
+          city: Manchester
+          state: Greater Manchester
+          street_address_line1: 456 Oak Avenue
+          zipcode: M1 1AA
+        store_id: 7a3f2c21-5d6e-4637-8d8a-1f178d4d2a0e
+        store_payment_method: true
+        transaction_context:
+          payment_link_id: 1e2d4f80-9c3e-4f5b-83aa-9e8d2b6a6c49
+          session_id: 1e2d4f80-9c3e-4f5b-83aa-9e8d2b6a6c49
+        type: SALE
+      properties:
+        amount:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Amount'
+        billing_address:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Address'
+          description: Optional billing address of the customer
+        browser_data:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_BrowserData'
+          description: An optional parameter that provides browser data to the issuing bank, potentially increasing authorization rates.
+        cardholder:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Cardholder'
+          description: Optional cardholder information that increases authorization success with fewer payment challenges.
+        customer_contact:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_CustomerContact'
+          description: Optional customer contact details
+        initiator:
+          description: 'Identifies which actor initiated the transaction, the customer (such as in an immediate sale) or the merchant
+
+            (such as in a previously pre-authorized capture or a recurrent payment after the initial payment). Will default to customer if not provided.
+
+            This is primarily used to determine whether the consumer is present for the transaction and therefore SCA/3DS may be used.
+
+            '
+          enum:
+          - CUSTOMER
+          - MERCHANT
+          format: enum
+          type: string
+        line_items:
+          description: Optional list of line items for the transaction
+          items:
+            $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_LineItem'
+          type: array
+        merchant_reference_id:
+          description: An identifier that can be used to reference the transaction on the merchant's side. Overrides 'source_reference_id
+          example: '1234567890'
+          maxLength: 60
+          type: string
+        payment_method:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_PaymentMethod'
+          description: Payment method to be used in the transaction
+        redirect_url:
+          description: URL to redirect the customer to after 3DS completes in case 3DS will be web based. Will be shared with the 3DS provider.
+          type: string
+        shipping_address:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Address'
+          description: Optional shipping address for the order
+        store_payment_method:
+          description: When set to true, the payment method will be tokenized and a token_id returned in the response for future use.
+          type: boolean
+          example: true
+        store_id:
+          description: The unique identifier of a store
+          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          format: uuid
+          title: Store Id
+          type: string
+        type:
+          description: 'The transaction type. Use SALE for standard payments, PRE_AUTHORISATION to reserve funds for later capture, or ACCOUNT_VERIFICATION to verify a card and optionally tokenize it without charging the customer.
+
+            '
+          enum:
+          - SALE
+          - PRE_AUTHORISATION
+          - ACCOUNT_VERIFICATION
+          format: enum
+          type: string
+      required:
+      - amount
+      - initiator
+      - payment_method
+      - store_id
+      - type
+      title: ProcessTransactionRequestV2
+      type: object
+    Ecommerce_Transaction_Payments_-_Public_CustomerContact:
+      description: Customer contact details
+      example:
+        phone_number: '+34610123456'
+        email: john.doe@example.com
+      properties:
+        phone_number:
+          description: Customer's phone number
+          example: '+34610123456'
+          type: string
+        email:
+          description: Customer's email address
+          example: john.doe@example.com
+          type: string
+      title: CustomerContact
+      type: object
+    DccRequest:
+      type: object
+      description: Dynamic Currency Conversion request
+      properties:
+        quoted_at:
+          type: string
+          format: date-time
+          description: When the DCC rate was quoted
+          example: '2024-01-01T10:00:00.000Z'
+        cardholder_amount:
+          $ref: '#/components/schemas/Amount'
+          description: Amount in cardholder's currency
+      required:
+      - quoted_at
+      - cardholder_amount
+      title: DccRequest
+    TerminalData:
+      type: object
+      description: Terminal specific data for transactions
+      properties:
+        entry_mode_extra_capabilities:
+          type: array
+          description: Additional entry mode capabilities
+          items:
+            type: string
+            enum:
+            - CONTACTLESS_EMV
+            - CONTACTLESS_MAGSTRIPE
+          example:
+          - CONTACTLESS_EMV
+        cvm_extra_capabilities:
+          type: array
+          description: Additional cardholder verification method capabilities
+          items:
+            type: string
+            enum:
+            - CONSUMER_DEVICE
+            - BIOMETRIC
+          example:
+          - CONSUMER_DEVICE
+      title: TerminalData

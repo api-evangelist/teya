@@ -1,0 +1,211 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- name: Captures
+  description: Operations related to capturing pre-authorised transactions.
+  x-displayName: Captures
+paths:
+  /v1/transactions/{id}/capture:
+    post:
+      tags:
+      - Captures
+      summary: Capture a pre-authorised transaction
+      description: 'API to capture a previously pre-authorised transaction.
+
+        <br><br><strong>Usage notes:</strong>
+
+        <ul>
+
+        <li>The capture amount must be less than or equal to the original authorisation amount.</li>
+
+        <li>Only one capture is allowed per pre-authorised transaction. Once captured (fully or partially), the transaction cannot be captured again.</li>
+
+        </ul>
+
+        <br><strong>Access Token Required scope:</strong> captures/create
+
+        '
+      operationId: captureTransaction
+      parameters:
+      - name: id
+        in: path
+        description: The transaction ID of the pre-authorisation to capture
+        required: true
+        schema:
+          type: string
+          description: The transaction ID of the pre-authorisation to capture
+          minLength: 1
+          maxLength: 64
+          example: tr_5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+      - name: Idempotency-Key
+        in: header
+        description: 'A unique key to identify the request.
+
+          If the request is repeated with the same key, the same response will be returned.
+
+          If the request is repeated with a different key or without a key, a new capture will be created.
+
+          '
+        required: false
+        schema:
+          type: string
+          description: 'A unique key to identify the request.
+
+            If the request is repeated with the same key, the same response will be returned.
+
+            If the request is repeated with a different key or without a key, a new capture will be created.
+
+            '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaptureRequest'
+        required: true
+      responses:
+        '201':
+          description: Capture processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptureResponse'
+        '202':
+          description: Capture processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptureResponse'
+        '400':
+          description: Bad Request
+          content: {}
+        '401':
+          description: Unauthorised
+          content: {}
+        '403':
+          description: Forbidden
+          content: {}
+        '404':
+          description: Transaction not found
+          content: {}
+        '409':
+          description: Conflict
+          content: {}
+        '500':
+          description: Internal Server Error
+          content: {}
+      security:
+      - Ecommerce_Transaction_Payments_-_Public_oauth: []
+components:
+  schemas:
+    CaptureRequest:
+      type: object
+      description: A request to capture a pre-authorised transaction
+      example:
+        amount: 1000
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the amount to capture in the smallest currency unit (e.g., 100 cents to charge $1). Must be less than or equal to the original authorisation amount.
+      required:
+      - amount
+      title: CaptureRequest
+    Payments_Gateway_Service_CaptureIssuerResult:
+      type: object
+      example:
+        approval_code: '123456'
+        response_code: '00'
+      properties:
+        approval_code:
+          type: string
+          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+        response_code:
+          type: string
+          description: Response code returned by the issuer, indicating the result of the operation
+      title: CaptureIssuerResult
+    CaptureResponse:
+      type: object
+      description: A response to a capture request
+      example:
+        transaction_id: tr_5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        card_acceptor_id: '50001325'
+        status: SUCCESS
+        issuer_result:
+          approval_code: '123456'
+          response_code: '00'
+        processed_at: '2021-01-01T00:00:00.000Z'
+      properties:
+        transaction_id:
+          type: string
+          description: Unique identifier of the capture created
+        card_acceptor_id:
+          type: string
+          description: '`mid` or `card_acceptor_id` (ISO 8583 field standard).
+
+            Used to uniquely identify the merchant in the transaction.
+
+            '
+        status:
+          type: string
+          description: The status of the capture
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+        status_reason:
+          type: string
+          description: Reason for `FAILURE` status
+          enum:
+          - ACCOUNT_INVALID
+          - CANNOT_VALIDATE_AUTHENTICATION
+          - CARD_COUNT_EXCEEDED
+          - CARD_DECLINED
+          - CARD_EXPIRED
+          - CARD_LIMIT_EXCEEDED
+          - CARD_NOT_ACTIVE
+          - DISABLED_ACCOUNT
+          - DO_NOT_HONOR
+          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
+          - EXCEEDS_AMOUNT_LIMIT
+          - FORMAT_ERROR
+          - INCORRECT_CARD_AUTHENTICATION
+          - INSUFFICIENT_FUNDS
+          - INVALID_CARD_NUMBER
+          - INVALID_TRANSACTION
+          - ISSUER_DECLINED
+          - LOST_OR_STOLEN
+          - MERCHANT_CONFIGURATION
+          - PIN_LIMIT_EXCEEDED
+          - PROCESSOR_UNAVAILABLE
+          - RESTRICTED_CARD
+          - SCA_PIN_REQUIRED
+          - SCA_REQUIRED
+          - SUSPECTED_FRAUD
+          - TEMPORARY_ISSUE_RETRY
+          - TIMEOUT
+          - TRANSACTION_NOT_ALLOWED
+          - UNABLE_TO_ROUTE_TRANSACTION
+          - UNSUPPORTED_ISSUER
+          - NEGATIVE_BALANCE_LIMIT
+          - OTHER
+        issuer_result:
+          $ref: '#/components/schemas/Payments_Gateway_Service_CaptureIssuerResult'
+          description: Result data for the capture according to issuer's response
+          title: IssuerResult
+        processed_at:
+          type: string
+          format: date-time
+          description: The date and time the capture was processed (in ISO 8601 with time-zone).
+      required:
+      - card_acceptor_id
+      - status
+      - transaction_id
+      title: CaptureResponse

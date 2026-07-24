@@ -1,0 +1,54 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures Tokens API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- name: Tokens
+  description: Token management for saved payment methods
+  x-displayName: Tokens
+paths:
+  /v1/tokens/{token_id}:
+    delete:
+      tags:
+      - Tokens
+      summary: Delete a saved payment token
+      description: 'Remove a previously saved payment method token. Once deleted, the token can no longer be used for transactions.
+
+        <br><strong>Access Token Required scope:</strong> token/delete
+
+        '
+      operationId: deleteToken
+      parameters:
+      - name: token_id
+        in: path
+        description: The unique identifier of the token to delete
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+      - name: store_id
+        in: query
+        description: The store that owns the token
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+      responses:
+        '204':
+          description: Token successfully deleted
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Token not found
+        '500':
+          description: Internal Server Error

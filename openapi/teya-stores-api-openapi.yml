@@ -1,0 +1,473 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures Stores API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- name: Stores
+paths:
+  /poslink/v1/stores/{store_id}/configs/{config_key}:
+    put:
+      tags:
+      - Stores
+      summary: Set a terminal configuration for a store
+      description: Sets a configuration value for the store. The value applies to all terminals in the store. Valid values depend on the config_key - for example, PAT_ENABLED accepts true or false; other values return 400. Calling this endpoint again with the same value has no additional effect.
+      operationId: updateTerminalConfig
+      parameters:
+      - name: store_id
+        in: path
+        description: The store the configuration applies to
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+      - name: config_key
+        in: path
+        description: The configuration key to set
+        required: true
+        schema:
+          type: string
+        example: PAT_ENABLED
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTerminalConfigRequest'
+        required: true
+      responses:
+        '200':
+          description: Configuration updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerminalConfigItem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+      x-kong-plugin-rate-limiting-pre-auth:
+        config:
+          second: 2
+          policy: redis
+          limit_by: ip
+  /poslink/v1/stores:
+    get:
+      tags:
+      - Stores
+      summary: Retrieve a list of stores
+      description: '### No Permission Required - This is an endpoint that does not require permission
+
+        ---
+
+
+        Retrieves all stores for a given merchant.
+
+
+        **Required Scopes (one of the following):**
+
+
+        - `stores/id/terminals` (returned via the register API: `POST /poslink/v1/epos/register`)
+
+        - `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)
+
+        '
+      operationId: getStores
+      responses:
+        '200':
+          description: Stores data successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrieveStoreResponse'
+              examples:
+                Main_Store:
+                  description: Main_Store
+                  value:
+                    stores:
+                    - id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                      name: Mari Sucos - Main Store
+                      address:
+                        city: Porto
+                        country: PT
+                        street_address_line_1: Rua da boavista 531
+                        street_address_line_2: Towns
+                        zipcode: 4050-104
+                    - id: 34a735b9-58a6-4622-af5f-054e6d87e22d
+                      name: Mari Sucos - Fast Express
+                      address:
+                        city: Lisboa
+                        country: PT
+                        street_address_line_1: Avenida dos almirantes 112
+                        street_address_line_2: ''
+                        zipcode: 4098-104
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+      x-permission-set:
+        no-permission: true
+        description: This is an endpoint that does not require permission
+      x-kong-plugin-scope-authorisation:
+        config:
+          required_scopes:
+          - stores/id/terminals
+          - default_access
+        enabled: true
+  /poslink/v1/stores/{store_id}/terminals/{terminal_id}/configs:
+    get:
+      tags:
+      - Stores
+      summary: Retrieve configurations for a terminal scoped to a store
+      description: Returns all configurations for the store. The terminal_id is recorded so future configuration updates can be pushed to this terminal.
+      operationId: getTerminalConfigs
+      parameters:
+      - name: store_id
+        in: path
+        description: The store the terminal belongs to
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+      - name: terminal_id
+        in: path
+        description: The terminal whose configurations are being fetched
+        required: true
+        schema:
+          type: string
+        example: term-001
+      responses:
+        '200':
+          description: Configurations retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerminalConfigsResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+components:
+  schemas:
+    ExceptionResponse:
+      type: object
+      example:
+        code: BAD_REQUEST
+        description: Bad Request
+      properties:
+        code:
+          type: string
+          format: enum
+          description: Error code
+          example: BAD_REQUEST
+        description:
+          type: string
+          description: Error description
+          example: Bad Request
+        invalid_params:
+          type: array
+          description: List of invalid request parameters. Populated for validation failures (400 / 422); omitted otherwise.
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      title: ExceptionResponse
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
+    Store:
+      type: object
+      example:
+        id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+        name: Mari Sucos - Main Store
+        address:
+          city: Porto
+          country: PT
+          street_address_line_1: Rua da boavista 531
+          street_address_line_2: Towns
+          zipcode: 4050-104
+      properties:
+        id:
+          type: string
+          description: The store identifier
+          example: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+        name:
+          type: string
+          description: The name of the store
+          example: Mari Sucos - Main Store
+        address:
+          $ref: '#/components/schemas/Address'
+          description: The address of the store
+        company_id:
+          type: string
+          description: The company identifier
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+          writeOnly: true
+      title: Store
+    UpdateTerminalConfigRequest:
+      type: object
+      properties:
+        value:
+          type: string
+          description: The value for the given configuration key. Accepted values depend on the key. For example, PAT_ENABLED accepts true or false; any other value results in a 400 response.
+          example: 'true'
+          title: Configuration Value
+      title: Update Configuration Request
+    RetrieveStoreResponse:
+      type: object
+      example:
+        stores:
+        - id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+          name: Mari Sucos - Main Store
+          address:
+            city: Porto
+            country: PT
+            street_address_line_1: Rua da boavista 531
+            street_address_line_2: Towns
+            zipcode: 4050-104
+        - id: 34a735b9-58a6-4622-af5f-054e6d87e22d
+          name: Mari Sucos - Fast Express
+          address:
+            city: Lisboa
+            country: PT
+            street_address_line_1: Avenida dos almirantes 112
+            street_address_line_2: ''
+            zipcode: 4098-104
+      properties:
+        stores:
+          type: array
+          items:
+            $ref: '#/components/schemas/Store'
+      title: RetrieveStoreResponse
+    TerminalConfigItem:
+      type: object
+      properties:
+        config_key:
+          type: string
+          description: The configuration key
+          example: PAT_ENABLED
+          title: Configuration Key
+        value:
+          type: string
+          description: The configuration value
+          example: 'true'
+          title: Configuration Value
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp of the last update to this entry, in ISO 8601 format
+          example: '2026-05-20T10:00:00Z'
+          title: Updated At
+      title: Configuration Item
+    TerminalConfigsResponse:
+      type: object
+      properties:
+        configs:
+          type: array
+          description: Configurations applicable to the terminal
+          items:
+            $ref: '#/components/schemas/TerminalConfigItem'
+          title: Configurations
+      title: Configuration Response
+    Address:
+      type: object
+      example:
+        address:
+          city: Porto
+          country: PT
+          street_address_line_1: Rua da boavista 531
+          street_address_line_2: Towns
+          zipcode: 4050-104
+      properties:
+        city:
+          type: string
+          description: Name of the city where the store is located
+          example: Porto
+        country:
+          type: string
+          format: ISO 3166
+          description: Name of the country where the store is located. Must be a valid ISO 3166 code.
+          example: PT
+        street_address_line_1:
+          type: string
+          description: Street address of the store
+          example: Rua da boavista 531
+        street_address_line_2:
+          type: string
+          description: Street address of the store
+          example: Towns
+        zipcode:
+          type: string
+          description: Zip code of the store
+          example: 4050-104
+      title: Address

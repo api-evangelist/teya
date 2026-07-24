@@ -1,0 +1,1707 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures Payment Requests API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- name: Payment Requests
+paths:
+  /poslink/v3/payment-requests:
+    post:
+      tags:
+      - Payment Requests
+      summary: Create a payment request
+      description: "Creates a new payment request.\n\nSupports two flows in a single endpoint:\n- **Standalone payment** — omit `tab_id` and `payment_type`; behaves like v2.\n- **Pay at Table (PAT)** — supply `tab_id` (the tab to link the payment to) and\n  `payment_type` (`FULL` or `SPLIT`). `payment_type` is\n  required whenever `tab_id` is present.\n\n**Required Scopes (one of the following):**\n\n- `payment_requests` (returned via the register API: `POST /poslink/v1/epos/register`)\n- `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)\n"
+      operationId: createPaymentV3
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        description: 'A unique key used to identify the request. Repeating the request with the same key will return the same response.
+
+          Use different keys for different requests.
+
+          Use the same key for retries of the same request.
+
+          '
+        required: true
+        schema:
+          type: string
+          description: 'A unique key used to identify the request. Repeating the request with the same key will return the same response.
+
+            Use different keys for different requests.
+
+            Use the same key for retries of the same request.
+
+            '
+          maxLength: 64
+          minLength: 1
+      requestBody:
+        description: Payment request payload. Use SALE to take a card payment, REFUND to give a standalone unreferenced refund (card present, no original sale to reference), or supply a tab_id to settle a Pay at Table tab (SALE only).
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequestV3'
+            examples:
+              sale_standalone:
+                summary: Take a card payment — the customer pays the merchant at the terminal
+                description: sale_standalone
+                value:
+                  store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+                  terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                  requested_amount:
+                    amount: 1500
+                    currency: GBP
+                    tip: 10
+                  transaction_type: SALE
+                  merchant_reference: ORDER_123
+                  epos_instance_id: eposName_1
+                  basket_transaction_id: 2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b
+              refund_standalone:
+                summary: Give an unreferenced refund — return money to the customer's card with no original sale to reference (card present)
+                description: refund_standalone
+                value:
+                  store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+                  terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                  requested_amount:
+                    amount: 1500
+                    currency: GBP
+                    tip: 0
+                  transaction_type: REFUND
+                  merchant_reference: REFUND_ORDER_123
+                  epos_instance_id: eposName_1
+              pay_at_table_sale:
+                summary: Pay at Table — settle against an open tab (SALE only; refunds are not supported on a tab)
+                description: pay_at_table_sale
+                value:
+                  store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+                  terminal_id: term-001
+                  requested_amount:
+                    amount: 5000
+                    currency: GBP
+                    tip: 0
+                  transaction_type: SALE
+                  merchant_reference: ORDER-2026-001
+                  epos_instance_id: epos-register-1
+                  tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                  payment_type: FULL
+                  payment_method: CARD
+        required: true
+      responses:
+        '201':
+          description: Payment request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePaymentResponseV3'
+              examples:
+                Create_Payment_New_Standalone_V3:
+                  description: Create_Payment_New_Standalone_V3
+                  value:
+                    payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+                    requested_amount:
+                      currency: GBP
+                      amount: 1500
+                      tip: 0
+                    status: NEW
+                    transaction_type: SALE
+                    created_at: '2026-04-21T10:05:00Z'
+                    updated_at: '2026-04-21T10:05:00Z'
+                    merchant_reference: ORDER_123
+                    terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                    store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+                    epos_instance_id: eposName_1
+                Create_Refund_New_Standalone_V3:
+                  description: Create_Refund_New_Standalone_V3
+                  value:
+                    payment_request_id: 9b2c1d7e-4a3f-4c8b-9e2d-1f0a6b5c4d3e
+                    requested_amount:
+                      currency: GBP
+                      amount: 1500
+                      tip: 0
+                    status: NEW
+                    transaction_type: REFUND
+                    created_at: '2026-04-21T10:05:00Z'
+                    updated_at: '2026-04-21T10:05:00Z'
+                    merchant_reference: REFUND_123
+                    terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                    store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+                    epos_instance_id: eposName_1
+                Create_Payment_New_Tab_V3:
+                  description: Create_Payment_New_Tab_V3
+                  value:
+                    payment_request_id: 9c1a7c2c-3e2a-4d5b-9f8a-6c2e5a8c9d01
+                    requested_amount:
+                      currency: GBP
+                      amount: 5000
+                      tip: 0
+                    status: NEW
+                    transaction_type: SALE
+                    created_at: '2026-04-21T10:05:00Z'
+                    updated_at: '2026-04-21T10:05:00Z'
+                    merchant_reference: ORDER-2026-001
+                    terminal_id: term-001
+                    store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+                    epos_instance_id: epos-register-1
+                    tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+                    payment_type: FULL
+                    payment_method: CARD
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '415':
+          description: Unsupported Media Type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNSUPPORTED_MEDIA_TYPE
+                description: Unsupported Media Type
+        '422':
+          description: Unprocessable Entity — e.g. transaction_type=REFUND on a tab (Pay at Table is SALE-only)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+      x-kong-plugin-scope-authorisation:
+        config:
+          required_scopes:
+          - payment_requests
+          - default_access
+        enabled: true
+  /poslink/v2/payment-requests:
+    get:
+      tags:
+      - Payment Requests
+      summary: List payments and refunds
+      description: 'Returns the store''s payments and refunds, newest first.
+
+
+        **What to send:** the store you want to look at. You can optionally narrow the results by terminal, status, type (sale or refund), or a date range, and page through large result sets using the page size and starting position.
+
+
+        **What you get back:** a list where each entry shows the amount, whether it was a sale or a refund, its current status, and — where relevant — the reason behind that status (for example, why a payment was declined or cancelled). The response also tells you how many results match in total so you can page through them.
+
+
+        **Required Scopes (one of the following):**
+
+
+        - `payment_requests` (returned via the register API: `POST /poslink/v1/epos/register`)
+
+        - `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)
+
+        '
+      operationId: getPaymentsV2
+      parameters:
+      - name: store_id
+        in: query
+        description: The ID of the store to retrieve requests associated with
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: da728238-ee94-470a-a1ba-a03161fdf98c
+      - name: terminal_id
+        in: query
+        description: The ID of the terminal to retrieve requests associated with
+        required: false
+        schema:
+          type: string
+        example: 2a3bdd2f-b52a-426c-b0fc-48c963650882
+      - name: status
+        in: query
+        description: The current status of the request. Must be a valid enum value. If omitted, the returned list will include all statuses
+        required: false
+        schema:
+          type: string
+          enum:
+          - NEW
+          - IN_PROGRESS
+          - SUCCESSFUL
+          - CANCELLING
+          - CANCELLED
+          - FAILED
+        example: NEW
+      - name: transaction_type
+        in: query
+        description: Filter by transaction type. Accepts SALE or REFUND.
+        required: false
+        schema:
+          type: string
+          enum:
+          - SALE
+          - REFUND
+        example: SALE
+      - name: start_date_time
+        in: query
+        description: The start date using the ISO 8601 format
+        required: false
+        schema:
+          type: string
+          format: date-time
+        example: '2023-09-20T11:00:00Z'
+      - name: end_date_time
+        in: query
+        description: The end date using the ISO 8601 format
+        required: false
+        schema:
+          type: string
+          format: date-time
+        example: '2023-09-20T11:00:00Z'
+      - name: limit
+        in: query
+        description: The maximum number of results to be returned
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+          maximum: 100
+          minimum: 1
+        example: 20
+      - name: offset
+        in: query
+        description: The (zero-based) offset of the first record in the collection to return
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+          minimum: 0
+        example: 1
+      - name: sort
+        in: query
+        description: Sort the result set in ascending (ASC) or descending (DESC) order based on the date the payment request is created
+        required: false
+        schema:
+          type: string
+          enum:
+          - ASC
+          - DESC
+        example: ASC
+      responses:
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '200':
+          description: List of payments and refunds successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllPaymentRequestsResponse'
+              examples:
+                List_Payment_Requests_New:
+                  description: List_Payment_Requests_New
+                  value:
+                    payment_requests:
+                    - payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+                      requested_amount:
+                        currency: GBP
+                        amount: 10
+                        tip: 0
+                      status: NEW
+                      transaction_type: SALE
+                      created_at: '2022-06-15T16:24:12Z'
+                      updated_at: '2022-06-15T16:26:12Z'
+                      source_reference_id: '423897410'
+                      merchant_reference: '423897410'
+                      epos_instance_id: reg92056_epos
+                      terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                      store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                    pagination:
+                      limit: 10
+                      offset: 0
+                      total_count: 1
+                List_Payment_Requests_InProgress:
+                  description: List_Payment_Requests_InProgress
+                  value:
+                    payment_requests:
+                    - payment_request_id: 452aade7-8b08-4d81-a510-d5e19d34b6dd
+                      requested_amount:
+                        currency: GBP
+                        amount: 20
+                        tip: 0
+                      status: IN_PROGRESS
+                      transaction_type: SALE
+                      created_at: '2022-06-15T16:24:12Z'
+                      updated_at: '2022-06-15T16:25:12Z'
+                      source_reference_id: '423897420'
+                      merchant_reference: '423897420'
+                      epos_instance_id: reg92056_epos
+                      terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                      store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                    pagination:
+                      limit: 10
+                      offset: 0
+                      total_count: 1
+                List_Payment_Requests_Successful:
+                  description: List_Payment_Requests_Successful
+                  value:
+                    payment_requests:
+                    - payment_request_id: 19799e09-1c66-4f35-b0e4-ce3f1ed1872c
+                      requested_amount:
+                        currency: GBP
+                        amount: 30
+                        tip: 0
+                      status: SUCCESSFUL
+                      transaction_type: SALE
+                      created_at: '2022-06-15T16:24:12Z'
+                      updated_at: '2022-06-15T16:26:12Z'
+                      source_reference_id: '423897430'
+                      merchant_reference: '423897430'
+                      epos_instance_id: reg92056_epos
+                      gateway_payment_id: 39e3bacdd5d38d9ce611cf88afbcc86df829a9a5641880b3
+                      terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                      store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                    pagination:
+                      limit: 10
+                      offset: 0
+                      total_count: 1
+                List_Payment_Requests_Cancelling:
+                  description: List_Payment_Requests_Cancelling
+                  value:
+                    payment_requests:
+                    - payment_request_id: 7d5bde02-3076-4fe0-b728-3bfe3e6e5a5b
+                      requested_amount:
+                        currency: GBP
+                        amount: 40
+                        tip: 0
+                      status: CANCELLING
+                      transaction_type: SALE
+                      created_at: '2022-06-15T16:24:12Z'
+                      updated_at: '2022-06-15T16:26:12Z'
+                      source_reference_id: '423897440'
+                      merchant_reference: '423897440'
+                      epos_instance_id: reg92056_epos
+                      terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                      store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                    pagination:
+                      limit: 10
+                      offset: 0
+                      total_count: 1
+                List_Payment_Requests_Cancelled:
+                  description: List_Payment_Requests_Cancelled
+                  value:
+                    payment_requests:
+                    - payment_request_id: d0cae7a7-b068-4342-bb23-87f70b0de6bc
+                      requested_amount:
+                        currency: GBP
+                        amount: 50
+                        tip: 0
+                      status: CANCELLED
+                      transaction_type: SALE
+                      created_at: '2022-06-15T16:24:12Z'
+                      updated_at: '2022-06-15T16:26:12Z'
+                      source_reference_id: '423897450'
+                      merchant_reference: '423897450'
+                      status_reason: CANCELLED_BY_EPOS
+                      epos_instance_id: reg92056_epos
+                      terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                      store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                    pagination:
+                      limit: 10
+                      offset: 0
+                      total_count: 1
+                List_Payment_Requests_Failed:
+                  description: List_Payment_Requests_Failed
+                  value:
+                    payment_requests:
+                    - payment_request_id: 2caa487d-a742-40e8-9323-59af71e2e1ad
+                      requested_amount:
+                        currency: GBP
+                        amount: 60
+                        tip: 0
+                      status: FAILED
+                      transaction_type: SALE
+                      created_at: '2022-06-15T16:24:12Z'
+                      updated_at: '2022-06-15T16:25:12Z'
+                      source_reference_id: '423897460'
+                      merchant_reference: '423897460'
+                      status_reason: DECLINED_ONLINE
+                      epos_instance_id: reg92056_epos
+                      terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                      store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                    pagination:
+                      limit: 10
+                      offset: 0
+                      total_count: 1
+                List_Payments_And_Refunds_Refund:
+                  description: List_Payments_And_Refunds_Refund
+                  value:
+                    payment_requests:
+                    - payment_request_id: 9b2c1d7e-4a3f-4c8b-9e2d-1f0a6b5c4d3e
+                      requested_amount:
+                        currency: GBP
+                        amount: 60
+                        tip: 0
+                      status: SUCCESSFUL
+                      transaction_type: REFUND
+                      created_at: '2022-06-15T16:24:12Z'
+                      updated_at: '2022-06-15T16:25:45Z'
+                      merchant_reference: '423897480'
+                      gateway_payment_id: 39e3bacdd5d38d9ce611cf88afbcc86df829a9a5641880b3
+                      terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                      store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                    pagination:
+                      limit: 10
+                      offset: 0
+                      total_count: 1
+                List_Payment_Requests_All:
+                  description: List_Payment_Requests_All
+                  value:
+                    payment_requests:
+                    - payment_request_id: 2caa487d-a742-40e8-9323-59af71e2e1ad
+                      requested_amount:
+                        currency: GBP
+                        amount: 60
+                        tip: 0
+                      status: FAILED
+                      transaction_type: SALE
+                      created_at: '2022-06-15T16:24:12Z'
+                      updated_at: '2022-06-15T16:25:12Z'
+                      source_reference_id: '423897460'
+                      merchant_reference: '423897460'
+                      status_reason: DECLINED_ONLINE
+                      epos_instance_id: reg92056_epos
+                      terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                      store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                    - payment_request_id: 19799e09-1c66-4f35-b0e4-ce3f1ed1872c
+                      requested_amount:
+                        currency: GBP
+                        amount: 30
+                        tip: 0
+                      status: SUCCESSFUL
+                      transaction_type: SALE
+                      created_at: '2022-06-15T16:24:12Z'
+                      updated_at: '2022-06-15T16:26:12Z'
+                      source_reference_id: '423897430'
+                      merchant_reference: '423897430'
+                      epos_instance_id: reg92056_epos
+                      gateway_payment_id: 39e3bacdd5d38d9ce611cf88afbcc86df829a9a5641880b3
+                      terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                      store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                    - payment_request_id: d0cae7a7-b068-4342-bb23-87f70b0de6bc
+                      requested_amount:
+                        currency: GBP
+                        amount: 50
+                        tip: 0
+                      status: CANCELLED
+                      transaction_type: SALE
+                      created_at: '2022-06-15T16:24:12Z'
+                      updated_at: '2022-06-15T16:26:12Z'
+                      source_reference_id: '423897450'
+                      merchant_reference: '423897450'
+                      status_reason: CANCELLED_BY_EPOS
+                      epos_instance_id: reg92056_epos
+                      terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                      store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                    pagination:
+                      limit: 10
+                      offset: 0
+                      total_count: 3
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+      x-kong-plugin-scope-authorisation:
+        config:
+          required_scopes:
+          - payment_requests
+          - default_access
+        enabled: true
+  /poslink/v2/payment-requests/{payment-request-id}:
+    patch:
+      tags:
+      - Payment Requests
+      summary: Update a payment request
+      description: '### No Permission Required - This is an endpoint that does not require permission
+
+        ---
+
+
+        This API call is used to request the cancellation of a payment request by setting its status to `CANCELLING`.
+
+
+        This call is a *request* to cancel, not a confirmation that the payment was cancelled. A successful (`200`) response means the cancellation request has been accepted and the payment request has moved to `CANCELLING` — it does not mean the payment has been cancelled.
+
+
+        Whether the payment is actually cancelled depends on how far the terminal has progressed:
+
+
+        - If the terminal has not yet started processing the payment, the terminal cancels the payment request and its status becomes `CANCELLED` with a status reason of `CANCELLED_BY_EPOS`.
+
+        - If the terminal has already started processing the payment, the cancellation cannot be applied and the payment continues to its final status (`SUCCESSFUL` or `FAILED`), which overrides `CANCELLING`.
+
+
+        To confirm the outcome, keep following the payment request’s status updates until it reaches a final state. The payment is only cancelled when the status is `CANCELLED`; a final state of `SUCCESSFUL` or `FAILED` means the cancellation did not take effect.
+
+
+        **Required Scopes (one of the following):**
+
+
+        - `payment_requests` (returned via the register API: `POST /poslink/v1/epos/register`)
+
+        - `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)
+
+        '
+      operationId: updatePayment
+      parameters:
+      - name: payment-request-id
+        in: path
+        description: The ID assigned to the payment request
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCancelPaymentRequest'
+        required: true
+      responses:
+        '200':
+          description: Cancellation request accepted. The payment request has moved to `CANCELLING`; this does not confirm the payment was cancelled. Follow the status updates until a final state (`CANCELLED`, `SUCCESSFUL`, or `FAILED`) to determine the outcome.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelPaymentRequestResponse'
+              examples:
+                Update_Payment_Cancelling_New:
+                  description: Update_Payment_Cancelling_New
+                  value:
+                    payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+                    status: CANCELLING
+                    updated_at: '2023-08-14T11:28:45.610Z'
+                Update_Payment_Cancelling_InProgress:
+                  description: Update_Payment_Cancelling_InProgress
+                  value:
+                    payment_request_id: 452aade7-8b08-4d81-a510-d5e19d34b6dd
+                    status: CANCELLING
+                    updated_at: '2023-08-14T11:28:45.610Z'
+                Update_Payment_Cancelling_Successful:
+                  description: Update_Payment_Cancelling_Successful
+                  value:
+                    code: CANNOT_CANCEL_SUCCESSFUL_PAYMENT_REQUEST
+                    description: ePos unable to cancel payment request, As it has already completed
+                Update_Payment_Cancelling_Failed:
+                  description: Update_Payment_Cancelling_Failed
+                  value:
+                    code: CANNOT_CANCEL_FAILED_PAYMENT_REQUEST
+                    description: ePos unable to cancel payment request, transaction already in failed status
+                Update_Payment_Cancelling_Cancelled:
+                  description: Update_Payment_Cancelling_Cancelled
+                  value:
+                    code: CANNOT_CANCEL_CANCELLED_PAYMENT_REQUEST
+                    description: ePos unable to cancel payment request, transaction already in cancelled status
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '415':
+          description: Unsupported Media Type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNSUPPORTED_MEDIA_TYPE
+                description: Unsupported Media Type
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+      x-permission-set:
+        no-permission: true
+        description: This is an endpoint that does not require permission
+      x-kong-plugin-scope-authorisation:
+        config:
+          required_scopes:
+          - payment_requests
+          - default_access
+        enabled: true
+  /poslink/v3/payment-requests/{payment-request-id}:
+    get:
+      tags:
+      - Payment Requests
+      summary: Follow a payment or refund live
+      description: 'Returns a single payment or refund and then keeps delivering its status changes as they happen, so you can show the customer live progress on screen.
+
+
+        **What to send:** the identifier of the payment or refund you want to follow.
+
+
+        **What you get back:** first the full details — the amount, whether it is a sale or a refund, its current status, and, where relevant, the reason behind that status. After that, you keep receiving updates as the status changes (for example, waiting for the card, then the final result). Once it reaches a final outcome — successful, failed, or cancelled — the final details are sent and the connection closes. If it is already finished when you ask, you get the full details once and the connection closes straight away.
+
+
+        **Required Scopes (one of the following):**
+
+
+        - `payment_requests/id` (returned via the register API: `POST /poslink/v1/epos/register`)
+
+        - `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)
+
+        '
+      operationId: getPaymentByIdV3
+      parameters:
+      - name: payment-request-id
+        in: path
+        description: The ID assigned to the payment request
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '200':
+          description: The payment or refund, followed by live status updates
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/RetrieveStreamPaymentResponse'
+              examples:
+                Stream_Payment_Response_New:
+                  description: Stream_Payment_Response_New
+                  value:
+                    payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+                    requested_amount:
+                      currency: GBP
+                      amount: 10
+                      tip: 0
+                    status: NEW
+                    transaction_type: SALE
+                    created_at: '2022-06-15T16:24:12Z'
+                    updated_at: '2022-06-15T16:24:12Z'
+                    merchant_reference: '423897410'
+                    terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                    store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                Stream_Payment_Response_InProgress_Waiting_For_Card_Entry:
+                  description: Stream_Payment_Response_InProgress_Waiting_For_Card_Entry
+                  value:
+                    payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+                    status: IN_PROGRESS
+                    progress_status: WAITING_FOR_CARD_ENTRY
+                    updated_at: '2022-06-15T16:26:12Z'
+                Stream_Payment_Response_InProgress_Card_Presented:
+                  description: Stream_Payment_Response_InProgress_Card_Presented
+                  value:
+                    payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+                    status: IN_PROGRESS
+                    progress_status: CARD_PRESENTED
+                    updated_at: '2022-06-15T16:27:12Z'
+                Stream_Payment_Response_Successful:
+                  description: Stream_Payment_Response_Successful
+                  value:
+                    payment_request_id: bee17dec-01dd-4ee5-a17d-ec01dd2ee5ca
+                    requested_amount:
+                      currency: GBP
+                      amount: 70
+                      tip: 0
+                    status: SUCCESSFUL
+                    transaction_type: SALE
+                    created_at: '2022-06-15T16:24:12Z'
+                    updated_at: '2022-06-15T16:29:12Z'
+                    transaction_timestamp: '2022-06-15T16:25:45.123Z'
+                    merchant_reference: '423897430'
+                    transaction_id: te3c89aa-d84f-4916-b88b-7e6a051765fa
+                    gateway_payment_id: 39e3bacdd5d38d9ce611cf88afbcc86df829a9a5641880b3
+                    terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                    store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                    metadata:
+                      payment_method_details:
+                        card:
+                          last4: '1234'
+                          issuing_country: GB
+                          brand: MASTERCARD
+                          type: DEBIT
+                          bin: '123456'
+                        entry_mode: MAGSTRIPE_SWIPED
+                        verification_method: OFFLINE_PIN
+                        application_name: Debit MasterCard
+                        application_id: A0000000041010
+                        mid: '5006544'
+                        response_code: '00'
+                        authorisation_code: A8RLR8
+                Stream_Refund_Response_Successful:
+                  description: Stream_Refund_Response_Successful
+                  value:
+                    payment_request_id: 9b2c1d7e-4a3f-4c8b-9e2d-1f0a6b5c4d3e
+                    requested_amount:
+                      currency: GBP
+                      amount: 60
+                      tip: 0
+                    status: SUCCESSFUL
+                    transaction_type: REFUND
+                    created_at: '2022-06-15T16:24:12Z'
+                    updated_at: '2022-06-15T16:25:45Z'
+                    merchant_reference: '423897480'
+                    gateway_payment_id: 39e3bacdd5d38d9ce611cf88afbcc86df829a9a5641880b3
+                    terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                    store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                Stream_Payment_Response_Failed:
+                  description: Stream_Payment_Response_Failed
+                  value:
+                    payment_request_id: 2caa487d-a742-40e8-9323-59af71e2e1ad
+                    requested_amount:
+                      currency: GBP
+                      amount: 60
+                      tip: 0
+                    status: FAILED
+                    transaction_type: SALE
+                    created_at: '2022-06-15T16:24:12Z'
+                    updated_at: '2022-06-15T16:29:12Z'
+                    merchant_reference: '423897460'
+                    status_reason: DECLINED_ONLINE
+                    terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                    store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+                Stream_Payment_Response_Cancelled:
+                  description: Stream_Payment_Response_Cancelled
+                  value:
+                    payment_request_id: 7b1f0c9e-2d4a-4c6b-8e3f-1a2b3c4d5e6f
+                    requested_amount:
+                      currency: GBP
+                      amount: 60
+                      tip: 0
+                    status: CANCELLED
+                    transaction_type: SALE
+                    created_at: '2022-06-15T16:24:12Z'
+                    updated_at: '2022-06-15T16:28:12Z'
+                    merchant_reference: '423897470'
+                    status_reason: CANCELLED_BY_EPOS
+                    terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                    store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+        '404':
+          description: Payment request not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: PAYMENT_REQUEST_NOT_FOUND
+                description: Not found
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+      x-kong-plugin-scope-authorisation:
+        config:
+          required_scopes:
+          - payment_requests/id
+          - default_access
+        enabled: true
+components:
+  schemas:
+    CreatePaymentResponseV3:
+      type: object
+      description: Response to a request to create a new payment request. Includes tab_id and payment_type when the payment is linked to a tab.
+      example:
+        payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+        requested_amount:
+          currency: GBP
+          amount: 1500
+          tip: 0
+        status: NEW
+        transaction_type: SALE
+        created_at: '2026-04-21T10:05:00Z'
+        updated_at: '2026-04-21T10:05:00Z'
+        merchant_reference: ORDER_123
+        terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+        store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+        epos_instance_id: eposName_1
+      properties:
+        payment_request_id:
+          type: string
+          format: uuid
+          description: The payment request identifier
+          example: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+        created_at:
+          type: string
+          description: The date and time the payment request was created at (ISO 8601 format, in UTC)
+          example: '2022-06-15T16:24:12Z'
+        terminal_id:
+          type: string
+          description: The terminal identifier
+          example: 2a3bdd2f-b52a-426c-b0fc-48c963650882
+        merchant_reference:
+          type: string
+          description: The unique external identifier of each payment request sent by the ePOS
+          example: MR1364624531
+        requested_amount:
+          $ref: '#/components/schemas/RequestedAmount'
+          description: Requested amount
+        status:
+          type: string
+          description: The current status of the request
+          enum:
+          - NEW
+          example: NEW
+        transaction_type:
+          type: string
+          description: The transaction type of this request
+          example: SALE
+        updated_at:
+          type: string
+          description: The date and time the payment request was last updated (ISO 8601 format, in UTC)
+          example: '2022-06-15T16:26:12Z'
+        epos_instance_id:
+          type: string
+          description: The external ID of the ePOS sending the request. Should be unique in order to identify that particular ePOS instance / device.
+          example: eposName_1
+        store_id:
+          type: string
+          format: uuid
+          description: The store identifier
+          example: da728238-ee94-470a-a1ba-a03161fdf98c
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier when the payment is linked to a tab; absent for standalone payments.
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        payment_type:
+          type: string
+          description: Payment settlement type when the payment is linked to a tab; absent otherwise.
+          enum:
+          - FULL
+          - SPLIT
+          example: FULL
+        payment_method:
+          type: string
+          description: How the payment is tendered. Absent if not supplied on the request.
+          enum:
+          - CARD
+          - CASH
+          example: CARD
+      title: CreatePaymentResponseV3
+    ExceptionResponse:
+      type: object
+      example:
+        code: BAD_REQUEST
+        description: Bad Request
+      properties:
+        code:
+          type: string
+          format: enum
+          description: Error code
+          example: BAD_REQUEST
+        description:
+          type: string
+          description: Error description
+          example: Bad Request
+        invalid_params:
+          type: array
+          description: List of invalid request parameters. Populated for validation failures (400 / 422); omitted otherwise.
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      title: ExceptionResponse
+    RequestedAmount:
+      type: object
+      example:
+        currency: GBP
+        amount: 50
+        tip: 0
+      properties:
+        currency:
+          type: string
+          format: ISO 4217
+          description: The currency used in this payment. Must be a valid ISO 4217 currency code
+          example: USD
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the full amount to charge in the smallest currency unit (e.g., 100 cents to charge $1). Inclusive of the tip
+          example: 1500
+        tip:
+          type: integer
+          format: int64
+          description: A positive integer that represents the tip added to the payment in the smallest currency unit (e.g., 100 cents to charge $1)
+          example: 10
+      required:
+      - amount
+      - currency
+      title: RequestedAmount
+    CreatePaymentRequestV3:
+      type: object
+      description: Request to create a new payment request. Supports standalone payments (SALE or REFUND) and Pay at Table payments (SALE only, when tab_id is provided). See transaction_type for how to request a standalone unreferenced refund.
+      example:
+        store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+        terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+        requested_amount:
+          amount: 1500
+          currency: GBP
+          tip: 10
+        transaction_type: SALE
+        merchant_reference: ORDER_123
+        epos_instance_id: eposName_1
+        basket_transaction_id: 2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b
+      properties:
+        store_id:
+          type: string
+          format: uuid
+          description: The ID of the store sending the request
+          example: eac4d470-4731-45b2-af6b-c828f03c1f9d
+        terminal_id:
+          type: string
+          description: The ID of the terminal the request is assigned to.
+          example: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+          maxLength: 100
+          minLength: 1
+        requested_amount:
+          $ref: '#/components/schemas/RequestedAmount'
+          description: Requested Amount
+        transaction_type:
+          type: string
+          format: enum
+          description: 'The transaction type of this request.
+
+            - `SALE`: a standard card-present payment (customer pays the merchant).
+
+            - `REFUND`: a standalone, unreferenced card-present refund (money returned to the customer''s card with no original transaction to reference). The customer taps their card at the terminal; a new gateway transaction is created. `REFUND` is only valid for standalone requests — it is rejected with HTTP 422 when `tab_id` is present, because Pay at Table supports `SALE` only.'
+          enum:
+          - SALE
+          - REFUND
+          example: SALE
+          maxLength: 8
+          minLength: 1
+        merchant_reference:
+          type: string
+          description: The merchant reference for this payment request. Must be a unique reference that can be used to uniquely identify this payment.
+          example: ORDER_123
+          maxLength: 100
+          minLength: 1
+        epos_instance_id:
+          type: string
+          description: The external ID of the ePOS sending the request. Identifies that particular ePOS instance / device.
+          example: eposName_1
+          maxLength: 100
+          minLength: 0
+        basket_transaction_id:
+          type: string
+          format: uuid
+          description: Opaque correlation ID issued by Basket Data Service (BDS) at basket checkout.
+          example: 2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier for Pay at Table flows. When provided, links this payment to an existing tab and payment_type becomes required.
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        payment_type:
+          type: string
+          description: Payment settlement type. Required when tab_id is present; ignored otherwise.
+          enum:
+          - FULL
+          - SPLIT
+          example: FULL
+        payment_method:
+          type: string
+          description: How the payment is tendered. Optional; typically supplied for Pay at Table flows.
+          enum:
+          - CARD
+          - CASH
+          example: CARD
+      required:
+      - merchant_reference
+      - requested_amount
+      - store_id
+      - terminal_id
+      - transaction_type
+      title: CreatePaymentRequestV3
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
+    Card:
+      type: object
+      example:
+        last4: '4673'
+        issuing_country: GB
+        brand: MASTERCARD
+        type: DEBIT
+        bin: '123456'
+      properties:
+        last4:
+          type: string
+          description: The last 4 digits of a card
+          example: L1234
+        issuing_country:
+          type: string
+          description: The Country code (ISO 3166-1 alpha-2) where the card was issued
+          example: GB
+        brand:
+          type: string
+          description: The brand of the payment network used by the card
+          example: VISA,MASTERCARD,UNION_PAY,JCB,DINERS,AMEX,OTHER
+        type:
+          type: string
+          description: The type of the card
+          example: DEBIT,CREDIT,PREPAID,CHARGE,UNKNOWN
+        bin:
+          type: string
+          description: The bin number to identify the issuer of the card holder
+          example: BIN123456
+      title: Card
+    GetAllPaymentRequestsResponse:
+      type: object
+      example:
+        payment_requests:
+        - payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+          requested_amount:
+            currency: GBP
+            amount: 10
+            tip: 0
+          status: NEW
+          transaction_type: SALE
+          created_at: '2022-06-15T16:24:12Z'
+          updated_at: '2022-06-15T16:26:12Z'
+          source_reference_id: '423897410'
+          merchant_reference: '423897410'
+          terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+          store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+        pagination:
+          offset: 0
+          limit: 10
+          total_pages: 1
+          total_count: 1
+      properties:
+        payment_requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/RetrievePaymentResponse'
+        pagination:
+          $ref: '#/components/schemas/Paging'
+      title: GetAllPaymentRequestsResponse
+    RetrievePaymentResponse:
+      type: object
+      example:
+        payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+        requested_amount:
+          currency: GBP
+          amount: 10
+          tip: 0
+        status: NEW
+        transaction_type: SALE
+        created_at: '2022-06-15T16:24:12Z'
+        updated_at: '2022-06-15T16:26:12Z'
+        source_reference_id: '423897410'
+        merchant_reference: '423897410'
+        terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+        store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+      properties:
+        payment_request_id:
+          type: string
+          format: uuid
+          description: The payment request identifier
+          example: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+        requested_amount:
+          $ref: '#/components/schemas/RequestedAmount'
+          description: Requested Amount
+        status:
+          type: string
+          description: The current status of the request
+          enum:
+          - NEW
+          - IN_PROGRESS
+          - SUCCESSFUL
+          - CANCELLING
+          - CANCELLED
+          - FAILED
+          example: NEW
+        transaction_type:
+          type: string
+          format: enum
+          description: The transaction type of this request
+          enum:
+          - SALE
+          - REFUND
+          example: SALE
+        created_at:
+          type: string
+          description: The date and time the payment request was created at (ISO 8601 format)
+          example: '2023-03-02T16:24:16.449Z'
+        updated_at:
+          type: string
+          description: The date and time the payment request was last updated (ISO 8601 format)
+          example: '2023-03-02T16:24:16.449Z'
+        source_reference_id:
+          type: string
+          deprecated: true
+          description: '**Deprecation Notice** :
+
+            The _source_reference_id_ property has been marked for deprecation in favour of the _merchant_reference_ property. Use of _source_reference_id_ is discouraged, and later versions of this specification may remove it.
+
+
+
+            The unique external identifier of each payment request sent by the ePOS'
+          example: SR1412342314234
+        merchant_reference:
+          type: string
+          description: The unique external identifier of each payment request sent by the ePOS
+          example: MR1412342314234
+        status_reason:
+          type: string
+          description: A description for the reason of a status
+          enum:
+          - CANCELLED_BY_EPOS
+          - CANCELLED_BY_USER
+          - DECLINED_ONLINE
+          - DECLINED_OFFLINE
+          - TIMEOUT
+          - CONNECTION_ERROR
+          - COMM_TIMEOUT
+          - CARD_PROCESSING_ERROR
+          - EXPIRED
+          - UNKNOWN
+          - TERMINAL_UNREACHABLE
+          - NOTIFICATION_EXPIRED
+          - SUPERSEDED_BY_NEW_TRANSACTION
+          - TRANSACTION_ALREADY_IN_PROGRESS
+          - FEATURE_NOT_ACTIVATED_UNREFERENCED_REFUNDS
+          - UNSUPPORTED_CURRENCY
+          example: CANCELLED_BY_USER
+        epos_instance_id:
+          type: string
+          description: The external ID of the ePOS sending the request
+          example: eposName_1
+        gateway_payment_id:
+          type: string
+          description: Identifier of original payment. This field will be populated for a SUCCESSFUL payment request
+          example: 39e3bacdd5d38d9ce611cf88afbcc86df829a9a5641880b3
+        transaction_id:
+          type: string
+          deprecated: true
+          description: '**Deprecation Notice** :
+
+            The _transaction_id_ property has been marked for deprecation in favour of the _gateway_payment_id_ property. Use of _transaction_id_ is discouraged, and later versions of this specification may remove it.
+
+
+
+            The ID assigned to the transaction'
+          example: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+        store_id:
+          type: string
+          format: uuid
+          description: The store identifier
+          example: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+        terminal_id:
+          type: string
+          description: The terminal identifier
+          example: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+        metadata:
+          $ref: '#/components/schemas/TransactionMetadata'
+          description: Transaction metadata
+        transaction_timestamp:
+          type: string
+          format: date-time
+          description: Transaction timestamp when the transaction occurred (in ISO 8601 with time-zone)
+          example: '2025-10-24T21:56:24.464Z'
+      title: RetrievePaymentResponse
+    Paging:
+      type: object
+      example:
+        offset: 0
+        limit: 10
+        total_pages: 1
+      properties:
+        offset:
+          type: integer
+          format: int32
+          description: Current page number
+          example: 2
+        limit:
+          type: integer
+          format: int32
+          description: Current page size
+          example: 5
+        total_pages:
+          type: integer
+          format: int32
+          description: Total number of pages
+          example: 3
+        total_count:
+          type: integer
+          format: int64
+          description: Total size
+          example: 15
+      title: Paging
+    PaymentMethodDetails:
+      type: object
+      example:
+        card:
+          last4: '4673'
+          issuing_country: GB
+          brand: MASTERCARD
+          type: DEBIT
+          bin: '123456'
+        entry_mode: EMV_CONTACTLESS
+        verification_method: NONE
+        application_id: A0000000041010
+        response_code: '00'
+        authorisation_code: '537001'
+      properties:
+        card:
+          $ref: '#/components/schemas/Card'
+          description: Card
+        entry_mode:
+          type: string
+          description: The method by which the card was used
+          example: ECOM, EMV_PIN, CONTACT_ICC, EMV_CONTACTLESS, KEYED, MAGSTRIPE_SWIPED, ON_FILE, MAGSTRIPE_FALLBACK
+        verification_method:
+          type: string
+          description: The method by which the card was verified
+          example: NONE, ELECTRONIC_SIGNATURE, ON_DEVICE, MANUAL, SIGNATURE, OFFLINE_PIN, ONLINE_PIN, OFFLINE_PIN_PLUS_SIGNATURE, SECURED_ELECTRONIC_COMMERCE
+        application_name:
+          type: string
+          description: Application preferred name, a human-readable name of the EMV card application selected by the terminal during a chip card transaction
+          example: Debit MasterCard
+        application_id:
+          type: string
+          description: Application ID that uniquely identifies the card type
+          example: A0000000041010
+        mid:
+          type: string
+          description: Merchant acquiring MID
+          example: MID5006544
+        response_code:
+          type: string
+          description: Transaction response code provided by the schemes
+          example: '00'
+        authorisation_code:
+          type: string
+          description: Authorisation code used to approve a transaction
+          example: A8RLR8
+      title: PaymentMethodDetails
+    CancelPaymentRequestResponse:
+      type: object
+      example:
+        payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+        status: CANCELLING
+        updated_at: '2023-08-14T11:28:45.610Z'
+      properties:
+        payment_request_id:
+          type: string
+          format: uuid
+          description: The ID assigned to the payment request
+          example: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+        status:
+          type: string
+          description: The current status of the request. Note that this cannot be NEW
+          enum:
+          - CANCELLING
+          - CANCELLED
+          example: CANCELLED
+        updated_at:
+          type: string
+          description: The date and time the payment request was last updated (ISO 8601 format)
+          example: '2023-03-02T16:24:16.449Z'
+      title: CancelPaymentRequestResponse
+    TransactionMetadata:
+      type: object
+      example:
+        payment_method_details:
+          card:
+            last4: '4673'
+            issuing_country: GB
+            brand: MASTERCARD
+            type: DEBIT
+            bin: '123456'
+          entry_mode: EMV_CONTACTLESS
+          verification_method: NONE
+          application_id: A0000000041010
+          mid: '5006544'
+          response_code: '00'
+          authorisation_code: '537001'
+      properties:
+        payment_method_details:
+          $ref: '#/components/schemas/PaymentMethodDetails'
+          description: The payment method details
+        dcc:
+          $ref: '#/components/schemas/DccData'
+          description: Dynamic Currency Conversion data. Optional field
+      title: TransactionMetadata
+    RetrieveStreamPaymentResponse:
+      type: object
+      example:
+        payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+        status: IN_PROGRESS
+        progress_status: WAITING_FOR_CARD_ENTRY
+        updated_at: '2022-06-15T16:26:12Z'
+      properties:
+        payment_request_id:
+          type: string
+          format: uuid
+          description: The payment request identifier
+          example: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+        requested_amount:
+          $ref: '#/components/schemas/RequestedAmount'
+          description: Requested Amount
+        status:
+          type: string
+          description: The current status of the request
+          enum:
+          - NEW
+          - IN_PROGRESS
+          - SUCCESSFUL
+          - CANCELLING
+          - CANCELLED
+          - FAILED
+          example: NEW
+        transaction_type:
+          type: string
+          format: enum
+          description: The transaction type of this request
+          enum:
+          - SALE
+          - REFUND
+          example: SALE
+        created_at:
+          type: string
+          description: The date and time the payment request was created at (ISO 8601 format)
+          example: '2023-03-02T16:24:16.449Z'
+        updated_at:
+          type: string
+          description: The date and time the payment request was last updated (ISO 8601 format)
+          example: '2023-03-02T16:24:16.449Z'
+        merchant_reference:
+          type: string
+          description: The unique external identifier of each payment request sent by the ePOS
+          example: ME1412342314234
+        status_reason:
+          type: string
+          description: A description for the reason of a status
+          enum:
+          - CANCELLED_BY_EPOS
+          - CANCELLED_BY_USER
+          - DECLINED_ONLINE
+          - DECLINED_OFFLINE
+          - TIMEOUT
+          - CONNECTION_ERROR
+          - COMM_TIMEOUT
+          - CARD_PROCESSING_ERROR
+          - EXPIRED
+          - UNKNOWN
+          - TERMINAL_UNREACHABLE
+          - NOTIFICATION_EXPIRED
+          - SUPERSEDED_BY_NEW_TRANSACTION
+          - TRANSACTION_ALREADY_IN_PROGRESS
+          - FEATURE_NOT_ACTIVATED_UNREFERENCED_REFUNDS
+          - UNSUPPORTED_CURRENCY
+          example: CANCELLED_BY_USER
+        epos_instance_id:
+          type: string
+          description: The external ID of the ePOS sending the request
+          example: eposName_1
+        gateway_payment_id:
+          type: string
+          description: Identifier of original payment. This field will be populated for a SUCCESSFUL payment request
+          example: 39e3bacdd5d38d9ce611cf88afbcc86df829a9a5641880b3
+        store_id:
+          type: string
+          format: uuid
+          description: The store identifier
+          example: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+        terminal_id:
+          type: string
+          description: The terminal identifier
+          example: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+        progress_status:
+          type: string
+          format: enum
+          description: Payment request progress status. Optional field to provide granular progress information during an update
+          enum:
+          - SENT_TO_PAYMENT_APP
+          - RECEIVED
+          - WAITING_FOR_CARD_ENTRY
+          - TIP_SELECTION
+          - CARD_PRESENTED
+          - PIN_ENTRY
+          - INSERT_CARD
+          - DCC_SELECTION
+          - REMOVE_CARD
+          - APP_SELECTION
+          - MOTO_FORM_SHOWN
+          - UNKNOWN
+          example: WAITING_FOR_CARD_ENTRY
+        metadata:
+          $ref: '#/components/schemas/TransactionMetadata'
+          description: Transaction metadata
+        transaction_timestamp:
+          type: string
+          format: date-time
+          description: Transaction timestamp when the transaction occurred (in ISO 8601 with time-zone)
+          example: '2025-10-24T21:56:24.464Z'
+      title: RetrieveStreamPaymentResponse
+    DccData:
+      type: object
+      description: Dynamic Currency Conversion data. If present, all fields are required.
+      example:
+        transaction_amount: 8500
+        transaction_currency: GBP
+        exchange_rate: '0.8650'
+        conversion_fee: 2.5%
+        disclaimer: I have been offered a choice of currencies and have chosen to accept DCC and pay in EUR at the exchange rate offered by Teya
+      properties:
+        transaction_amount:
+          type: integer
+          format: int64
+          description: Transaction amount in the smallest currency unit (8500 = £85.00)
+          example: 8500
+        transaction_currency:
+          type: string
+          description: Currency used by the cardholder in ISO 4217 format (e.g. GBP)
+          example: GBP
+          maxLength: 3
+          minLength: 3
+          pattern: ^[A-Z]{3}$
+        exchange_rate:
+          type: string
+          description: Exchange rate applied for DCC conversion (e.g. '0.8650' means 1 EUR (merchant currency) = 0.8650 GBP (cardholder currency))
+          minLength: 1
+        conversion_fee:
+          type: string
+          description: Conversion fee applied for DCC service, represented as a percentage string (e.g. '2.5%')
+          example: 2.5%
+          minLength: 1
+        disclaimer:
+          type: string
+          description: Text printed on the customer's receipt confirming DCC acceptance and exchange rate details
+          example: I have been offered a choice of currencies and have chosen to accept DCC and pay in GBP at the exchange rate offered by Teya
+          maxLength: 500
+          minLength: 1
+      required:
+      - conversion_fee
+      - disclaimer
+      - exchange_rate
+      - transaction_amount
+      - transaction_currency
+      title: DccData
+    NewCancelPaymentRequest:
+      type: object
+      example:
+        status: CANCELLING
+      properties:
+        status:
+          type: string
+          description: The status to update the payment request to
+          enum:
+          - CANCELLING
+      required:
+      - status
+      title: NewCancelPaymentRequest

@@ -1,0 +1,248 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures ePOS Registration API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- name: ePOS Registration
+paths:
+  /poslink/v1/epos/register:
+    post:
+      tags:
+      - ePOS Registration
+      summary: Register ePOS application and retrieve M2M client credentials
+      description: '### No Permission Required - This is an endpoint that does not require permission
+
+        ---
+
+
+        This API registers an ePOS application and returns M2M (machine-to-machine) client credentials.
+
+        The endpoint returns OAuth client credentials based on the provided store_id and epos_external_id.
+
+        The client credentials can be used to obtain M2M access tokens for subsequent API calls.
+
+
+        **Authentication:**
+
+
+        This endpoint requires a user JWT token (not M2M credentials). The user must have access to the specified store.
+
+
+        **Returned Scopes:**
+
+
+        The response includes OAuth scopes that define which APIs can be accessed with the returned M2M credentials:
+
+        - `payment_requests`: Required to create, list, and cancel or update payment requests.
+
+        - `payment_requests/id`: Required to retrieve and follow an individual payment request.
+
+        - `stores/id/terminals`: Required to list stores and their terminals.
+
+        - `refunds`: Required for refund operations
+
+
+        **Using the Returned Credentials:**
+
+
+        The returned client credentials are used to obtain an M2M access token via OAuth2 client credentials flow. The access token must include the scopes returned in this response to call the corresponding APIs.
+
+
+        **Idempotency Behavior:**
+
+        - The API is idempotent based on the composite key: (partner_id from JWT, store_id, epos_external_id)
+
+        - The response body structure is identical for both status codes, containing the same client credentials.
+
+
+        **Idempotency Key:** (partner_id, store_id, epos_external_id)
+
+        '
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EposRegisterRequest'
+        required: true
+      responses:
+        '200':
+          description: Client credentials returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EposRegisterResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '404':
+          description: Store not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '424':
+          description: Failed dependency
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+      x-permission-set:
+        no-permission: true
+        description: This is an endpoint that does not require permission
+components:
+  schemas:
+    EposRegisterRequest:
+      type: object
+      description: Request body for ePOS registration
+      properties:
+        store_id:
+          type: string
+          format: uuid
+          description: Store ID
+          example: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+        epos_external_id:
+          type: string
+          description: External identifier for the ePOS application/client
+          example: epos-app-12345
+          maxLength: 100
+          minLength: 1
+      required:
+      - epos_external_id
+      - store_id
+      title: EposRegisterRequest
+    ExceptionResponse:
+      type: object
+      example:
+        code: BAD_REQUEST
+        description: Bad Request
+      properties:
+        code:
+          type: string
+          format: enum
+          description: Error code
+          example: BAD_REQUEST
+        description:
+          type: string
+          description: Error description
+          example: Bad Request
+        invalid_params:
+          type: array
+          description: List of invalid request parameters. Populated for validation failures (400 / 422); omitted otherwise.
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      title: ExceptionResponse
+    EposRegisterResponse:
+      type: object
+      description: Response body for ePOS registration containing M2M client credentials
+      properties:
+        client_id:
+          type: string
+          description: OAuth client ID
+          example: 58ab90c1-e38a-43b4-849c-c12ccfca1df1
+        client_secret:
+          type: string
+          description: OAuth client secret
+          example: IezZu7AA-EKi1zB3xyvt6E8BqTKyWA1bpS9PymbaL6c
+        scopes:
+          type: array
+          description: 'OAuth client scopes granted to the M2M client credentials.
+
+            These scopes define the permissions available for subsequent API calls.
+
+
+            The following scopes are returned:
+
+            - `payment_requests`: Access to payment requests endpoints (list operations)
+
+            - `payment_requests/id`: Access to individual payment request endpoints (by ID)
+
+            - `stores/id/terminals`: Access to store terminals endpoints
+
+            - `refunds`: Access to refunds endpoints
+
+            '
+          example:
+          - payment_requests
+          - payment_requests/id
+          - stores/id/terminals
+          - refunds
+          items:
+            type: string
+      title: EposRegisterResponse
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams

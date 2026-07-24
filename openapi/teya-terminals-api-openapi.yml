@@ -1,0 +1,207 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures Terminals API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- name: Terminals
+paths:
+  /poslink/v1/stores/{store_id}/terminals:
+    get:
+      tags:
+      - Terminals
+      summary: Retrieve a list of terminals
+      description: '### No Permission Required - This is an endpoint that does not require permission
+
+        ---
+
+
+        Retrieves a list of terminals that belong to a store.
+
+
+        **Required Scopes (one of the following):**
+
+
+        - `stores/id/terminals` (returned via the register API: `POST /poslink/v1/epos/register`)
+
+        - `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)
+
+        '
+      operationId: getTerminals
+      parameters:
+      - name: store_id
+        in: path
+        description: The ID of the store to retrieve the terminals for
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+      responses:
+        '200':
+          description: Terminals data successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrieveTerminalResponse'
+              examples:
+                Terminals_Main_Store:
+                  description: Terminals_Main_Store
+                  value:
+                    terminals:
+                    - terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+                      terminal_name: MPAS_test_terminal
+                      serial_number: '202877303091039717483041'
+                Terminals_Secondary_Store:
+                  description: Terminals_Secondary_Store
+                  value:
+                    terminals:
+                    - terminal_id: d8b7d48f-ec22-4290-a73b-69a2bdf6cb75
+                      terminal_name: MPAS_test_terminal_2
+                      serial_number: '123456789012345678901234'
+                    - terminal_id: a938cd2a-b125-449c-be42-166fb69fd011
+                      terminal_name: MPAS_test_terminal_3
+                      serial_number: 098765432109876543210987
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+        '401':
+          description: Lacks valid authentication credentials for the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: UNAUTHORIZED
+                description: Unauthorized
+        '403':
+          description: The server understands the request but refuses to authorize it
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: REQUEST_TIMEOUT
+                description: Request timeout
+        '429':
+          description: Too many requests in a given amount of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: TOO_MANY_REQUESTS
+                description: Too Many Requests
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+      x-permission-set:
+        no-permission: true
+        description: This is an endpoint that does not require permission
+      x-kong-plugin-scope-authorisation:
+        config:
+          required_scopes:
+          - stores/id/terminals
+          - default_access
+        enabled: true
+components:
+  schemas:
+    RetrieveTerminalResponse:
+      type: object
+      example:
+        terminals:
+        - terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+          terminal_name: MPAS_test_terminal
+          serial_number: '202877303091039717483041'
+      properties:
+        terminals:
+          type: array
+          items:
+            $ref: '#/components/schemas/Terminal'
+      title: RetrieveTerminalResponse
+    ExceptionResponse:
+      type: object
+      example:
+        code: BAD_REQUEST
+        description: Bad Request
+      properties:
+        code:
+          type: string
+          format: enum
+          description: Error code
+          example: BAD_REQUEST
+        description:
+          type: string
+          description: Error description
+          example: Bad Request
+        invalid_params:
+          type: array
+          description: List of invalid request parameters. Populated for validation failures (400 / 422); omitted otherwise.
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      title: ExceptionResponse
+    Terminal:
+      type: object
+      example:
+        terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+        terminal_name: MPAS_test_terminal
+        serial_number: '202877303091039717483041'
+      properties:
+        serial_number:
+          type: string
+          description: The serial number of the terminal
+          example: SN202877303091039717483041
+        terminal_id:
+          type: string
+          description: The terminal identifier
+          example: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+        terminal_name:
+          type: string
+          description: The name of the terminal
+          example: MPAS_test_terminal
+      title: Terminal
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams

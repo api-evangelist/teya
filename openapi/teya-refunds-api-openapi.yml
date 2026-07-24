@@ -1,0 +1,768 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures Refunds API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- name: Refunds
+paths:
+  /v3/refunds:
+    post:
+      tags:
+      - Refunds
+      summary: Process a refund of a transaction
+      description: 'API to process the refund of a previous transaction.
+
+
+        The operation is performed as either a refund or a user-initiated reversal.'
+      operationId: cardTransactions
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        description: 'A unique key to identify the request.
+
+          If the request is repeated with the same key, the same response will be returned.
+
+          If the request is repeated with a different key or without a key, a new refund will be created.
+
+          '
+        required: false
+        schema:
+          type: string
+          description: 'A unique key to identify the request.
+
+            If the request is repeated with the same key, the same response will be returned.
+
+            If the request is repeated with a different key or without a key, a new refund will be created.
+
+            '
+          maxLength: 64
+          minLength: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRequest'
+        required: true
+      responses:
+        '201':
+          description: Refund processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+        '202':
+          description: Refund processing
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '523':
+          description: Origin Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - oauth: []
+  /poslink/v2/refunds:
+    post:
+      description: This API call is used to process the refund of a previous transaction using the POSLink V2 endpoint.
+      operationId: createRefundV2
+      parameters:
+      - description: 'A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.
+
+          If the request is repeated with a different key or without a key, a new refund will be created.
+
+          '
+        in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          maxLength: 64
+          minLength: 1
+          type: string
+          description: 'A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.
+
+            If the request is repeated with a different key or without a key, a new refund will be created.
+
+            '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRequest_2'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                Refund_Success:
+                  description: Refund_Success
+                  value:
+                    transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+                    refund_amount:
+                      amount: 100
+                      currency: GBP
+                    status: SUCCESS
+                    transaction_type: REFUND
+                    card_acceptor_id: '5023045'
+                    issuer_result:
+                      approval_code: '123456'
+                      response_code: '00'
+                    created_at: '2021-01-01T00:00:00.000Z'
+                    dcc:
+                      cardholder_amount:
+                        amount: 100
+                        currency: CHF
+                      conversion_rate: '0.9517'
+                      markup: '0.03'
+                      ecb_markup: '0.01'
+              schema:
+                $ref: '#/components/schemas/RefundResponseV3'
+          description: Refund processed
+        '202':
+          description: Refund is being processed asynchronously
+        '400':
+          content:
+            application/json:
+              example:
+                code: BAD_REQUEST
+                description: Bad Request
+              schema:
+                $ref: '#/components/schemas/RefundExceptionResponseV2'
+          description: Bad Request
+        '401':
+          content:
+            application/json:
+              example:
+                code: UNAUTHORISED
+                description: Unauthorised
+              schema:
+                $ref: '#/components/schemas/RefundExceptionResponseV2'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              example:
+                code: FORBIDDEN
+                description: Forbidden
+              schema:
+                $ref: '#/components/schemas/RefundExceptionResponseV2'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              example:
+                code: TRANSACTION_NOT_FOUND
+                description: Not Found
+              schema:
+                $ref: '#/components/schemas/RefundExceptionResponseV2'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              example:
+                code: TRANSACTION_CANNOT_BE_REVERSED
+                description: Conflict
+              schema:
+                $ref: '#/components/schemas/RefundExceptionResponseV2'
+          description: Conflict
+        '500':
+          content:
+            application/json:
+              example:
+                code: INTERNAL_SERVER_ERROR
+                description: Internal Server Error
+              schema:
+                $ref: '#/components/schemas/RefundExceptionResponseV2'
+          description: Internal Server Error
+        '503':
+          content:
+            application/json:
+              example:
+                code: SERVICE_UNAVAILABLE
+                description: Service Unavailable
+              schema:
+                $ref: '#/components/schemas/RefundExceptionResponseV2'
+          description: Service Unavailable
+        '523':
+          content:
+            application/json:
+              example:
+                code: UNKNOWN
+                description: Origin Unavailable
+              schema:
+                $ref: '#/components/schemas/RefundExceptionResponseV2'
+          description: Origin Unavailable
+      summary: Process a refund of a transaction (Poslink V2)
+      tags:
+      - Refunds
+components:
+  schemas:
+    RefundResponse:
+      type: object
+      description: A response to refund a transaction
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        refund_amount:
+          amount: 100
+          currency: GBP
+        status: SUCCESS
+        transaction_type: REFUND
+        card_acceptor_id: '5023045'
+        issuer_result:
+          approval_code: '123456'
+          response_code: '00'
+        created_at: '2021-01-01T00:00:00.000Z'
+        dcc:
+          cardholder_amount:
+            amount: 100
+            currency: CHF
+          conversion_rate: '0.9517'
+          markup: '0.03'
+          ecb_markup: '0.01'
+      properties:
+        transaction_id:
+          type: string
+          description: Unique identifier of the refund created
+        status:
+          type: string
+          description: The status of the transaction
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+        transaction_type:
+          type: string
+          description: The type of transaction
+          enum:
+          - REFUND
+        status_reason:
+          type: string
+          description: Reason for `FAILURE` status
+          enum:
+          - ACCOUNT_INVALID
+          - CANNOT_VALIDATE_AUTHENTICATION
+          - CARD_COUNT_EXCEEDED
+          - CARD_DECLINED
+          - CARD_EXPIRED
+          - CARD_LIMIT_EXCEEDED
+          - CARD_NOT_ACTIVE
+          - DISABLED_ACCOUNT
+          - DO_NOT_HONOR
+          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
+          - EXCEEDS_AMOUNT_LIMIT
+          - FORMAT_ERROR
+          - INCORRECT_CARD_AUTHENTICATION
+          - INSUFFICIENT_FUNDS
+          - INVALID_CARD_NUMBER
+          - INVALID_TRANSACTION
+          - ISSUER_DECLINED
+          - LOST_OR_STOLEN
+          - MERCHANT_CONFIGURATION
+          - PIN_LIMIT_EXCEEDED
+          - PROCESSOR_UNAVAILABLE
+          - RESTRICTED_CARD
+          - SCA_PIN_REQUIRED
+          - SCA_REQUIRED
+          - SUSPECTED_FRAUD
+          - TEMPORARY_ISSUE_RETRY
+          - TIMEOUT
+          - TRANSACTION_NOT_ALLOWED
+          - UNABLE_TO_ROUTE_TRANSACTION
+          - UNSUPPORTED_ISSUER
+          - NEGATIVE_BALANCE
+          - OTHER
+        issuer_result:
+          $ref: '#/components/schemas/RefundIssuerResult'
+          description: Result data for the refund according to issuer's response
+          title: IssuerResult
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the REFUND was created (in ISO 8601 with time-zone).
+        refund_amount:
+          $ref: '#/components/schemas/RefundedAmount'
+          description: The total amount refunded, with amount and currency
+          title: RefundedAmount
+        card_acceptor_id:
+          type: string
+          description: '`mid` or `card_acceptor_id` (ISO 8583 field standard)'
+        dcc:
+          $ref: '#/components/schemas/DccResponse'
+          description: DCC data used for the refund
+          title: DCC
+      required:
+      - card_acceptor_id
+      - issuer_result
+      - refund_amount
+      - status
+      - transaction_id
+      - transaction_type
+      title: RefundResponse
+    RefundedAmount:
+      type: object
+      example:
+        amount: 100
+        currency: GBP
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1)
+        currency:
+          type: string
+          description: The currency used in this transaction. Must be a valid ISO-4217 currency code
+          example: GBP
+      required:
+      - amount
+      - currency
+      title: RefundedAmount
+    RefundIssuerResult:
+      type: object
+      description: Issuer result data for refund transactions
+      properties:
+        approval_code:
+          type: string
+          description: Approval code from the issuer
+          example: '123456'
+        response_code:
+          type: string
+          description: Response code from the issuer
+          example: '00'
+      title: RefundIssuerResult
+    RefundResponseV3:
+      title: RefundResponseV3
+      type: object
+      description: A response to refund a transaction
+      required:
+      - card_acceptor_id
+      - issuer_result
+      - refund_amount
+      - status
+      - transaction_id
+      - transaction_type
+      properties:
+        transaction_id:
+          type: string
+          description: Unique identifier of the refund created
+        refund_amount:
+          $ref: '#/components/schemas/Amount_2'
+          description: A positive integer representing the total amount refunded in the smallest currency unit (e.g., 100 cents to charge $1)
+        status:
+          type: string
+          description: The status of the transaction
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+        transaction_type:
+          type: string
+          description: 'The type of the transaction: REFUND or REVERSAL'
+          enum:
+          - REFUND
+          - REVERSAL
+        status_reason:
+          type: string
+          description: Reason for `FAILURE` status
+          enum:
+          - ACCOUNT_INVALID
+          - CANNOT_VALIDATE_AUTHENTICATION
+          - CARD_COUNT_EXCEEDED
+          - CARD_DECLINED
+          - CARD_EXPIRED
+          - CARD_LIMIT_EXCEEDED
+          - CARD_NOT_ACTIVE
+          - DISABLED_ACCOUNT
+          - DO_NOT_HONOR
+          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
+          - EXCEEDS_AMOUNT_LIMIT
+          - FORMAT_ERROR
+          - INCORRECT_CARD_AUTHENTICATION
+          - INSUFFICIENT_FUNDS
+          - INVALID_CARD_NUMBER
+          - INVALID_TRANSACTION
+          - ISSUER_DECLINED
+          - LOST_OR_STOLEN
+          - MERCHANT_CONFIGURATION
+          - PIN_LIMIT_EXCEEDED
+          - PROCESSOR_UNAVAILABLE
+          - RESTRICTED_CARD
+          - SCA_PIN_REQUIRED
+          - SCA_REQUIRED
+          - SUSPECTED_FRAUD
+          - TEMPORARY_ISSUE_RETRY
+          - TIMEOUT
+          - TRANSACTION_NOT_ALLOWED
+          - UNABLE_TO_ROUTE_TRANSACTION
+          - UNSUPPORTED_ISSUER
+          - NEGATIVE_BALANCE_LIMIT
+          - OTHER
+        card_acceptor_id:
+          type: string
+          description: '`mid` or `card_acceptor_id` (ISO 8583 field standard).
+
+            Used to unique identify the merchant in the transaction.
+
+            '
+        issuer_result:
+          $ref: '#/components/schemas/RefundIssuerResult_2'
+          description: Result data for the refund according to issuer's response
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the refund was created (in ISO 8601 with time-zone).
+        dcc:
+          $ref: '#/components/schemas/DccResponse_2'
+          description: DCC data used for the refund
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        refund_amount:
+          amount: 100
+          currency: GBP
+        status: SUCCESS
+        transaction_type: REFUND
+        card_acceptor_id: '5023045'
+        issuer_result:
+          approval_code: '123456'
+          response_code: '00'
+        created_at: '2021-01-01T00:00:00.000Z'
+        dcc:
+          cardholder_amount:
+            amount: 100
+            currency: CHF
+          conversion_rate: '0.9517'
+          markup: '0.03'
+          ecb_markup: '0.01'
+    InvalidParams:
+      type: object
+      description: Invalid parameter details
+      properties:
+        field:
+          type: string
+          description: The field that contains invalid data
+          example: amount.value
+        reason:
+          type: string
+          description: Reason why the field is invalid
+          example: must be greater than 0
+      required:
+      - field
+      - reason
+      title: InvalidParams
+    Error:
+      type: object
+      description: Error response
+      example:
+        code: BAD_REQUEST
+        description: Invalid input
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - AMOUNT_TOO_SMALL
+          - BAD_REQUEST
+          - BLOCKED_CARD
+          - BLOCKED_CROSS_BORDER_TRANSACTION
+          - FORBIDDEN
+          - IDEMPOTENCE_KEY_NOT_FOUND
+          - INTERNAL_SERVER_ERROR
+          - INVALID_AUTHENTICATION_ID
+          - LOST_OR_STOLEN
+          - NEGATIVE_BALANCE_LIMIT
+          - NOT_FOUND
+          - PENDING_TRANSACTION_CANNOT_BE_REVERSED
+          - PRE_AUTH_UNSUPPORTED_SCHEME
+          - SERVICE_UNAVAILABLE
+          - TRANSACTION_CANNOT_BE_REVERSED
+          - TRANSACTION_NOT_FOUND
+          - UNAUTHORISED
+          - UNKNOWN
+          - UNSUPPORTED_ISSUER
+          - UNSUPPORTED_SCHEME
+        description:
+          type: string
+          description: The description of the error
+        invalid_params:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      required:
+      - code
+      - description
+      title: Error
+      x-internal: 'true'
+    RefundExceptionResponseV2:
+      type: object
+      required:
+      - code
+      - description
+      example:
+        code: BAD_REQUEST
+        description: Bad Request
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - BAD_REQUEST
+          - UNAUTHORISED
+          - FORBIDDEN
+          - NOT_FOUND
+          - UNKNOWN
+          - INTERNAL_SERVER_ERROR
+          - TRANSACTION_NOT_FOUND
+          - NEGATIVE_BALANCE_LIMIT
+          - LOST_OR_STOLEN
+          - BLOCKED_CARD
+          - TRANSACTION_CANNOT_BE_REVERSED
+          - SERVICE_UNAVAILABLE
+          - IDEMPOTENCE_KEY_NOT_FOUND
+          - UNSUPPORTED_SCHEME
+          - PRE_AUTH_UNSUPPORTED_SCHEME
+          - AMOUNT_TOO_SMALL
+          - INVALID_CHALLENGE
+          - TRANSACTION_NOT_ALLOWED
+          example: BAD_REQUEST
+        description:
+          type: string
+          description: The description of the error
+          example: Bad Request
+        invalid_params:
+          type: array
+          description: List of invalid request parameters. Populated for validation failures (400); omitted otherwise.
+          items:
+            $ref: '#/components/schemas/InvalidParams_2'
+      title: RefundExceptionResponseV2
+    DccResponse:
+      type: object
+      description: Dynamic Currency Conversion response
+      properties:
+        conversion_rate:
+          type: string
+          description: Exchange rate used for conversion
+          example: '0.9517'
+        markup:
+          type: string
+          description: Markup applied to the exchange rate
+          example: '0.03'
+        ecb_markup:
+          type: string
+          description: ECB markup rate
+          example: '0.01'
+        cardholder_amount:
+          $ref: '#/components/schemas/Amount'
+          description: Amount in cardholder's currency
+      title: DccResponse
+    RefundRequest:
+      type: object
+      description: A request to refund a transaction
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        terminal_id: '12345678'
+        amount: 100
+      properties:
+        transaction_id:
+          type: string
+          description: The id of the original transaction that needs to be refunded
+        terminal_id:
+          type: string
+          description: The ID of the terminal processing the transaction. Only required when using a non-Teya terminal.
+          maxLength: 8
+          minLength: 1
+        merchant_reference:
+          type: string
+          description: An ID referencing the transaction on the client's side
+          maxLength: 60
+          minLength: 1
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1). The currency is the same as the original transaction.
+        reason:
+          type: string
+          description: A reason for the refund (e.g. 'customer returned the goods')
+      required:
+      - amount
+      - transaction_id
+      title: RefundRequest
+    Amount:
+      type: object
+      description: Amount object
+      properties:
+        amount:
+          type: integer
+          description: Amount in the smallest currency unit (e.g., cents)
+          minimum: 1
+          example: 1000
+        currency:
+          type: string
+          description: 3-letter ISO currency code
+          pattern: ^[A-Z]{3}$
+          example: USD
+      required:
+      - amount
+      - currency
+      title: Amount
+    RefundRequest_2:
+      title: RefundRequest
+      type: object
+      description: A request to refund a transaction
+      required:
+      - amount
+      - transaction_id
+      properties:
+        transaction_id:
+          type: string
+          description: The id of the original transaction that needs to be refunded
+          minLength: 1
+        terminal_id:
+          type: string
+          description: An optional terminal identifier for Delegated access
+          maxLength: 8
+          minLength: 1
+        merchant_reference:
+          type: string
+          description: An identifier referencing the transaction on the client's side
+          maxLength: 30
+          minLength: 1
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1). The currency is the same as the original transaction.
+          minimum: 0
+        currency:
+          type: string
+          description: The ISO 4217 currency code (e.g., 'EUR', 'USD'). Required for CIBA authentication flow
+        basket_transaction_id:
+          type: string
+          format: uuid
+          description: Unique identifier of basket-data transaction
+          example: 7979e979-f6ab-409d-b968-e336d552e20a
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        terminal_id: '12345678'
+        amount: 100
+        currency: EUR
+        merchant_reference: merchant-ref-123
+    Amount_2:
+      title: Amount
+      type: object
+      required:
+      - amount
+      - currency
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount in the smallest currency unit (e.g., 100 cents to charge $1)
+          minimum: 0
+        currency:
+          type: string
+          description: Currency code (e.g. `USD`, `GBP`, `EUR`) following ISO-4217 format.
+      example:
+        amount: 100
+        currency: GBP
+    InvalidParams_2:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
+    RefundIssuerResult_2:
+      title: IssuerResult
+      type: object
+      properties:
+        approval_code:
+          type: string
+          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+        response_code:
+          type: string
+          description: Response code returned by the issuer, indicating the result of the operation
+      example:
+        approval_code: '123456'
+        response_code: '00'
+    DccResponse_2:
+      title: DccResponse
+      type: object
+      required:
+      - cardholder_amount
+      - conversion_rate
+      - markup
+      properties:
+        cardholder_amount:
+          $ref: '#/components/schemas/Amount_2'
+          description: 'The total amount refunded to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
+
+            '
+        conversion_rate:
+          type: string
+          description: Conversion rate used to calculate the cardholder amount
+        markup:
+          type: string
+          description: Markup of the exchange rate
+        ecb_markup:
+          type: string
+          description: Markup of the exchange rate over the ECB exchange rate. Only provided when both currencies are EEA currencies.
+      example:
+        cardholder_amount:
+          amount: 100
+          currency: CHF
+        conversion_rate: '0.9517'
+        markup: '0.03'
+        ecb_markup: '0.01'

@@ -1,0 +1,224 @@
+openapi: 3.1.0
+info:
+  title: Teya FX Captures Reversals API
+  version: 1.0.0
+  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+servers:
+- url: https://api.teya.com
+  description: Production Server
+- url: https://api.teya.xyz
+  description: Development Server
+tags:
+- name: Reversals
+paths:
+  /v2/reversals:
+    post:
+      tags:
+      - Reversals
+      summary: Process a reversal of a transaction
+      description: 'API to process the reversal of a transaction.
+
+
+        The transaction to be reversed can be referenced by:
+
+        - Its transaction ID
+
+        - The Idempotency Key used in the transaction request'
+      operationId: cardTransactions_3
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReversalRequest'
+        required: true
+      responses:
+        '200':
+          description: Reversal processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReversalResponse'
+        '202':
+          description: Reversal acknowledged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReversalResponse'
+              example:
+                status: ACKNOWLEDGED
+                reversal_amount:
+                  amount: 100
+                  currency: GBP
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '523':
+          description: Origin Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - oauth: []
+components:
+  schemas:
+    InvalidParams:
+      type: object
+      description: Invalid parameter details
+      properties:
+        field:
+          type: string
+          description: The field that contains invalid data
+          example: amount.value
+        reason:
+          type: string
+          description: Reason why the field is invalid
+          example: must be greater than 0
+      required:
+      - field
+      - reason
+      title: InvalidParams
+    Error:
+      type: object
+      description: Error response
+      example:
+        code: BAD_REQUEST
+        description: Invalid input
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - AMOUNT_TOO_SMALL
+          - BAD_REQUEST
+          - BLOCKED_CARD
+          - BLOCKED_CROSS_BORDER_TRANSACTION
+          - FORBIDDEN
+          - IDEMPOTENCE_KEY_NOT_FOUND
+          - INTERNAL_SERVER_ERROR
+          - INVALID_AUTHENTICATION_ID
+          - LOST_OR_STOLEN
+          - NEGATIVE_BALANCE_LIMIT
+          - NOT_FOUND
+          - PENDING_TRANSACTION_CANNOT_BE_REVERSED
+          - PRE_AUTH_UNSUPPORTED_SCHEME
+          - SERVICE_UNAVAILABLE
+          - TRANSACTION_CANNOT_BE_REVERSED
+          - TRANSACTION_NOT_FOUND
+          - UNAUTHORISED
+          - UNKNOWN
+          - UNSUPPORTED_ISSUER
+          - UNSUPPORTED_SCHEME
+        description:
+          type: string
+          description: The description of the error
+        invalid_params:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      required:
+      - code
+      - description
+      title: Error
+      x-internal: 'true'
+    ReversalRequest:
+      type: object
+      description: A request to reverse a transaction
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        reversal_reason: COMMUNICATION_REVERSAL
+      properties:
+        transaction_id:
+          type: string
+          description: The id of the original transaction that needs to be reversed
+        idempotency_key:
+          type: string
+          description: The idempotency key of the original transaction that needs to be reversed
+          maxLength: 64
+          minLength: 1
+        reversal_reason:
+          type: string
+          format: enum
+          description: Used for determining whether it is an automatic or manual reversal
+          enum:
+          - CARD_REVERSAL
+          - CARD_REMOVED
+          - COMMUNICATION_REVERSAL
+      required:
+      - reversal_reason
+      title: ReversalRequest
+    Amount:
+      type: object
+      description: Amount object
+      properties:
+        amount:
+          type: integer
+          description: Amount in the smallest currency unit (e.g., cents)
+          minimum: 1
+          example: 1000
+        currency:
+          type: string
+          description: 3-letter ISO currency code
+          pattern: ^[A-Z]{3}$
+          example: USD
+      required:
+      - amount
+      - currency
+      title: Amount
+    ReversalResponse:
+      type: object
+      description: A response to reverse a transaction
+      example:
+        status: SUCCESS
+        reversal_amount:
+          amount: 100
+          currency: GBP
+      properties:
+        status:
+          type: string
+          description: The status of the transaction
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+          - ACKNOWLEDGED
+        reversal_amount:
+          $ref: '#/components/schemas/Amount'
+          description: A positive integer representing the total amount reversed in the smallest currency unit (e.g., 100 cents to charge $1)
+        sub_account_id:
+          type: string
+          enum:
+          - ACTIVE_HUNGARIANS
+          - ACCOMMODATION
+      required:
+      - reversal_amount
+      - status
+      title: ReversalResponse
