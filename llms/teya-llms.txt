@@ -1,0 +1,41 @@
+# Teya
+
+> Teya is a European payments and business-services provider (formerly SaltPay) offering card machines, online payments, a business account, and lending to local businesses. Its developer platform exposes REST APIs for card acquiring — online/e-commerce payments, card-present and MOTO transactions, terminal (POSLink) control, dynamic currency conversion — plus SDKs for web and mobile point-of-sale integration. Authentication is OAuth 2.0 (authorization-code and client-credentials) against id.teya.com; write operations support Idempotency-Key.
+
+## APIs
+
+- [Online Payments API](https://docs.teya.com/apis/online-payments/apis): Hosted Checkout, PayByLink, e-commerce transactions, captures, refunds, digital receipts, tokens.
+- [Payments Gateway API](https://docs.teya.com/apis/payments/overview): Card-present, MOTO, refunds, captures, reversals. Base https://api.teya.com.
+- [POSLink API](https://docs.teya.com/apis/poslink/overview): Terminal payment requests, refunds, tabs, stores, terminals, ePOS registration, receipt printing.
+- [Dynamic Currency Conversion (Teya FX) API](https://docs.teya.com/apis/dynamic-currency-conversion/overview): DCC offers and exchange rates. Scope fx/dcc/create.
+- [Settlement API](https://docs.teya.com/reporting/introduction): SOAP/WCF settlement and payout reporting (Borgun endpoints).
+
+## Specs
+
+- [Online Payments OpenAPI](https://docs.teya.com/apis/online-payments/openapi.yaml)
+- [Payments Gateway OpenAPI](https://docs.teya.com/apis/payments/openapi.yaml)
+- [POSLink OpenAPI](https://docs.teya.com/apis/poslink/openapi.yaml)
+- [FX / DCC OpenAPI](https://docs.teya.com/apis/dynamic-currency-conversion/openapi.yaml)
+
+## Docs
+
+- [Developer Portal / Guide](https://docs.teya.com/)
+- [API Reference](https://docs.teya.com/apis/overview)
+- [Configure your application](https://docs.teya.com/apis/developer-portal/configure-application)
+- [Test cards](https://docs.teya.com/apis/payments/test-cards)
+- [ePOS SDK overview](https://docs.teya.com/epos-sdk/overview)
+- [Kotlin SDK docs](https://docs.teya.com/kotlin-docs/)
+
+## SDKs
+
+- [@teyaproduct/teya-blocks-js (npm)](https://www.npmjs.com/package/@teyaproduct/teya-blocks-js)
+- [@teyaproduct/teya-blocks-react (npm)](https://www.npmjs.com/package/@teyaproduct/teya-blocks-react)
+- [Unified ePOS SDK (Android/Kotlin)](https://github.com/saltpay/unified-epos-sdk)
+- [Unified ePOS SDK (iOS SPM/CocoaPods)](https://github.com/saltpay/teya-unified-epos-sdk-pod-spm)
+
+## Auth
+
+- Token endpoint (production): https://id.teya.com/oauth/v2/oauth-token
+- Token endpoint (development): https://id.teya.xyz/oauth/v2/oauth-token
+- API base (production): https://api.teya.com — (development): https://api.teya.xyz
+- Flows: authorization_code, client_credentials. Header: Authorization: Bearer <token>. Idempotency-Key on writes.

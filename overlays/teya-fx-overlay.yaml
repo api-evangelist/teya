@@ -1,0 +1,13 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Teya FX (DCC)
+  version: 1.0.0
+extends: openapi/teya-fx-openapi.yaml
+actions:
+  - target: $.info
+    update:
+      x-apievangelist-provider: teya
+      x-apievangelist-product: fx-dcc
+      x-apievangelist-auth: oauth2 (authorizationCode) via id.teya.com
+      x-apievangelist-scope: fx/dcc/create
+      x-apievangelist-base-url: https://api.teya.com

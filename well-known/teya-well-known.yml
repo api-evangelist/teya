@@ -1,0 +1,28 @@
+generated: '2026-07-21'
+method: searched
+hosts:
+  - host: https://api.teya.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+  - host: https://www.teya.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+  - host: https://docs.teya.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 200-spa-shell
+        note: Returns the docs SPA HTML shell (text/html), not a real RFC 9116 document.
+      - path: /.well-known/openid-configuration
+        status: 200-spa-shell
+        note: SPA shell, not an OIDC discovery document.
+notes: >-
+  No real /.well-known discovery documents are published. docs.teya.com returns its SPA index
+  (HTTP 200, text/html) for every path, so those 200s are not genuine well-known resources.
+  The OAuth/OIDC issuer is id.teya.com (token endpoint /oauth/v2/oauth-token) but no public
+  discovery document was reachable unauthenticated.

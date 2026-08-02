@@ -1,0 +1,24 @@
+generated: '2026-07-21'
+method: searched
+source: https://www.npmjs.com/org/teyaproduct
+families:
+  - name: Teya Blocks
+    kind: embeddable-payment-ui
+    description: >-
+      Client-side embeddable payment UI ("Blocks") for accepting online payments. A lightweight
+      vanilla-JS loader mounts hosted payment elements; a React binding provides the same as
+      React components. Distinct from the server-side/mobile SDKs in packages/.
+    loaders:
+      - name: "@teyaproduct/teya-blocks-js"
+        role: vanilla-JS loader / element mounting
+        url: https://www.npmjs.com/package/@teyaproduct/teya-blocks-js
+      - name: "@teyaproduct/teya-blocks-react"
+        role: React component bindings
+        url: https://www.npmjs.com/package/@teyaproduct/teya-blocks-react
+    backed_by_api: openapi/teya-online-payments-openapi.yaml
+  - name: Hosted Checkout
+    kind: hosted-redirect
+    description: >-
+      Teya-hosted checkout sessions (createSessionV2) and PayByLink payment links render a
+      Teya-hosted payment page, requiring no card fields in the merchant UI.
+    backed_by_api: openapi/teya-online-payments-openapi.yaml

@@ -1,0 +1,46 @@
+generated: '2026-07-21'
+method: searched
+source: https://www.npmjs.com/org/teyaproduct, https://github.com/saltpay, https://docs.teya.com/kotlin-docs/
+packages:
+  - language: javascript
+    registry: npm
+    name: "@teyaproduct/teya-blocks-js"
+    version: 0.2.0
+    license: Apache-2.0
+    url: https://www.npmjs.com/package/@teyaproduct/teya-blocks-js
+    repository: https://github.com/saltpay/teya-blocks-js
+    install: npm install @teyaproduct/teya-blocks-js
+    description: Lightweight loader for the Teya Blocks embeddable payment SDK.
+    official: true
+  - language: javascript
+    registry: npm
+    name: "@teyaproduct/teya-blocks-react"
+    version: 0.2.0
+    license: Apache-2.0
+    url: https://www.npmjs.com/package/@teyaproduct/teya-blocks-react
+    repository: https://github.com/saltpay/teya-blocks-react
+    install: npm install @teyaproduct/teya-blocks-react
+    description: React components for the Teya Blocks payment SDK.
+    official: true
+  - language: kotlin
+    registry: github
+    name: unified-epos-sdk
+    url: https://github.com/saltpay/unified-epos-sdk
+    docs: https://docs.teya.com/kotlin-docs/
+    description: >-
+      Teya Unified (ePOS) SDK for Android — PosLink (cloud) and All-In-One integration;
+      manages OAuth authentication, token refresh, and prebuilt payment UI.
+    official: true
+  - language: swift
+    registry: github
+    name: teya-unified-epos-sdk-pod-spm
+    url: https://github.com/saltpay/teya-unified-epos-sdk-pod-spm
+    description: Swift Package Manager and CocoaPods support for the Teya Unified ePOS SDK (iOS).
+    official: true
+  - language: php
+    registry: github
+    name: teya-payment-client
+    url: https://github.com/ttimot24/teya-payment-client
+    install: composer require ttimot24/teya-payment-client
+    description: Third-party PHP client for the Teya payment gateway.
+    official: false

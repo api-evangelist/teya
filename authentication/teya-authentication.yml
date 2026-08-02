@@ -1,0 +1,33 @@
+generated: '2026-07-21'
+method: derived
+source: openapi/teya-online-payments-openapi.yaml, openapi/teya-payments-openapi.yaml, openapi/teya-poslink-openapi.json
+summary:
+  types:
+  - oauth2
+  oauth2_flows:
+  - authorizationCode
+  - clientCredentials
+schemes:
+- name: checkout_oauth_dev
+  type: oauth2
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://id.teya.xyz/oauth/v2/oauth-authorize
+    tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+    scopes: 0
+  - flow: clientCredentials
+    tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+    scopes: 0
+  sources:
+  - openapi/teya-online-payments-openapi.yaml
+  - openapi/teya-payments-openapi.yaml
+- name: Teya_Digital_Receipts_Service_oauth_prd
+  type: oauth2
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+    scopes: 0
+  sources:
+  - openapi/teya-online-payments-openapi.yaml
+  - openapi/teya-poslink-openapi.json

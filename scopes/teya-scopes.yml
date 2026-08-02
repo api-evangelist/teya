@@ -1,0 +1,95 @@
+generated: '2026-07-21'
+method: searched
+source: openapi/teya-online-payments-openapi.yaml, openapi/teya-payments-openapi.yaml, openapi/teya-poslink-openapi.json
+docs: https://docs.teya.com/apis/developer-portal/configure-application
+notes: >-
+  OAuth applications are granted scopes in the Teya Developer Portal. The OpenAPI security
+  flows largely omit explicit scope maps; scopes below are those documented/observed
+  (terminal from the Payments Refunds Wrapper client-credentials flow, fx/dcc/create from the
+  DCC/FX API docs). Requesting a scope the application has not been granted returns 403.
+schemes:
+- name: checkout_oauth_dev
+  source: openapi/teya-online-payments-openapi.yaml
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://id.teya.xyz/oauth/v2/oauth-authorize
+    tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+  - flow: clientCredentials
+    tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+- name: checkout_oauth_prd
+  source: openapi/teya-online-payments-openapi.yaml
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+  - flow: clientCredentials
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+- name: Ecommerce_Transaction_Payments_-_Public_oauth
+  source: openapi/teya-online-payments-openapi.yaml
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+  - flow: clientCredentials
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+- name: pbl_oauth_dev
+  source: openapi/teya-online-payments-openapi.yaml
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://id.teya.xyz/oauth/v2/oauth-authorize
+    tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+  - flow: clientCredentials
+    tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+- name: pbl_oauth_prd
+  source: openapi/teya-online-payments-openapi.yaml
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+  - flow: clientCredentials
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+- name: Teya_Digital_Receipts_Service_oauth_prd
+  source: openapi/teya-online-payments-openapi.yaml
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+- name: Payments_Refunds_Wrapper_API_oauth_prd
+  source: openapi/teya-online-payments-openapi.yaml
+  flows:
+  - flow: clientCredentials
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+  - flow: authorizationCode
+    authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+- name: oauth
+  source: openapi/teya-payments-openapi.yaml
+  flows:
+  - flow: clientCredentials
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+  - flow: authorizationCode
+    authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+- name: authorisation
+  source: openapi/teya-poslink-openapi.json
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+    tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+  description: |-
+    Given a valid access token, you can now use a Bearer Token to authenticate your requests.
+    To do so you have to preface your access token with Bearer and send it in the HTTP Authorization header.
+    It should look something like this: `Authorization: Bearer <ACCESS_TOKEN>`
+scopes:
+- scope: terminal
+  description: Access to terminal/device payment and refund operations (client-credentials).
+  flows:
+  - clientCredentials
+  sources:
+  - openapi/teya-online-payments-openapi.yaml
+- scope: fx/dcc/create
+  description: Create Dynamic Currency Conversion (DCC) offers via the Teya FX API.
+  flows:
+  - authorizationCode
+  sources:
+  - docs:https://docs.teya.com/apis/dynamic-currency-conversion/overview

@@ -1,0 +1,23 @@
+generated: '2026-07-21'
+method: searched
+source: https://docs.teya.com/apis/overview
+versioning:
+  scheme: uri-path
+  observed_versions: [v1, v2, v3]
+  notes: >-
+    Each resource is independently versioned in the path (e.g. /v2/checkout/sessions,
+    /v3/transactions/online, /poslink/v3/payment-requests). Multiple versions co-exist.
+  maturity: Several developer APIs are marked "beta" in the docs (Online Payments, Payments Gateway).
+deprecation:
+  policy_url: null
+  sunset_header: unknown
+  deprecated_operations: []
+  notes: No formal public deprecation/Sunset policy located in the developer docs.
+status_page: null
+sla:
+  url: null
+settlement_api:
+  protocol: SOAP/WCF
+  versioning: service-path (settlement_3_7)
+  test_endpoint: https://test.borgun.is/settlement/creditcard.svc
+  production_endpoint: https://services.borgun.is/settlement_3_7/creditcard.svc

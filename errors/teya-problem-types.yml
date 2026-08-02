@@ -1,0 +1,67 @@
+generated: '2026-07-21'
+method: derived
+source: openapi/teya-online-payments-openapi.yaml, openapi/teya-payments-openapi.yaml, openapi/teya-poslink-openapi.json, openapi/teya-fx-openapi.yaml
+docs: https://docs.teya.com/apis/payments/overview
+format: custom-json
+notes: >-
+  Teya APIs return errors as a custom JSON envelope (schemas Error / ExceptionResponse /
+  Teya_Digital_Receipts_Service_Error) rather than RFC 9457 application/problem+json. The
+  envelope carries a machine-readable code plus a human-readable message; validation errors
+  add an InvalidParams array naming the offending fields. Statuses below are aggregated from
+  the 4xx/5xx responses declared across all four OpenAPI specs.
+error_envelope:
+  fields: [code, message, invalid_params]
+  invalid_params_schema: InvalidParams
+problems:
+  - status: 400
+    title: Bad Request
+    meaning: Malformed request or failed validation; check invalid_params for offending fields.
+    remediation: Correct the request body/parameters (amounts in minor units, ISO-4217 currency, valid UUIDs).
+  - status: 401
+    title: Unauthorized
+    meaning: Missing, expired, or invalid OAuth 2.0 bearer token.
+    remediation: Obtain a fresh access token from the token endpoint (id.teya.com / id.teya.xyz).
+  - status: 403
+    title: Forbidden
+    meaning: Token lacks the required scope or the application is not entitled to the resource.
+    remediation: Ensure the OAuth application is granted the required scope in the Developer Portal.
+  - status: 404
+    title: Not Found
+    meaning: The referenced resource (session, transaction, payment-link, tab, terminal) does not exist.
+  - status: 408
+    title: Request Timeout
+    meaning: The upstream processing did not complete in time.
+    remediation: Retry safely using the same Idempotency-Key.
+  - status: 409
+    title: Conflict
+    meaning: Idempotency-Key reuse with a different payload, or a state conflict on the resource.
+    remediation: Use a unique Idempotency-Key per logical operation.
+  - status: 415
+    title: Unsupported Media Type
+    meaning: Content-Type is not application/json.
+  - status: 422
+    title: Unprocessable Entity
+    meaning: Semantically invalid request that passed schema validation.
+  - status: 424
+    title: Failed Dependency
+    meaning: A dependent downstream service (issuer/acquirer) failed.
+  - status: 429
+    title: Too Many Requests
+    meaning: Rate limit exceeded.
+    remediation: Back off and retry; honor Retry-After when present.
+  - status: 460
+    title: Card Declined / Issuer Response
+    meaning: Non-standard status used for a declined authorization or issuer-side result.
+  - status: 500
+    title: Internal Server Error
+    meaning: Unexpected server error.
+    remediation: Retry with the same Idempotency-Key; contact support if persistent.
+  - status: 503
+    title: Service Unavailable
+    meaning: The service is temporarily unavailable.
+  - status: 522
+    title: Connection Timed Out
+    meaning: Upstream/edge connection timeout.
+  - status: 523
+    title: Origin Unreachable
+    meaning: Upstream origin unreachable.

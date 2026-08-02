@@ -1,0 +1,33 @@
+generated: '2026-07-21'
+method: derived
+source: openapi/teya-payments-openapi.yaml, openapi/teya-online-payments-openapi.yaml, openapi/teya-poslink-openapi.json, https://docs.teya.com/apis/developer-portal/configure-application
+standards:
+  - id: oauth2
+    conforms: true
+    evidence: All specs declare oauth2 securitySchemes (authorizationCode + clientCredentials); tokenUrl id.teya.com.
+  - id: oidc
+    conforms: true
+    evidence: >-
+      Developer Portal web applications use OpenID Connect flows — redirect URIs, post-logout
+      redirect URIs, backchannel logout URIs, and WebAuthn 2FA.
+  - id: idempotency
+    conforms: true
+    evidence: Idempotency-Key request header on write operations across three APIs.
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: Errors use a custom JSON envelope (code/message/invalid_params), not application/problem+json.
+  - id: rfc8594-sunset
+    conforms: false
+    evidence: No Sunset/Deprecation header policy documented.
+  - id: pci-dss
+    conforms: true
+    evidence: >-
+      Card acquirer processing card-present/MOTO/e-commerce transactions with encrypted PAN
+      transport; PCI DSS is inherent to Teya's acquiring operation (card data handled encrypted,
+      test cards rejected in production). No public certificate page located to assert a level.
+  - id: iso4217-amounts
+    conforms: true
+    evidence: Amounts in minor units with ISO-4217 currency codes.
+  - id: iso8601-timestamps
+    conforms: true
+    evidence: All timestamps ISO-8601.

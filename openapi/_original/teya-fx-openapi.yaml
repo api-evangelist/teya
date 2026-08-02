@@ -1,0 +1,202 @@
+openapi: "3.1.0"
+info:
+  title: "Teya FX API"
+  version: "1.0.0"
+  description: "The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes."
+servers:
+  - url: "https://api.teya.com"
+    description: "Production Server"
+  - url: "https://api.teya.xyz"
+    description: "Development Server"
+tags:
+  - name: DCC
+    description: Operations related to dynamic currency conversion
+paths:
+  /fx/v1/dcc/offers:
+    post:
+      tags:
+        - DCC
+      summary: "Create a DCC offer"
+      description: "Verifies that the cardholder's card is eligible for DCC, fetches the latest exchange rate, creates a persisted quote, and returns an offer with a quote ID.\n\n**Required OAuth scopes:** `fx/dcc/create`"
+      operationId: "dccOffer"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DccOffer"
+        required: true
+      responses:
+        "200":
+          description: "DCC offer with quote ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferV3"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    DccOffer:
+      type: object
+      description: "Request to create a public DCC offer"
+      example:
+        card_first9: "30489000"
+        base_amount: 5000
+        base_currency: GBP
+        cardholder_currency: EUR
+        store_id: "550e8400-e29b-41d4-a716-446655440000"
+      properties:
+        card_first9:
+          type: string
+          description: "The first 6 to 9 digits of the card PAN, used to determine whether the card is eligible for FX. The provided digits are matched against BIN ranges, so send only the actual digits available from your payment application."
+          maxLength: 9
+          minLength: 6
+        base_amount:
+          type: integer
+          format: int64
+          description: "The original total amount of transaction including tips (integer format, in the base currency's minor unit, e.g. 100 to represent $1.00, or 100 US dollar cents)"
+        base_currency:
+          type: string
+          description: "The base (or terminal) currency of the currency pair in ISO-4217 format (e.g. EUR)"
+        cardholder_currency:
+          type: string
+          description: "The cardholder's billing currency in ISO-4217 format (e.g. EUR). Optional — when omitted, the currency is resolved from BIN range data using card_first9."
+        store_id:
+          type: string
+          format: uuid
+          description: "The store ID associated with this DCC transaction"
+      required:
+        - base_amount
+        - base_currency
+        - card_first9
+        - store_id
+      title: "DccOffer"
+    OfferV3:
+      type: object
+      description: "Teya FX offer with quote ID, containing the latest exchange rate and markups offered for foreign exchange."
+      example:
+        quote_id: "019502a0-7e29-7b3c-8f1a-2b3c4d5e6f70"
+        exchange_rate: "1.16"
+        markup: "0.03"
+        ecb_markup: "0.02"
+        cardholder_currency: EUR
+        cardholder_amount: 1000
+      properties:
+        quote_id:
+          type: string
+          format: uuid
+          description: "The unique quote identifier (UUIDv7)"
+        exchange_rate:
+          type: string
+          description: "Latest exchange rate for a currency pair (decimal format, with 6 decimal places)"
+        markup:
+          type: string
+          description: "Markup of the offered exchange rate (i.e. amount added) over the latest exchange rate for a currency pair (decimal format)"
+        ecb_markup:
+          type:
+            - string
+            - "null"
+          description: "Markup of the offered exchange rate (i.e. amount added) over the latest ECB exchange rate for a currency pair (decimal format, with 6 decimal places). Only provided when both currencies are EEA currencies."
+        cardholder_currency:
+          type: string
+          description: "The card currency of the currency pair in ISO-4217 format (e.g. EUR)"
+        cardholder_amount:
+          type: integer
+          format: int64
+          description: "The calculated amount from base_currency and rate (integer format, in the smallest card currency's unit, e.g. 100 to represent $1.00, or 100 US dollar cents)"
+      required:
+        - cardholder_amount
+        - cardholder_currency
+        - exchange_rate
+        - markup
+        - quote_id
+      title: "Teya FX offer with quote"
+    Error:
+      type: object
+      format: enum
+      description: "Error response"
+      example:
+        code: "BAD_REQUEST"
+        description: "Unsupported currency"
+      properties:
+        code:
+          type: string
+          format: enum
+          description: "The error code"
+          enum:
+            - "BAD_REQUEST"
+            - "UNAUTHORIZED"
+            - "FORBIDDEN"
+            - "NOT_FOUND"
+            - "NOT_IMPLEMENTED"
+            - "BELOW_MINIMUM"
+            - "NON_ELIGIBLE_CARD"
+            - "SAME_CURRENCY"
+            - "CARD_CURRENCY_MISMATCH"
+            - "UNSUPPORTED_CURRENCY"
+            - "NEGATIVE_AMOUNT"
+            - "DCC_DISABLED"
+            - "INVALID_OFFER"
+            - "QUOTE_NOT_FOUND"
+            - "QUOTE_MISMATCH"
+            - "INVALID_FX_DATE"
+            - "RATE_NOT_FOUND"
+            - "NO_CARD_CURRENCY"
+            - "UNKNOWN"
+        description:
+          type: string
+          description: "The description of the error"
+        invalid_params:
+          type: array
+          items:
+            $ref: "#/components/schemas/InvalidParams"
+      title: "Error"
+    InvalidParams:
+      type: object
+      description: "Invalid parameters"
+      example:
+        path: "amounts.amount"
+        reason: "must be greater than or equal to 0"
+      properties:
+        path:
+          type: string
+          description: "The path to the missing/invalid parameter expressed in dot notation."
+        reason:
+          type: string
+          description: "Reason why the validation failed."
+        sub_code:
+          type: string
+          format: enum
+          description: "An enum corresponding to the validation error."
+      required:
+        - path
+        - reason
+      title: "InvalidParams"

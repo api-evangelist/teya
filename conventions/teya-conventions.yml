@@ -1,0 +1,47 @@
+generated: '2026-07-21'
+method: searched
+source: https://docs.teya.com/apis/payments/overview
+also_derived_from: openapi/teya-payments-openapi.yaml, openapi/teya-online-payments-openapi.yaml, openapi/teya-poslink-openapi.json
+authentication:
+  style: oauth2-bearer
+  flows: [authorizationCode, clientCredentials]
+  token_url_production: https://id.teya.com/oauth/v2/oauth-token
+  token_url_development: https://id.teya.xyz/oauth/v2/oauth-token
+  header: 'Authorization: Bearer <ACCESS_TOKEN>'
+  notes: >-
+    Client-credentials for server-to-server (device/terminal) access; authorization-code for
+    user-context web applications configured in the Developer Portal (redirect URLs, optional
+    WebAuthn 2FA, backchannel logout).
+  see: authentication/teya-authentication.yml
+idempotency:
+  supported: true
+  header: Idempotency-Key
+  scope: per-request (write operations across Payments, Online Payments and POSLink)
+  behavior: >-
+    Reuse of the same Idempotency-Key returns the original result and prevents duplicate
+    transactions; reuse with a different payload yields 409 Conflict.
+  documented_at: https://docs.teya.com/apis/payments/overview
+  spec_evidence: Idempotency-Key header parameter present on POST/PATCH operations
+amounts:
+  representation: minor-units-integer
+  example: 5000 == EUR 50.00
+  currency_format: ISO-4217 three-letter codes (EUR, USD, GBP, ...)
+identifiers:
+  format: UUID for transaction_id / merchant_id / store_id where specified
+  timestamps: ISO-8601 (e.g. 2024-01-15T10:30:00.000Z)
+versioning:
+  style: uri-path
+  observed: v1, v2, v3 co-exist per resource (e.g. /v3/transactions/online, /v2/checkout/sessions)
+  see: lifecycle/teya-lifecycle.yml
+error_envelope:
+  format: custom-json
+  fields: [code, message, invalid_params]
+  see: errors/teya-problem-types.yml
+rate_limiting:
+  signaled: true
+  mechanism: HTTP 429 Too Many Requests (no dedicated rate-limit headers declared in spec)
+card_data_security:
+  note: >-
+    Card data is transmitted encrypted (encrypted_track / encrypted_card_data with
+    encryption_key_id + encryption_ksn); only card BIN (first 6-9 digits) is used for DCC
+    eligibility. PCI-sensitive fields are never sent in the clear.

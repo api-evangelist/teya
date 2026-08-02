@@ -1,0 +1,105 @@
+generated: '2026-07-21'
+method: derived
+source: openapi/teya-online-payments-openapi.yaml, openapi/teya-payments-openapi.yaml, openapi/teya-poslink-openapi.json, openapi/teya-fx-openapi.yaml
+notes: >-
+  Entity graph derived from OpenAPI schema names, path resources and id-reference fields across
+  Teya's four REST APIs (Online Payments, Payments Gateway, POSLink, FX/DCC). Identifiers are
+  UUIDs; amounts are minor-unit integers with an ISO-4217 currency.
+entities:
+  - name: CheckoutSession
+    api: online-payments
+    id_field: session_id
+    schema: checkout_CreateSessionResponse
+  - name: PaymentLink
+    api: online-payments
+    id_field: payment_link_id
+    schema: pbl_GetPaymentLinkResponse
+  - name: OnlineTransaction
+    api: online-payments
+    id_field: authentication_id / transaction_id
+    schema: Ecommerce_Transaction_Payments_-_Public_OnlineTransaction
+  - name: Transaction
+    api: payments
+    id_field: id
+    schema: TransactionResponse
+  - name: Refund
+    api: payments
+    id_field: id
+    schema: RefundResponse
+  - name: Capture
+    api: payments
+    id_field: id
+    schema: CaptureResponse
+  - name: Reversal
+    api: payments
+    id_field: id
+    schema: ReversalResponse
+  - name: Receipt
+    api: online-payments
+    id_field: receipt_id
+    schema: Teya_Digital_Receipts_Service_CreateReceiptResponse
+  - name: Token
+    api: online-payments
+    id_field: token_id
+    schema: Ecommerce_Transaction_Payments_-_Public_Token
+  - name: DccOffer
+    api: fx
+    id_field: quote_id
+    schema: DccOffer
+  - name: PaymentRequest
+    api: poslink
+    id_field: payment-request-id
+    schema: CreatePaymentResponseV3
+  - name: Tab
+    api: poslink
+    id_field: tab_id
+    schema: TabResponse
+  - name: Store
+    api: poslink
+    id_field: store_id
+    schema: (path resource)
+  - name: Terminal
+    api: poslink
+    id_field: terminal_id
+    schema: (path resource)
+relationships:
+  - from: Capture
+    to: Transaction
+    type: belongs_to
+    via: id (POST /v1/transactions/{id}/capture)
+  - from: Refund
+    to: Transaction
+    type: belongs_to
+    via: transaction_id
+  - from: Reversal
+    to: Transaction
+    type: belongs_to
+    via: transaction reference
+  - from: Receipt
+    to: Transaction
+    type: belongs_to
+    via: transaction_id (POST /v1/transactions/{transaction_id}/receipts)
+  - from: OnlineTransaction
+    to: CheckoutSession
+    type: belongs_to
+    via: session
+  - from: OnlineTransaction
+    to: DccOffer
+    type: has_one
+    via: quote_id
+  - from: PaymentRequest
+    to: Store
+    type: belongs_to
+    via: store_id
+  - from: Terminal
+    to: Store
+    type: belongs_to
+    via: store_id
+  - from: Tab
+    to: Store
+    type: belongs_to
+    via: store_id
+  - from: PaymentRequest
+    to: Terminal
+    type: has_one
+    via: terminal_id

@@ -1,0 +1,20 @@
+generated: '2026-07-21'
+method: generated
+source: openapi/teya-online-payments-openapi.yaml, openapi/teya-payments-openapi.yaml, openapi/teya-fx-openapi.yaml
+skills:
+  - file: teya-hosted-checkout.md
+    name: Accept an online payment with Teya Hosted Checkout
+    api: openapi/teya-online-payments-openapi.yaml
+    operations: [createSessionV2, getSessionInfoV2]
+  - file: teya-pay-by-link.md
+    name: Create and manage a Teya PayByLink payment link
+    api: openapi/teya-online-payments-openapi.yaml
+    operations: [createPaymentLinkV2, getPaymentLink, updatePaymentLink]
+  - file: teya-card-present-preauth-capture.md
+    name: Take a card-present pre-authorization and capture it
+    api: openapi/teya-payments-openapi.yaml
+    operations: [cardTransactions_2, captureRequest, cardTransactions]
+  - file: teya-dcc-offer.md
+    name: Offer Dynamic Currency Conversion at checkout
+    api: openapi/teya-fx-openapi.yaml
+    operations: [dccOffer]

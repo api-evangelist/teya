@@ -1,0 +1,13 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Teya Payments Gateway
+  version: 1.0.0
+extends: openapi/teya-payments-openapi.yaml
+actions:
+  - target: $.info
+    update:
+      x-apievangelist-provider: teya
+      x-apievangelist-product: payments-gateway
+      x-apievangelist-idempotency: Idempotency-Key
+      x-apievangelist-auth: oauth2 (authorizationCode + clientCredentials) via id.teya.com
+      x-apievangelist-transaction-types: [AUTHORISATION, CAPTURE, REFUND, REVERSAL]

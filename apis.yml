@@ -1,9 +1,30 @@
 aid: teya
 name: Teya
-description: 'Teya is a company surfaced as a portfolio company of accel, ribbit-capital and added to
-  the API Evangelist network as a stub for enrichment. Sector: payments. This profile is a lead awaiting
-  the enrichment pipeline.'
+description: >-
+  Teya (formerly SaltPay) is a European payments and business-services provider serving local
+  businesses with card machines, online and in-person card acquiring, a business account, and
+  flexible business funding. Its developer platform exposes REST APIs for the full card-payment
+  lifecycle: Online Payments (Hosted Checkout, PayByLink, e-commerce transactions, captures,
+  refunds, digital receipts, tokens), a Payments Gateway (card-present, MOTO, refunds, captures,
+  reversals), POSLink for cloud terminal control (payment requests, tabs, stores, terminals,
+  ePOS registration, receipt printing), and a Teya FX API for Dynamic Currency Conversion, plus
+  a SOAP-based Settlement API for payout reporting. Authentication is OAuth 2.0 (authorization
+  code and client credentials) against id.teya.com, write operations support Idempotency-Key,
+  and first-party SDKs cover web (Teya Blocks) and Android/iOS point-of-sale.
 url: https://raw.githubusercontent.com/api-evangelist/teya/refs/heads/main/apis.yml
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://www.teya.com/favicon.ico
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
@@ -13,16 +34,375 @@ x-tier: stub
 x-tier-reason: portfolio-lead
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-21'
 tags:
 - Company
 - Payments
-apis: []
+- Payment Processing
+- Card Acquiring
+- Online Payments
+- Point of Sale
+- E-commerce
+- Fintech
+- Merchant Services
+- Europe
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+apis:
+- aid: teya:teya-captures-api
+  name: Teya Captures API
+  description: Operations related to capturing pre-authorised transactions.
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - Captures
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-captures-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-dcc-api
+  name: Teya DCC API
+  description: Operations related to dynamic currency conversion
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - DCC
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-dcc-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-epos-registration-api
+  name: Teya ePOS Registration API
+  description: The ePOS Registration API from Teya — 1 operation(s) for epos registration.
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - ePOS Registration
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-epos-registration-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-hosted-checkout-api
+  name: Teya Hosted Checkout API
+  description: APIs exposed for session management
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - Hosted Checkout
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-hosted-checkout-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-internal-api
+  name: Teya '@internal' API
+  description: The '@internal' API from Teya — 2 operation(s) for '@internal'.
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - '''@internal'''
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-internal-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-pay-at-table-api
+  name: Teya Pay at Table API
+  description: The Pay at Table API from Teya — 9 operation(s) for pay at table.
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - Pay at Table
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-pay-at-table-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-paybylink-api
+  name: Teya PayByLink API
+  description: APIs exposed for pay by link customers
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - PayByLink
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-paybylink-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-payment-requests-api
+  name: Teya Payment Requests API
+  description: The Payment Requests API from Teya — 4 operation(s) for payment requests.
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - Payment Requests
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-payment-requests-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-print-receipts-epos-api
+  name: Teya Print Receipts (ePOS) API
+  description: Create a receipt print job and fetch its status/events
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - Print Receipts (ePOS)
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-print-receipts-epos-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-public-api
+  name: Teya '@public' API
+  description: The '@public' API from Teya — 4 operation(s) for '@public'.
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - '''@public'''
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-public-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-refunds-api
+  name: Teya Refunds API
+  description: The Refunds API from Teya — 2 operation(s) for refunds.
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - Refunds
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-refunds-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-reversals-api
+  name: Teya Reversals API
+  description: The Reversals API from Teya — 1 operation(s) for reversals.
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - Reversals
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-reversals-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-stores-api
+  name: Teya Stores API
+  description: The Stores API from Teya — 3 operation(s) for stores.
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - Stores
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-stores-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-terminals-api
+  name: Teya Terminals API
+  description: The Terminals API from Teya — 1 operation(s) for terminals.
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - Terminals
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-terminals-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-tokens-api
+  name: Teya Tokens API
+  description: Token management for saved payment methods
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - Tokens
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-tokens-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-transactions-api
+  name: Teya Transactions API
+  description: Transactions
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - Transactions
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-transactions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
 common:
 - type: Website
-  url: https://www.saltpay.co/
+  url: https://www.teya.com/
+- type: DeveloperPortal
+  url: https://docs.teya.com/
+- type: Documentation
+  url: https://docs.teya.com/apis/overview
+- type: APIReference
+  url: https://docs.teya.com/apis/overview
+- type: GettingStarted
+  url: https://docs.teya.com/apis/developer-portal/configure-application
+- type: Support
+  url: https://help.teya.com/
+- type: Blog
+  url: https://www.teya.com/blog
+- type: GitHubOrganization
+  url: https://github.com/saltpay
+- type: Pricing
+  url: https://www.teya.com/pricing
+- type: SignUp
+  url: https://www.teya.com/sign-up
+- type: TermsOfService
+  url: https://www.teya.com/legal/general-terms
+- type: PrivacyPolicy
+  url: https://teya.com/legal/privacy-policy
+- type: Authentication
+  url: authentication/teya-authentication.yml
+- type: OAuthScopes
+  url: scopes/teya-scopes.yml
+- type: Idempotency
+  url: conventions/teya-conventions.yml
+- type: Conventions
+  url: conventions/teya-conventions.yml
+- type: SDKs
+  url: packages/teya-packages.yml
+- type: Packages
+  url: packages/teya-packages.yml
+- type: Components
+  url: components/teya-components.yml
+- type: Sandbox
+  url: sandbox/teya-sandbox.yml
+- type: ErrorCatalog
+  url: errors/teya-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/teya-lifecycle.yml
+- type: Conformance
+  url: conformance/teya-conformance.yml
+- type: DataModel
+  url: data-model/teya-data-model.yml
+- type: MCPServer
+  url: mcp/teya-mcp.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: WellKnown
+  url: well-known/teya-well-known.yml
+- type: LLMsTxt
+  url: llms/teya-llms.txt
+- type: AgenticAccess
+  url: agentic-access/teya-agentic-access.yml
+- type: DomainSecurity
+  url: security/teya-domain-security.yml
+x-enrichment:
+  date: '2026-07-21'
+  status: enriched
+  artifacts_added: 28
+  pass: local-v1

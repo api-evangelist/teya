@@ -1,0 +1,37 @@
+generated: '2026-07-21'
+method: searched
+source: https://docs.teya.com/apis/payments/test-cards
+environments:
+  development:
+    api_base: https://api.teya.xyz
+    token_url: https://id.teya.xyz/oauth/v2/oauth-token
+  production:
+    api_base: https://api.teya.com
+    token_url: https://id.teya.com/oauth/v2/oauth-token
+notes: >-
+  Test cards work only in the development/sandbox environment and are automatically rejected
+  in production. Use any 3-digit CVV (4-digit for American Express), any future expiry date,
+  and any cardholder name. Amounts are in minor units; vary amounts and currencies to exercise
+  all flows. Test cards are published verbatim by Teya below.
+test_cards:
+  - brand: Visa
+    number: '4005520000000129'
+    cvv: any 3-digit (e.g. 123)
+    expiry: any future date
+    use_case: Visa testing
+  - brand: Mastercard
+    number: '5555555555554444'
+    cvv: any 3-digit (e.g. 456)
+    expiry: any future date
+    use_case: Mastercard testing
+  - brand: American Express
+    number: '378282246310005'
+    cvv: any 4-digit (e.g. 6789)
+    expiry: any future date
+    use_case: American Express testing
+  - brand: Mastercard
+    number: '2223600089700011'
+    cvv: any 4-digit (e.g. 123)
+    expiry: any future date
+    use_case: Mastercard DCC testing (EUR)
+settlement_test_endpoint: https://test.borgun.is/settlement/creditcard.svc
