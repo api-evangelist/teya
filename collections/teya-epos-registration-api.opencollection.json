@@ -1,0 +1,33 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures ePOS Registration API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "ePOS Registration",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Register ePOS application and retrieve M2M client credentials",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/poslink/v1/epos/register",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "### No Permission Required - This is an endpoint that does not require permission\n---\n\nThis API registers an ePOS application and returns M2M (machine-to-machine) client credentials.\nThe endpoint returns OAuth client credentials based on the provided store_id and epos_external_id.\nThe client credentials can be used to obtain M2M access tokens for subsequent API calls.\n\n**Authentication:**\n\nThis endpoint requires a user JWT token (not M2M credentials). The user must have access to the specified s"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

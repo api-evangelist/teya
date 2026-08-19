@@ -1,0 +1,2113 @@
+{
+  "item": [
+    {
+      "id": "d298d226-efeb-4a8c-b587-f39f618c5b31",
+      "name": "Payment Requests",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "347674f8-fdd9-4a39-b11e-7be0f5e45ed3",
+          "name": "Create a payment request",
+          "request": {
+            "name": "Create a payment request",
+            "description": {
+              "content": "Creates a new payment request.\n\nSupports two flows in a single endpoint:\n- **Standalone payment** — omit `tab_id` and `payment_type`; behaves like v2.\n- **Pay at Table (PAT)** — supply `tab_id` (the tab to link the payment to) and\n  `payment_type` (`FULL` or `SPLIT`). `payment_type` is\n  required whenever `tab_id` is present.\n\n**Required Scopes (one of the following):**\n\n- `payment_requests` (returned via the register API: `POST /poslink/v1/epos/register`)\n- `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "poslink",
+                "v3",
+                "payment-requests"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) A unique key used to identify the request. Repeating the request with the same key will return the same response.\nUse different keys for different requests.\nUse the same key for retries of the same request.\n",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchant_reference\": \"<string>\",\n  \"requested_amount\": {\n    \"amount\": \"<long>\",\n    \"currency\": \"<ISO 4217>\",\n    \"tip\": \"<long>\"\n  },\n  \"store_id\": \"<uuid>\",\n  \"terminal_id\": \"<string>\",\n  \"transaction_type\": \"<enum>\",\n  \"epos_instance_id\": \"<string>\",\n  \"basket_transaction_id\": \"<uuid>\",\n  \"tab_id\": \"<uuid>\",\n  \"payment_type\": \"<string>\",\n  \"payment_method\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "874dd1c8-e078-46ba-8e82-512f90e9d254",
+              "name": "Payment request created successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key used to identify the request. Repeating the request with the same key will return the same response.\nUse different keys for different requests.\nUse the same key for retries of the same request.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_id\": \"eac4d470-4731-45b2-af6b-c828f03c1f9d\",\n  \"terminal_id\": \"70dc65ba-1c13-492a-82a0-15821e5f63ba\",\n  \"requested_amount\": {\n    \"amount\": 1500,\n    \"currency\": \"GBP\",\n    \"tip\": 10\n  },\n  \"transaction_type\": \"SALE\",\n  \"merchant_reference\": \"ORDER_123\",\n  \"epos_instance_id\": \"eposName_1\",\n  \"basket_transaction_id\": \"2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"payment_request_id\": \"dfc4fc52-8293-45b6-9f3e-b3b0f8f88188\",\n  \"requested_amount\": {\n    \"currency\": \"GBP\",\n    \"amount\": 1500,\n    \"tip\": 0\n  },\n  \"status\": \"NEW\",\n  \"transaction_type\": \"SALE\",\n  \"created_at\": \"2026-04-21T10:05:00Z\",\n  \"updated_at\": \"2026-04-21T10:05:00Z\",\n  \"merchant_reference\": \"ORDER_123\",\n  \"terminal_id\": \"70dc65ba-1c13-492a-82a0-15821e5f63ba\",\n  \"store_id\": \"eac4d470-4731-45b2-af6b-c828f03c1f9d\",\n  \"epos_instance_id\": \"eposName_1\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c6f6f605-0fab-4831-a9b5-fb015ed61d04",
+              "name": "Bad request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key used to identify the request. Repeating the request with the same key will return the same response.\nUse different keys for different requests.\nUse the same key for retries of the same request.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_id\": \"eac4d470-4731-45b2-af6b-c828f03c1f9d\",\n  \"terminal_id\": \"70dc65ba-1c13-492a-82a0-15821e5f63ba\",\n  \"requested_amount\": {\n    \"amount\": 1500,\n    \"currency\": \"GBP\",\n    \"tip\": 10\n  },\n  \"transaction_type\": \"SALE\",\n  \"merchant_reference\": \"ORDER_123\",\n  \"epos_instance_id\": \"eposName_1\",\n  \"basket_transaction_id\": \"2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d7447f13-792d-476d-98cd-556cd20159b8",
+              "name": "Lacks valid authentication credentials for the requested resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key used to identify the request. Repeating the request with the same key will return the same response.\nUse different keys for different requests.\nUse the same key for retries of the same request.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_id\": \"eac4d470-4731-45b2-af6b-c828f03c1f9d\",\n  \"terminal_id\": \"70dc65ba-1c13-492a-82a0-15821e5f63ba\",\n  \"requested_amount\": {\n    \"amount\": 1500,\n    \"currency\": \"GBP\",\n    \"tip\": 10\n  },\n  \"transaction_type\": \"SALE\",\n  \"merchant_reference\": \"ORDER_123\",\n  \"epos_instance_id\": \"eposName_1\",\n  \"basket_transaction_id\": \"2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"UNAUTHORIZED\",\n  \"description\": \"Unauthorized\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0d53fbce-8f15-41d5-848f-7cf0295096b7",
+              "name": "The server understands the request but refuses to authorize it",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key used to identify the request. Repeating the request with the same key will return the same response.\nUse different keys for different requests.\nUse the same key for retries of the same request.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_id\": \"eac4d470-4731-45b2-af6b-c828f03c1f9d\",\n  \"terminal_id\": \"70dc65ba-1c13-492a-82a0-15821e5f63ba\",\n  \"requested_amount\": {\n    \"amount\": 1500,\n    \"currency\": \"GBP\",\n    \"tip\": 10\n  },\n  \"transaction_type\": \"SALE\",\n  \"merchant_reference\": \"ORDER_123\",\n  \"epos_instance_id\": \"eposName_1\",\n  \"basket_transaction_id\": \"2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"FORBIDDEN\",\n  \"description\": \"Forbidden\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b57eed38-c1ef-4a8a-a98d-b69cb5e8fec9",
+              "name": "Request timeout",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key used to identify the request. Repeating the request with the same key will return the same response.\nUse different keys for different requests.\nUse the same key for retries of the same request.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_id\": \"eac4d470-4731-45b2-af6b-c828f03c1f9d\",\n  \"terminal_id\": \"70dc65ba-1c13-492a-82a0-15821e5f63ba\",\n  \"requested_amount\": {\n    \"amount\": 1500,\n    \"currency\": \"GBP\",\n    \"tip\": 10\n  },\n  \"transaction_type\": \"SALE\",\n  \"merchant_reference\": \"ORDER_123\",\n  \"epos_instance_id\": \"eposName_1\",\n  \"basket_transaction_id\": \"2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Request Timeout",
+              "code": 408,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"REQUEST_TIMEOUT\",\n  \"description\": \"Request timeout\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "460cb09a-11f5-4f0b-a40d-daa4ef1b64c1",
+              "name": "Conflict",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key used to identify the request. Repeating the request with the same key will return the same response.\nUse different keys for different requests.\nUse the same key for retries of the same request.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_id\": \"eac4d470-4731-45b2-af6b-c828f03c1f9d\",\n  \"terminal_id\": \"70dc65ba-1c13-492a-82a0-15821e5f63ba\",\n  \"requested_amount\": {\n    \"amount\": 1500,\n    \"currency\": \"GBP\",\n    \"tip\": 10\n  },\n  \"transaction_type\": \"SALE\",\n  \"merchant_reference\": \"ORDER_123\",\n  \"epos_instance_id\": \"eposName_1\",\n  \"basket_transaction_id\": \"2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "9f5b2d6d-c577-4ca9-91c9-87b60a446938",
+              "name": "Unsupported Media Type",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key used to identify the request. Repeating the request with the same key will return the same response.\nUse different keys for different requests.\nUse the same key for retries of the same request.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_id\": \"eac4d470-4731-45b2-af6b-c828f03c1f9d\",\n  \"terminal_id\": \"70dc65ba-1c13-492a-82a0-15821e5f63ba\",\n  \"requested_amount\": {\n    \"amount\": 1500,\n    \"currency\": \"GBP\",\n    \"tip\": 10\n  },\n  \"transaction_type\": \"SALE\",\n  \"merchant_reference\": \"ORDER_123\",\n  \"epos_instance_id\": \"eposName_1\",\n  \"basket_transaction_id\": \"2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unsupported Media Type",
+              "code": 415,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"UNSUPPORTED_MEDIA_TYPE\",\n  \"description\": \"Unsupported Media Type\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f7113e8f-195a-4557-890e-3b8ea3404a2c",
+              "name": "Unprocessable Entity — e.g. transaction_type=REFUND on a tab (Pay at Table is SALE-only)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key used to identify the request. Repeating the request with the same key will return the same response.\nUse different keys for different requests.\nUse the same key for retries of the same request.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_id\": \"eac4d470-4731-45b2-af6b-c828f03c1f9d\",\n  \"terminal_id\": \"70dc65ba-1c13-492a-82a0-15821e5f63ba\",\n  \"requested_amount\": {\n    \"amount\": 1500,\n    \"currency\": \"GBP\",\n    \"tip\": 10\n  },\n  \"transaction_type\": \"SALE\",\n  \"merchant_reference\": \"ORDER_123\",\n  \"epos_instance_id\": \"eposName_1\",\n  \"basket_transaction_id\": \"2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bbef00ea-f9c8-4069-88d9-72659001e727",
+              "name": "Too many requests in a given amount of time",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key used to identify the request. Repeating the request with the same key will return the same response.\nUse different keys for different requests.\nUse the same key for retries of the same request.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_id\": \"eac4d470-4731-45b2-af6b-c828f03c1f9d\",\n  \"terminal_id\": \"70dc65ba-1c13-492a-82a0-15821e5f63ba\",\n  \"requested_amount\": {\n    \"amount\": 1500,\n    \"currency\": \"GBP\",\n    \"tip\": 10\n  },\n  \"transaction_type\": \"SALE\",\n  \"merchant_reference\": \"ORDER_123\",\n  \"epos_instance_id\": \"eposName_1\",\n  \"basket_transaction_id\": \"2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"TOO_MANY_REQUESTS\",\n  \"description\": \"Too Many Requests\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "766fe179-045a-46d7-89b7-db33eed5f168",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key used to identify the request. Repeating the request with the same key will return the same response.\nUse different keys for different requests.\nUse the same key for retries of the same request.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_id\": \"eac4d470-4731-45b2-af6b-c828f03c1f9d\",\n  \"terminal_id\": \"70dc65ba-1c13-492a-82a0-15821e5f63ba\",\n  \"requested_amount\": {\n    \"amount\": 1500,\n    \"currency\": \"GBP\",\n    \"tip\": 10\n  },\n  \"transaction_type\": \"SALE\",\n  \"merchant_reference\": \"ORDER_123\",\n  \"epos_instance_id\": \"eposName_1\",\n  \"basket_transaction_id\": \"2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"INTERNAL_SERVER_ERROR\",\n  \"description\": \"Internal Server Error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "4826fcb3-9894-42e2-9429-5f4feb45e914",
+          "name": "List payments and refunds",
+          "request": {
+            "name": "List payments and refunds",
+            "description": {
+              "content": "Returns the store's payments and refunds, newest first.\n\n**What to send:** the store you want to look at. You can optionally narrow the results by terminal, status, type (sale or refund), or a date range, and page through large result sets using the page size and starting position.\n\n**What you get back:** a list where each entry shows the amount, whether it was a sale or a refund, its current status, and — where relevant — the reason behind that status (for example, why a payment was declined or cancelled). The response also tells you how many results match in total so you can page through them.\n\n**Required Scopes (one of the following):**\n\n- `payment_requests` (returned via the register API: `POST /poslink/v1/epos/register`)\n- `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "poslink",
+                "v2",
+                "payment-requests"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "store_id",
+                  "value": "<uuid>",
+                  "description": "(Required) The ID of the store to retrieve requests associated with"
+                },
+                {
+                  "disabled": false,
+                  "key": "terminal_id",
+                  "value": "<string>",
+                  "description": "The ID of the terminal to retrieve requests associated with"
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "<string>",
+                  "description": "The current status of the request. Must be a valid enum value. If omitted, the returned list will include all statuses"
+                },
+                {
+                  "disabled": false,
+                  "key": "transaction_type",
+                  "value": "<string>",
+                  "description": "Filter by transaction type. Accepts SALE or REFUND."
+                },
+                {
+                  "disabled": false,
+                  "key": "start_date_time",
+                  "value": "<dateTime>",
+                  "description": "The start date using the ISO 8601 format"
+                },
+                {
+                  "disabled": false,
+                  "key": "end_date_time",
+                  "value": "<dateTime>",
+                  "description": "The end date using the ISO 8601 format"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "The maximum number of results to be returned"
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "0",
+                  "description": "The (zero-based) offset of the first record in the collection to return"
+                },
+                {
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "<string>",
+                  "description": "Sort the result set in ascending (ASC) or descending (DESC) order based on the date the payment request is created"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "56c7f19d-3600-45dd-b79d-3fc952f16228",
+              "name": "List of payments and refunds successfully retrieved",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "store_id",
+                      "value": "da728238-ee94-470a-a1ba-a03161fdf98c"
+                    },
+                    {
+                      "key": "terminal_id",
+                      "value": "2a3bdd2f-b52a-426c-b0fc-48c963650882"
+                    },
+                    {
+                      "key": "status",
+                      "value": "NEW"
+                    },
+                    {
+                      "key": "transaction_type",
+                      "value": "SALE"
+                    },
+                    {
+                      "key": "start_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "end_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "1"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "ASC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"payment_requests\": [\n    {\n      \"payment_request_id\": \"dfc4fc52-8293-45b6-9f3e-b3b0f8f88188\",\n      \"requested_amount\": {\n        \"currency\": \"GBP\",\n        \"amount\": 10,\n        \"tip\": 0\n      },\n      \"status\": \"NEW\",\n      \"transaction_type\": \"SALE\",\n      \"created_at\": \"2022-06-15T16:24:12Z\",\n      \"updated_at\": \"2022-06-15T16:26:12Z\",\n      \"source_reference_id\": \"423897410\",\n      \"merchant_reference\": \"423897410\",\n      \"epos_instance_id\": \"reg92056_epos\",\n      \"terminal_id\": \"70dc65ba-1c13-492a-82a0-15821e5f63ba\",\n      \"store_id\": \"f04fe1ce-e7bd-4c5b-b873-b156643c0bc3\"\n    }\n  ],\n  \"pagination\": {\n    \"limit\": 10,\n    \"offset\": 0,\n    \"total_count\": 1\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "14c1bd9f-17e0-4168-9388-ab7c06bb414e",
+              "name": "Bad request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "store_id",
+                      "value": "da728238-ee94-470a-a1ba-a03161fdf98c"
+                    },
+                    {
+                      "key": "terminal_id",
+                      "value": "2a3bdd2f-b52a-426c-b0fc-48c963650882"
+                    },
+                    {
+                      "key": "status",
+                      "value": "NEW"
+                    },
+                    {
+                      "key": "transaction_type",
+                      "value": "SALE"
+                    },
+                    {
+                      "key": "start_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "end_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "1"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "ASC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4b185570-f240-4cc8-a0cc-61b8fee88758",
+              "name": "Lacks valid authentication credentials for the requested resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "store_id",
+                      "value": "da728238-ee94-470a-a1ba-a03161fdf98c"
+                    },
+                    {
+                      "key": "terminal_id",
+                      "value": "2a3bdd2f-b52a-426c-b0fc-48c963650882"
+                    },
+                    {
+                      "key": "status",
+                      "value": "NEW"
+                    },
+                    {
+                      "key": "transaction_type",
+                      "value": "SALE"
+                    },
+                    {
+                      "key": "start_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "end_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "1"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "ASC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"UNAUTHORIZED\",\n  \"description\": \"Unauthorized\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "96ad0052-d0ad-49db-aa84-9862a6db10fa",
+              "name": "The server understands the request but refuses to authorize it",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "store_id",
+                      "value": "da728238-ee94-470a-a1ba-a03161fdf98c"
+                    },
+                    {
+                      "key": "terminal_id",
+                      "value": "2a3bdd2f-b52a-426c-b0fc-48c963650882"
+                    },
+                    {
+                      "key": "status",
+                      "value": "NEW"
+                    },
+                    {
+                      "key": "transaction_type",
+                      "value": "SALE"
+                    },
+                    {
+                      "key": "start_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "end_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "1"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "ASC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"FORBIDDEN\",\n  \"description\": \"Forbidden\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a5a6532d-1a2d-4f03-aba9-92af26bbe1dc",
+              "name": "Request timeout",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "store_id",
+                      "value": "da728238-ee94-470a-a1ba-a03161fdf98c"
+                    },
+                    {
+                      "key": "terminal_id",
+                      "value": "2a3bdd2f-b52a-426c-b0fc-48c963650882"
+                    },
+                    {
+                      "key": "status",
+                      "value": "NEW"
+                    },
+                    {
+                      "key": "transaction_type",
+                      "value": "SALE"
+                    },
+                    {
+                      "key": "start_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "end_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "1"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "ASC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Request Timeout",
+              "code": 408,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"REQUEST_TIMEOUT\",\n  \"description\": \"Request timeout\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "fd0872a3-ceac-488e-abff-2b5b4ec08c90",
+              "name": "Too many requests in a given amount of time",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "store_id",
+                      "value": "da728238-ee94-470a-a1ba-a03161fdf98c"
+                    },
+                    {
+                      "key": "terminal_id",
+                      "value": "2a3bdd2f-b52a-426c-b0fc-48c963650882"
+                    },
+                    {
+                      "key": "status",
+                      "value": "NEW"
+                    },
+                    {
+                      "key": "transaction_type",
+                      "value": "SALE"
+                    },
+                    {
+                      "key": "start_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "end_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "1"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "ASC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"TOO_MANY_REQUESTS\",\n  \"description\": \"Too Many Requests\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8b709a3f-6f4f-44d1-90d6-6581c5632bba",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "store_id",
+                      "value": "da728238-ee94-470a-a1ba-a03161fdf98c"
+                    },
+                    {
+                      "key": "terminal_id",
+                      "value": "2a3bdd2f-b52a-426c-b0fc-48c963650882"
+                    },
+                    {
+                      "key": "status",
+                      "value": "NEW"
+                    },
+                    {
+                      "key": "transaction_type",
+                      "value": "SALE"
+                    },
+                    {
+                      "key": "start_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "end_date_time",
+                      "value": "2023-09-20T11:00:00Z"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "1"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "ASC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"INTERNAL_SERVER_ERROR\",\n  \"description\": \"Internal Server Error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "948f2832-f9fa-4842-8e54-55f5ca558e1d",
+          "name": "Update a payment request",
+          "request": {
+            "name": "Update a payment request",
+            "description": {
+              "content": "### No Permission Required - This is an endpoint that does not require permission\n---\n\nThis API call is used to request the cancellation of a payment request by setting its status to `CANCELLING`.\n\nThis call is a *request* to cancel, not a confirmation that the payment was cancelled. A successful (`200`) response means the cancellation request has been accepted and the payment request has moved to `CANCELLING` — it does not mean the payment has been cancelled.\n\nWhether the payment is actually cancelled depends on how far the terminal has progressed:\n\n- If the terminal has not yet started processing the payment, the terminal cancels the payment request and its status becomes `CANCELLED` with a status reason of `CANCELLED_BY_EPOS`.\n- If the terminal has already started processing the payment, the cancellation cannot be applied and the payment continues to its final status (`SUCCESSFUL` or `FAILED`), which overrides `CANCELLING`.\n\nTo confirm the outcome, keep following the payment request’s status updates until it reaches a final state. The payment is only cancelled when the status is `CANCELLED`; a final state of `SUCCESSFUL` or `FAILED` means the cancellation did not take effect.\n\n**Required Scopes (one of the following):**\n\n- `payment_requests` (returned via the register API: `POST /poslink/v1/epos/register`)\n- `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "poslink",
+                "v2",
+                "payment-requests",
+                ":payment-request-id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "payment-request-id",
+                  "description": "(Required) The ID assigned to the payment request"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "2e1853d6-0e0a-4000-af29-9995334e5655",
+              "name": "Cancellation request accepted. The payment request has moved to `CANCELLING`; this does not confirm the payment was cancelled. Follow the status updates until a final state (`CANCELLED`, `SUCCESSFUL`, or `FAILED`) to determine the outcome.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"CANCELLING\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"payment_request_id\": \"dfc4fc52-8293-45b6-9f3e-b3b0f8f88188\",\n  \"status\": \"CANCELLING\",\n  \"updated_at\": \"2023-08-14T11:28:45.610Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d6f18c2d-4036-49b4-beaa-8b16822d9875",
+              "name": "Bad request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"CANCELLING\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "19b7b21a-c0b6-4c24-9e0f-ffb249a9c0ca",
+              "name": "Lacks valid authentication credentials for the requested resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"CANCELLING\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"UNAUTHORIZED\",\n  \"description\": \"Unauthorized\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d80c4a5f-3b3d-479f-be53-5accf8c865ed",
+              "name": "The server understands the request but refuses to authorize it",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"CANCELLING\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"FORBIDDEN\",\n  \"description\": \"Forbidden\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "10a3040e-ac1d-49b3-97ee-9f7b66ce10e7",
+              "name": "Request timeout",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"CANCELLING\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Request Timeout",
+              "code": 408,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"REQUEST_TIMEOUT\",\n  \"description\": \"Request timeout\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "49682a7e-ad4d-4d5c-b13b-1a1295592b0a",
+              "name": "Unsupported Media Type",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"CANCELLING\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unsupported Media Type",
+              "code": 415,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"UNSUPPORTED_MEDIA_TYPE\",\n  \"description\": \"Unsupported Media Type\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bcc028b3-5f26-435c-8041-7e5a57f64318",
+              "name": "Too many requests in a given amount of time",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"CANCELLING\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"TOO_MANY_REQUESTS\",\n  \"description\": \"Too Many Requests\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ec2a4a7c-ff40-4e07-b51f-53c9691cb9f2",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v2",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"CANCELLING\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"INTERNAL_SERVER_ERROR\",\n  \"description\": \"Internal Server Error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a61f38e1-5e6e-450e-bfc1-ce33c9376623",
+          "name": "Follow a payment or refund live",
+          "request": {
+            "name": "Follow a payment or refund live",
+            "description": {
+              "content": "Returns a single payment or refund and then keeps delivering its status changes as they happen, so you can show the customer live progress on screen.\n\n**What to send:** the identifier of the payment or refund you want to follow.\n\n**What you get back:** first the full details — the amount, whether it is a sale or a refund, its current status, and, where relevant, the reason behind that status. After that, you keep receiving updates as the status changes (for example, waiting for the card, then the final result). Once it reaches a final outcome — successful, failed, or cancelled — the final details are sent and the connection closes. If it is already finished when you ask, you get the full details once and the connection closes straight away.\n\n**Required Scopes (one of the following):**\n\n- `payment_requests/id` (returned via the register API: `POST /poslink/v1/epos/register`)\n- `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "poslink",
+                "v3",
+                "payment-requests",
+                ":payment-request-id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "payment-request-id",
+                  "description": "(Required) The ID assigned to the payment request"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "740d47ae-5a98-45b0-9ccb-c7eef9ccc793",
+              "name": "The payment or refund, followed by live status updates",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/event-stream"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/event-stream"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "08106590-64b3-406f-9e44-fc335f52f67b",
+              "name": "Bad request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3c60c793-f00d-4e8f-9151-d7260f98a2c4",
+              "name": "Lacks valid authentication credentials for the requested resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"UNAUTHORIZED\",\n  \"description\": \"Unauthorized\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c8870904-e6d5-4579-812b-38fee58c16b1",
+              "name": "The server understands the request but refuses to authorize it",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"FORBIDDEN\",\n  \"description\": \"Forbidden\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c06c58b0-77c5-4353-a2a2-e4b7404e349c",
+              "name": "Payment request not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"PAYMENT_REQUEST_NOT_FOUND\",\n  \"description\": \"Not found\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d6e5ce5b-840d-4988-9d16-96d6a55bba2a",
+              "name": "Request timeout",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Request Timeout",
+              "code": 408,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"REQUEST_TIMEOUT\",\n  \"description\": \"Request timeout\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d0861f64-39bc-4945-b198-54ae0530ae8a",
+              "name": "Too many requests in a given amount of time",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"TOO_MANY_REQUESTS\",\n  \"description\": \"Too Many Requests\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3b32a1f3-f775-44d6-95e9-fbc398d01cb8",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v3",
+                    "payment-requests",
+                    ":payment-request-id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment-request-id",
+                      "description": "(Required) The ID assigned to the payment request"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"INTERNAL_SERVER_ERROR\",\n  \"description\": \"Internal Server Error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.teya.com",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "535acbec-2eba-4b5d-bd0e-b3590c325264",
+    "name": "Teya FX Captures Payment Requests API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.",
+      "type": "text/plain"
+    }
+  }
+}

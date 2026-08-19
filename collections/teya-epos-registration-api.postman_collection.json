@@ -1,0 +1,497 @@
+{
+  "item": [
+    {
+      "id": "dc05a4b1-ef7e-4d95-9d94-db36000dcdab",
+      "name": "ePOS Registration",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "3d939894-ae69-493e-979f-25f38df91dbb",
+          "name": "Register ePOS application and retrieve M2M client credentials",
+          "request": {
+            "name": "Register ePOS application and retrieve M2M client credentials",
+            "description": {
+              "content": "### No Permission Required - This is an endpoint that does not require permission\n---\n\nThis API registers an ePOS application and returns M2M (machine-to-machine) client credentials.\nThe endpoint returns OAuth client credentials based on the provided store_id and epos_external_id.\nThe client credentials can be used to obtain M2M access tokens for subsequent API calls.\n\n**Authentication:**\n\nThis endpoint requires a user JWT token (not M2M credentials). The user must have access to the specified store.\n\n**Returned Scopes:**\n\nThe response includes OAuth scopes that define which APIs can be accessed with the returned M2M credentials:\n- `payment_requests`: Required to create, list, and cancel or update payment requests.\n- `payment_requests/id`: Required to retrieve and follow an individual payment request.\n- `stores/id/terminals`: Required to list stores and their terminals.\n- `refunds`: Required for refund operations\n\n**Using the Returned Credentials:**\n\nThe returned client credentials are used to obtain an M2M access token via OAuth2 client credentials flow. The access token must include the scopes returned in this response to call the corresponding APIs.\n\n**Idempotency Behavior:**\n- The API is idempotent based on the composite key: (partner_id from JWT, store_id, epos_external_id)\n- The response body structure is identical for both status codes, containing the same client credentials.\n\n**Idempotency Key:** (partner_id, store_id, epos_external_id)\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "poslink",
+                "v1",
+                "epos",
+                "register"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"epos_external_id\": \"<string>\",\n  \"store_id\": \"<uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "1399483d-fada-413f-b808-d06a31cca676",
+              "name": "Client credentials returned",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v1",
+                    "epos",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"epos_external_id\": \"epos-app-12345\",\n  \"store_id\": \"f04fe1ce-e7bd-4c5b-b873-b156643c0bc3\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"client_id\": \"58ab90c1-e38a-43b4-849c-c12ccfca1df1\",\n  \"client_secret\": \"IezZu7AA-EKi1zB3xyvt6E8BqTKyWA1bpS9PymbaL6c\",\n  \"scopes\": [\n    \"payment_requests\",\n    \"payment_requests/id\",\n    \"stores/id/terminals\",\n    \"refunds\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0deb384a-5150-4a8e-8f1b-6ee007f87985",
+              "name": "Bad request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v1",
+                    "epos",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"epos_external_id\": \"epos-app-12345\",\n  \"store_id\": \"f04fe1ce-e7bd-4c5b-b873-b156643c0bc3\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b5110b80-b41f-49ec-b801-86290a1bf6d9",
+              "name": "Lacks valid authentication credentials for the requested resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v1",
+                    "epos",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"epos_external_id\": \"epos-app-12345\",\n  \"store_id\": \"f04fe1ce-e7bd-4c5b-b873-b156643c0bc3\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"UNAUTHORIZED\",\n  \"description\": \"Unauthorized\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "dfab8ca0-5ac8-4e41-9697-a487589708bb",
+              "name": "The server understands the request but refuses to authorize it",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v1",
+                    "epos",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"epos_external_id\": \"epos-app-12345\",\n  \"store_id\": \"f04fe1ce-e7bd-4c5b-b873-b156643c0bc3\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"FORBIDDEN\",\n  \"description\": \"Forbidden\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7d7534a3-145f-4f9c-94e0-f7f7886f1d4b",
+              "name": "Store not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v1",
+                    "epos",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"epos_external_id\": \"epos-app-12345\",\n  \"store_id\": \"f04fe1ce-e7bd-4c5b-b873-b156643c0bc3\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "59cf676b-9af3-4742-bac3-4b4e0d5692c5",
+              "name": "Request timeout",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v1",
+                    "epos",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"epos_external_id\": \"epos-app-12345\",\n  \"store_id\": \"f04fe1ce-e7bd-4c5b-b873-b156643c0bc3\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Request Timeout",
+              "code": 408,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"REQUEST_TIMEOUT\",\n  \"description\": \"Request timeout\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ce6f4f0b-dc05-4a2b-aa1b-9ade311326ba",
+              "name": "Failed dependency",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v1",
+                    "epos",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"epos_external_id\": \"epos-app-12345\",\n  \"store_id\": \"f04fe1ce-e7bd-4c5b-b873-b156643c0bc3\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Failed Dependency (WebDAV) (RFC 4918)",
+              "code": 424,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "042d3b1c-2ba1-4dd2-940a-498776bc3117",
+              "name": "Too many requests in a given amount of time",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v1",
+                    "epos",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"epos_external_id\": \"epos-app-12345\",\n  \"store_id\": \"f04fe1ce-e7bd-4c5b-b873-b156643c0bc3\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"TOO_MANY_REQUESTS\",\n  \"description\": \"Too Many Requests\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "13794409-c577-43b1-865d-94ea33b2f0c3",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "poslink",
+                    "v1",
+                    "epos",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"epos_external_id\": \"epos-app-12345\",\n  \"store_id\": \"f04fe1ce-e7bd-4c5b-b873-b156643c0bc3\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"INTERNAL_SERVER_ERROR\",\n  \"description\": \"Internal Server Error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.teya.com",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "0ad44c03-35df-4a64-9c92-bc14bc0ad1c0",
+    "name": "Teya FX Captures ePOS Registration API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.",
+      "type": "text/plain"
+    }
+  }
+}

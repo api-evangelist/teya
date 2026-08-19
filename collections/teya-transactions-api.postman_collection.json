@@ -1,0 +1,3208 @@
+{
+  "item": [
+    {
+      "id": "78523c0d-75d2-4160-81e2-8801028ab667",
+      "name": "Transactions",
+      "description": {
+        "content": "Transactions",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "4754ca7e-8798-4792-b1ed-6bf954ea8f23",
+          "name": "Process an online transaction v3",
+          "request": {
+            "name": "Process an online transaction v3",
+            "description": {
+              "content": "API to process an online transaction v3.\n<br><strong>Access Token Required scope:</strong> transactions/online/create\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v3",
+                "transactions",
+                "online"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": {\n    \"currency\": \"<enum>\",\n    \"value\": \"<long>\"\n  },\n  \"initiator\": \"<enum>\",\n  \"payment_method\": {\n    \"type\": \"<enum>\",\n    \"apple_pay_authentication_data\": {\n      \"application_primary_account_number\": \"<string>\",\n      \"expiry_month\": \"<string>\",\n      \"expiry_year\": \"<string>\",\n      \"online_payment_cryptogram\": \"<string>\",\n      \"eci_code\": \"<string>\"\n    },\n    \"card\": {\n      \"cvc\": \"<string>\",\n      \"expiry_month\": \"<string>\",\n      \"expiry_year\": \"<string>\",\n      \"number\": \"<string>\"\n    },\n    \"token\": {\n      \"token_id\": \"<uuid>\",\n      \"recurring_payment_type\": \"<enum>\"\n    }\n  },\n  \"store_id\": \"<uuid>\",\n  \"type\": \"<enum>\",\n  \"billing_address\": {\n    \"country\": \"<string>\",\n    \"name\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"street_address_line1\": \"<string>\",\n    \"street_address_line2\": \"<string>\",\n    \"street_address_line3\": \"<string>\",\n    \"zipcode\": \"<string>\"\n  },\n  \"browser_data\": {\n    \"ip_address\": \"<string>\",\n    \"screen_height\": \"<integer>\",\n    \"screen_width\": \"<integer>\",\n    \"accept_language\": \"<string>\",\n    \"user_agent\": \"<string>\"\n  },\n  \"cardholder\": {\n    \"name\": \"<string>\",\n    \"email\": \"<string>\",\n    \"phone_number\": \"<string>\"\n  },\n  \"customer_contact\": {\n    \"phone_number\": \"<string>\",\n    \"email\": \"<string>\"\n  },\n  \"line_items\": [\n    {\n      \"description\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"unit_price\": \"<integer>\"\n    },\n    {\n      \"description\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"unit_price\": \"<integer>\"\n    }\n  ],\n  \"merchant_reference_id\": \"<string>\",\n  \"redirect_url\": \"<string>\",\n  \"shipping_address\": {\n    \"country\": \"<string>\",\n    \"name\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"street_address_line1\": \"<string>\",\n    \"street_address_line2\": \"<string>\",\n    \"street_address_line3\": \"<string>\",\n    \"zipcode\": \"<string>\"\n  },\n  \"store_payment_method\": \"<boolean>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "7f176fa4-d0e5-414d-930d-89c5e5600b76",
+              "name": "New transaction has been created and processed by host",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "transactions",
+                    "online"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"initiator\": \"<enum>\",\n  \"payment_method\": {\n    \"card\": {\n      \"cvc\": \"123\",\n      \"expiry_month\": \"02\",\n      \"expiry_year\": \"2030\",\n      \"number\": \"4111111111111111\"\n    },\n    \"type\": \"CARD\"\n  },\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"type\": \"<enum>\",\n  \"billing_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"browser_data\": {\n    \"accept_language\": \"en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6\",\n    \"ip_address\": \"192.16.1.1\",\n    \"screen_height\": 1080,\n    \"screen_width\": 1920,\n    \"user_agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1234.0 Safari/537.36\"\n  },\n  \"cardholder\": {\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+34610123456\"\n  },\n  \"customer_contact\": {\n    \"phone_number\": \"+34610123456\",\n    \"email\": \"john.doe@example.com\"\n  },\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference_id\": \"1234567890\",\n  \"redirect_url\": \"<string>\",\n  \"shipping_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"store_payment_method\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"online_transaction\": {\n    \"authentication_id\": \"5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b\",\n    \"created_at\": \"2022-03-01T15:29:59Z\",\n    \"issuer_result\": {\n      \"approval_code\": \"123456\",\n      \"response_code\": \"00\"\n    },\n    \"status\": \"SUCCESS\",\n    \"token_response\": {\n      \"token_id\": \"5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b\",\n      \"token_status\": \"SUCCESS\"\n    },\n    \"transaction_id\": \"5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b\",\n    \"updated_at\": \"2022-03-01T15:35:00Z\"\n  },\n  \"type\": \"ONLINE_TRANSACTION\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "73b47bbc-c742-45ac-bc27-caa1100491ca",
+              "name": "New transaction has been created and still being processed (for example waiting for 3ds challenge to be completed)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "transactions",
+                    "online"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"initiator\": \"<enum>\",\n  \"payment_method\": {\n    \"card\": {\n      \"cvc\": \"123\",\n      \"expiry_month\": \"02\",\n      \"expiry_year\": \"2030\",\n      \"number\": \"4111111111111111\"\n    },\n    \"type\": \"CARD\"\n  },\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"type\": \"<enum>\",\n  \"billing_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"browser_data\": {\n    \"accept_language\": \"en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6\",\n    \"ip_address\": \"192.16.1.1\",\n    \"screen_height\": 1080,\n    \"screen_width\": 1920,\n    \"user_agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1234.0 Safari/537.36\"\n  },\n  \"cardholder\": {\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+34610123456\"\n  },\n  \"customer_contact\": {\n    \"phone_number\": \"+34610123456\",\n    \"email\": \"john.doe@example.com\"\n  },\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference_id\": \"1234567890\",\n  \"redirect_url\": \"<string>\",\n  \"shipping_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"store_payment_method\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"online_transaction\": {\n    \"authentication_id\": \"5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b\",\n    \"created_at\": \"2022-03-01T15:29:59Z\",\n    \"issuer_result\": {\n      \"approval_code\": \"123456\",\n      \"response_code\": \"00\"\n    },\n    \"status\": \"SUCCESS\",\n    \"token_response\": {\n      \"token_id\": \"5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b\",\n      \"token_status\": \"SUCCESS\"\n    },\n    \"transaction_id\": \"5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b\",\n    \"updated_at\": \"2022-03-01T15:35:00Z\"\n  },\n  \"type\": \"ONLINE_TRANSACTION\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a75f2417-f586-4da8-9d05-c64179d5a2cd",
+              "name": "Bad request due to wrong input",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "transactions",
+                    "online"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"initiator\": \"<enum>\",\n  \"payment_method\": {\n    \"card\": {\n      \"cvc\": \"123\",\n      \"expiry_month\": \"02\",\n      \"expiry_year\": \"2030\",\n      \"number\": \"4111111111111111\"\n    },\n    \"type\": \"CARD\"\n  },\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"type\": \"<enum>\",\n  \"billing_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"browser_data\": {\n    \"accept_language\": \"en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6\",\n    \"ip_address\": \"192.16.1.1\",\n    \"screen_height\": 1080,\n    \"screen_width\": 1920,\n    \"user_agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1234.0 Safari/537.36\"\n  },\n  \"cardholder\": {\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+34610123456\"\n  },\n  \"customer_contact\": {\n    \"phone_number\": \"+34610123456\",\n    \"email\": \"john.doe@example.com\"\n  },\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference_id\": \"1234567890\",\n  \"redirect_url\": \"<string>\",\n  \"shipping_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"store_payment_method\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "51844481-4ee2-48b8-9cb9-85ece7a4b2ae",
+              "name": "Unauthorized request because of missing or invalid authentication token",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "transactions",
+                    "online"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"initiator\": \"<enum>\",\n  \"payment_method\": {\n    \"card\": {\n      \"cvc\": \"123\",\n      \"expiry_month\": \"02\",\n      \"expiry_year\": \"2030\",\n      \"number\": \"4111111111111111\"\n    },\n    \"type\": \"CARD\"\n  },\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"type\": \"<enum>\",\n  \"billing_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"browser_data\": {\n    \"accept_language\": \"en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6\",\n    \"ip_address\": \"192.16.1.1\",\n    \"screen_height\": 1080,\n    \"screen_width\": 1920,\n    \"user_agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1234.0 Safari/537.36\"\n  },\n  \"cardholder\": {\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+34610123456\"\n  },\n  \"customer_contact\": {\n    \"phone_number\": \"+34610123456\",\n    \"email\": \"john.doe@example.com\"\n  },\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference_id\": \"1234567890\",\n  \"redirect_url\": \"<string>\",\n  \"shipping_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"store_payment_method\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "4c54c1d9-58f3-4a1c-9b0a-234b6143de14",
+              "name": "Forbidden request due to lack of permissions",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "transactions",
+                    "online"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"initiator\": \"<enum>\",\n  \"payment_method\": {\n    \"card\": {\n      \"cvc\": \"123\",\n      \"expiry_month\": \"02\",\n      \"expiry_year\": \"2030\",\n      \"number\": \"4111111111111111\"\n    },\n    \"type\": \"CARD\"\n  },\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"type\": \"<enum>\",\n  \"billing_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"browser_data\": {\n    \"accept_language\": \"en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6\",\n    \"ip_address\": \"192.16.1.1\",\n    \"screen_height\": 1080,\n    \"screen_width\": 1920,\n    \"user_agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1234.0 Safari/537.36\"\n  },\n  \"cardholder\": {\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+34610123456\"\n  },\n  \"customer_contact\": {\n    \"phone_number\": \"+34610123456\",\n    \"email\": \"john.doe@example.com\"\n  },\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference_id\": \"1234567890\",\n  \"redirect_url\": \"<string>\",\n  \"shipping_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"store_payment_method\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "7194cd62-6cd4-4b60-8fb5-891a19a3d954",
+              "name": "Request is already being processed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "transactions",
+                    "online"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"initiator\": \"<enum>\",\n  \"payment_method\": {\n    \"card\": {\n      \"cvc\": \"123\",\n      \"expiry_month\": \"02\",\n      \"expiry_year\": \"2030\",\n      \"number\": \"4111111111111111\"\n    },\n    \"type\": \"CARD\"\n  },\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"type\": \"<enum>\",\n  \"billing_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"browser_data\": {\n    \"accept_language\": \"en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6\",\n    \"ip_address\": \"192.16.1.1\",\n    \"screen_height\": 1080,\n    \"screen_width\": 1920,\n    \"user_agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1234.0 Safari/537.36\"\n  },\n  \"cardholder\": {\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+34610123456\"\n  },\n  \"customer_contact\": {\n    \"phone_number\": \"+34610123456\",\n    \"email\": \"john.doe@example.com\"\n  },\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference_id\": \"1234567890\",\n  \"redirect_url\": \"<string>\",\n  \"shipping_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"store_payment_method\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "663b93e4-5770-4e21-942f-dbf3f83af79b",
+              "name": "Can not process the request because of an idempotency conflict",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "transactions",
+                    "online"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"initiator\": \"<enum>\",\n  \"payment_method\": {\n    \"card\": {\n      \"cvc\": \"123\",\n      \"expiry_month\": \"02\",\n      \"expiry_year\": \"2030\",\n      \"number\": \"4111111111111111\"\n    },\n    \"type\": \"CARD\"\n  },\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"type\": \"<enum>\",\n  \"billing_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"browser_data\": {\n    \"accept_language\": \"en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6\",\n    \"ip_address\": \"192.16.1.1\",\n    \"screen_height\": 1080,\n    \"screen_width\": 1920,\n    \"user_agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1234.0 Safari/537.36\"\n  },\n  \"cardholder\": {\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+34610123456\"\n  },\n  \"customer_contact\": {\n    \"phone_number\": \"+34610123456\",\n    \"email\": \"john.doe@example.com\"\n  },\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference_id\": \"1234567890\",\n  \"redirect_url\": \"<string>\",\n  \"shipping_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"store_payment_method\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "0846cc89-638e-4719-b035-edafa20a894c",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "transactions",
+                    "online"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"initiator\": \"<enum>\",\n  \"payment_method\": {\n    \"card\": {\n      \"cvc\": \"123\",\n      \"expiry_month\": \"02\",\n      \"expiry_year\": \"2030\",\n      \"number\": \"4111111111111111\"\n    },\n    \"type\": \"CARD\"\n  },\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"type\": \"<enum>\",\n  \"billing_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"browser_data\": {\n    \"accept_language\": \"en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6\",\n    \"ip_address\": \"192.16.1.1\",\n    \"screen_height\": 1080,\n    \"screen_width\": 1920,\n    \"user_agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1234.0 Safari/537.36\"\n  },\n  \"cardholder\": {\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+34610123456\"\n  },\n  \"customer_contact\": {\n    \"phone_number\": \"+34610123456\",\n    \"email\": \"john.doe@example.com\"\n  },\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference_id\": \"1234567890\",\n  \"redirect_url\": \"<string>\",\n  \"shipping_address\": {\n    \"name\": \"John Doe\",\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"store_payment_method\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "d6908582-49ca-4236-a0fd-fd14ddcc7c17",
+          "name": "Get an online transaction",
+          "request": {
+            "name": "Get an online transaction",
+            "description": {
+              "content": "API to return details of a given online transaction by its authentication id.\n<br><strong>Access Token Required scope:</strong> transactions/online/id/get\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "transactions",
+                "online",
+                ":authentication_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "authentication_id",
+                  "description": "(Required) The authentication id"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [
+            {
+              "id": "5af43d82-a95a-449e-a474-5fa93e533623",
+              "name": "Transaction has been returned",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "transactions",
+                    "online",
+                    ":authentication_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "authentication_id",
+                      "description": "(Required) The authentication id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"authentication_id\": \"5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b\",\n  \"created_at\": \"2022-03-01T15:29:59Z\",\n  \"issuer_result\": {\n    \"approval_code\": \"123456\",\n    \"response_code\": \"00\"\n  },\n  \"status\": \"SUCCESS\",\n  \"transaction_id\": \"5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b\",\n  \"updated_at\": \"2022-03-01T15:35:00Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5e29e550-565c-45cc-be46-3fbb54e2ae43",
+              "name": "Bad request due to wrong input",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "transactions",
+                    "online",
+                    ":authentication_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "authentication_id",
+                      "description": "(Required) The authentication id"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "9f74f9e0-99d6-412c-8ef5-d4b7c76316ad",
+              "name": "Unauthorized request because of missing or invalid authentication token",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "transactions",
+                    "online",
+                    ":authentication_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "authentication_id",
+                      "description": "(Required) The authentication id"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "2aa978aa-6df3-4afe-b164-208427be9e0e",
+              "name": "Forbidden request due to lack of permissions",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "transactions",
+                    "online",
+                    ":authentication_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "authentication_id",
+                      "description": "(Required) The authentication id"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "8f7a3553-ead2-4d9c-b1c9-b1d6ea8fe21e",
+              "name": "Transaction not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "transactions",
+                    "online",
+                    ":authentication_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "authentication_id",
+                      "description": "(Required) The authentication id"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "31d482e8-6216-4b74-b778-fb58568c5b08",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "transactions",
+                    "online",
+                    ":authentication_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "authentication_id",
+                      "description": "(Required) The authentication id"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ef9fbc48-0d6d-4b4b-9d72-f3f83037930d",
+          "name": "Process a refund of a transaction",
+          "request": {
+            "name": "Process a refund of a transaction",
+            "description": {
+              "content": "API to process the refund of a previous transaction.\n<br><strong>Access Token Required scope:</strong> refunds/create\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v3",
+                "refunds"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"<long>\",\n  \"transaction_id\": \"<string>\",\n  \"merchant_reference\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "39036430-9c20-4684-9ffd-46c517cc8f30",
+              "name": "Refund processed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"refund_amount\": {\n    \"amount\": 100,\n    \"currency\": \"GBP\"\n  },\n  \"card_acceptor_id\": \"5023045\",\n  \"status\": \"SUCCESS\",\n  \"issuer_result\": {\n    \"approval_code\": \"123456\",\n    \"response_code\": \"00\"\n  },\n  \"created_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"cardholder_amount\": {\n      \"amount\": 100,\n      \"currency\": \"CHF\"\n    },\n    \"conversion_rate\": \"0.9517\",\n    \"markup\": \"0.03\",\n    \"ecb_markup\": \"0.01\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0d32e188-74d4-4aa2-a9e7-832a6888362a",
+              "name": "Refund processing",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "fee249a9-701d-4127-bf00-a522c6f163f4",
+              "name": "Bad Request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "ec566a5b-1a19-4e6c-8022-237527cf0fe5",
+              "name": "Unauthorised",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "064a4050-d49a-4421-8cc3-6fcf77723027",
+              "name": "Forbidden",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "474fa8d6-9cad-4604-997b-8f3c696fdb39",
+              "name": "Not Found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "d974cff0-ffa6-46e6-a4ce-472a75779cf8",
+              "name": "Conflict",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "465331f9-afa2-498b-8dbf-288221ed061f",
+              "name": "Challenge Required",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "code": 460,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "f52eebbb-9a18-4f7c-8a88-b73627c3585a",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "94ada765-2624-4273-9b04-839634562b0d",
+              "name": "Service Unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "00ca75c0-2010-4f29-83b1-ac6a81dda80a",
+              "name": "Origin Unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "code": 523,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "14f10a7b-2edb-4069-b8df-7db8fe20927f",
+          "name": "Create a digital receipt for a transaction",
+          "request": {
+            "name": "Create a digital receipt for a transaction",
+            "description": {
+              "content": "API to allow merchants to request the generation of a digital receipt for a transaction.\n<br><strong>Access Token Required scope:</strong> transactions/id/receipts/create\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "transactions",
+                ":transaction_id",
+                "receipts"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "transaction_id",
+                  "description": "(Required) Transaction id whose receipt we want to generate"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"country_code\": \"<string>\",\n  \"language\": \"<string>\",\n  \"recipient_phone_numbers\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"recipient_emails\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"receipt_email_type\": \"CUSTOMER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "b782ffbb-2b82-406a-bf75-d2a6fc1ec7df",
+              "name": "Receipt successfully enqueued for generation",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":transaction_id",
+                    "receipts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "transaction_id",
+                      "description": "(Required) Transaction id whose receipt we want to generate"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"country_code\": \"GB\",\n  \"language\": \"en-GB\",\n  \"recipient_phone_numbers\": [\n    \"+123456789\",\n    \"+987654321\"\n  ],\n  \"recipient_emails\": [\n    \"johndoe@mail.com\",\n    \"examplemail@email.com\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"receipt_id\": \"01916f63-c6e0-75a9-9ef4-764ba287b2c6\",\n  \"transaction_id\": \"60cca1c7-38c5-4218-ba71-fb4a96836619\",\n  \"url\": \"https://receipts.teya.com/01916f63-c6e0-75a9-9ef4-764ba287b2c6\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "abd06184-e8b8-442b-b5eb-bcc277c61bfa",
+              "name": "Bad request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":transaction_id",
+                    "receipts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "transaction_id",
+                      "description": "(Required) Transaction id whose receipt we want to generate"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"country_code\": \"GB\",\n  \"language\": \"en-GB\",\n  \"recipient_phone_numbers\": [\n    \"+123456789\",\n    \"+987654321\"\n  ],\n  \"recipient_emails\": [\n    \"johndoe@mail.com\",\n    \"examplemail@email.com\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "985bd706-2ed1-4aae-8afa-78e7e273883c",
+              "name": "Lacks valid authentication credentials for the requested resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":transaction_id",
+                    "receipts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "transaction_id",
+                      "description": "(Required) Transaction id whose receipt we want to generate"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"country_code\": \"GB\",\n  \"language\": \"en-GB\",\n  \"recipient_phone_numbers\": [\n    \"+123456789\",\n    \"+987654321\"\n  ],\n  \"recipient_emails\": [\n    \"johndoe@mail.com\",\n    \"examplemail@email.com\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"UNAUTHORISED\",\n  \"description\": \"Unauthorised\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3415e2d2-91f9-4a51-9dd7-bd9cc48fcd92",
+              "name": "The server understands the request but refuses to authorise it",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":transaction_id",
+                    "receipts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "transaction_id",
+                      "description": "(Required) Transaction id whose receipt we want to generate"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"country_code\": \"GB\",\n  \"language\": \"en-GB\",\n  \"recipient_phone_numbers\": [\n    \"+123456789\",\n    \"+987654321\"\n  ],\n  \"recipient_emails\": [\n    \"johndoe@mail.com\",\n    \"examplemail@email.com\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"FORBIDDEN\",\n  \"description\": \"Forbidden\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7fb34cde-9570-4136-a324-8db7f4614f10",
+              "name": "Too many requests in a given amount of time",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":transaction_id",
+                    "receipts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "transaction_id",
+                      "description": "(Required) Transaction id whose receipt we want to generate"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"country_code\": \"GB\",\n  \"language\": \"en-GB\",\n  \"recipient_phone_numbers\": [\n    \"+123456789\",\n    \"+987654321\"\n  ],\n  \"recipient_emails\": [\n    \"johndoe@mail.com\",\n    \"examplemail@email.com\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"TOO_MANY_REQUESTS\",\n  \"description\": \"Too Many Requests\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "eaf07592-91f2-4c6b-a359-b8aabdb1bbe0",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":transaction_id",
+                    "receipts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "transaction_id",
+                      "description": "(Required) Transaction id whose receipt we want to generate"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"country_code\": \"GB\",\n  \"language\": \"en-GB\",\n  \"recipient_phone_numbers\": [\n    \"+123456789\",\n    \"+987654321\"\n  ],\n  \"recipient_emails\": [\n    \"johndoe@mail.com\",\n    \"examplemail@email.com\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"INTERNAL_SERVER_ERROR\",\n  \"description\": \"Internal Server Error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "70400bab-ee92-4ad9-a744-8e49b25602c2",
+          "name": "Capture a pre-auth",
+          "request": {
+            "name": "Capture a pre-auth",
+            "description": {
+              "content": "API to process a pre-auth capture",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "transactions",
+                ":id",
+                "capture"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n"
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "key": "Idempotency-Key",
+                "value": "<string>",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"<long>\",\n  \"terminal_id\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "dbeeb51b-2b2a-447d-86ad-d5e9b24d2c40",
+              "name": "Capture processed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":id",
+                    "capture"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "key": "Idempotency-Key",
+                    "value": "<string>",
+                    "description": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": 10,\n  \"terminal_id\": \"12345678\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"transaction_id\": \"tr_5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b\",\n  \"card_acceptor_id\": \"50001325\",\n  \"status\": \"SUCCESS\",\n  \"issuer_result\": {\n    \"response_code\": \"00\",\n    \"approval_code\": \"123456\"\n  },\n  \"processed_at\": \"2021-01-01T00:00:00.000Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "272c04b3-8f7b-4473-99ab-c9a5e495ffa3",
+              "name": "Capture processing",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":id",
+                    "capture"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "key": "Idempotency-Key",
+                    "value": "<string>",
+                    "description": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": 10,\n  \"terminal_id\": \"12345678\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"transaction_id\": \"tr_5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b\",\n  \"card_acceptor_id\": \"50001325\",\n  \"status\": \"SUCCESS\",\n  \"issuer_result\": {\n    \"response_code\": \"00\",\n    \"approval_code\": \"123456\"\n  },\n  \"processed_at\": \"2021-01-01T00:00:00.000Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "66cf125c-23d7-43e8-b209-3cd8225f3255",
+              "name": "Bad Request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":id",
+                    "capture"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "key": "Idempotency-Key",
+                    "value": "<string>",
+                    "description": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": 10,\n  \"terminal_id\": \"12345678\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "366c2898-e604-43fd-8a53-c1166ffda47f",
+              "name": "Forbidden",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":id",
+                    "capture"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "key": "Idempotency-Key",
+                    "value": "<string>",
+                    "description": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": 10,\n  \"terminal_id\": \"12345678\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6872d4be-41a9-40ae-adbc-b9c576c9dc18",
+              "name": "Conflict",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":id",
+                    "capture"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "key": "Idempotency-Key",
+                    "value": "<string>",
+                    "description": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": 10,\n  \"terminal_id\": \"12345678\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "aa353dce-8eef-4b37-8209-4c3a4001102d",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":id",
+                    "capture"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "key": "Idempotency-Key",
+                    "value": "<string>",
+                    "description": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": 10,\n  \"terminal_id\": \"12345678\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "33b39b4f-706c-4a5b-b452-527ee4e1218d",
+              "name": "Service Unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    ":id",
+                    "capture"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "key": "Idempotency-Key",
+                    "value": "<string>",
+                    "description": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": 10,\n  \"terminal_id\": \"12345678\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "e2cdb184-7ae1-4d90-b99b-014147055e44",
+          "name": "Process a mail order or telephone order transaction",
+          "request": {
+            "name": "Process a mail order or telephone order transaction",
+            "description": {
+              "content": "API to process a transaction where card details are entered by the merchant via a virtual terminal",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "transactions",
+                "moto"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amounts\": {\n    \"amount\": \"<integer>\",\n    \"currency\": \"<string>\"\n  },\n  \"card_details\": {\n    \"encrypted_card_data\": \"<string>\",\n    \"encryption_key_id\": \"<string>\",\n    \"encryption_ksn\": \"<string>\",\n    \"encryption_mode\": \"ECB\",\n    \"encryption_padding\": \"F_PADDING\"\n  },\n  \"transacted_at\": \"<dateTime>\",\n  \"type\": \"<enum>\",\n  \"terminal_id\": \"<string>\",\n  \"merchant_reference\": \"<string>\",\n  \"dcc\": {\n    \"quoted_at\": \"<dateTime>\",\n    \"cardholder_amount\": {\n      \"amount\": \"<integer>\",\n      \"currency\": \"<string>\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "e2b80f52-e456-4035-baeb-0e4df924f11a",
+              "name": "Transaction processed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "moto"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"terminal_id\": \"12345678\",\n  \"merchant_reference\": \"1234567890\",\n  \"amounts\": {\n    \"amount\": 100,\n    \"currency\": \"USD\"\n  },\n  \"card_details\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_card_data\": \"34363136363937323538313530393338443235303444323539\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"transaction_id\": \"tr_5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b\",\n  \"status\": \"SUCCESS\",\n  \"issuer_result\": {\n    \"approval_code\": \"123456\",\n    \"response_code\": \"00\"\n  },\n  \"processed_at\": \"2021-01-01T00:00:00.000Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "82468054-f242-4de3-a9dc-b760661fd1db",
+              "name": "Transaction processing",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "moto"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"terminal_id\": \"12345678\",\n  \"merchant_reference\": \"1234567890\",\n  \"amounts\": {\n    \"amount\": 100,\n    \"currency\": \"USD\"\n  },\n  \"card_details\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_card_data\": \"34363136363937323538313530393338443235303444323539\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "e219e88a-dd55-47bd-aa9f-b460a38b5040",
+              "name": "Bad Request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "moto"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"terminal_id\": \"12345678\",\n  \"merchant_reference\": \"1234567890\",\n  \"amounts\": {\n    \"amount\": 100,\n    \"currency\": \"USD\"\n  },\n  \"card_details\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_card_data\": \"34363136363937323538313530393338443235303444323539\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "9d909ef9-7e59-4f1a-b5b5-b062949bb5f3",
+              "name": "Unauthorised",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "moto"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"terminal_id\": \"12345678\",\n  \"merchant_reference\": \"1234567890\",\n  \"amounts\": {\n    \"amount\": 100,\n    \"currency\": \"USD\"\n  },\n  \"card_details\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_card_data\": \"34363136363937323538313530393338443235303444323539\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7874db13-3015-424b-ac65-761a3a4bb036",
+              "name": "Forbidden",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "moto"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"terminal_id\": \"12345678\",\n  \"merchant_reference\": \"1234567890\",\n  \"amounts\": {\n    \"amount\": 100,\n    \"currency\": \"USD\"\n  },\n  \"card_details\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_card_data\": \"34363136363937323538313530393338443235303444323539\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4f924ec9-9034-4ad3-972d-35eb324fed04",
+              "name": "Conflict",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "moto"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"terminal_id\": \"12345678\",\n  \"merchant_reference\": \"1234567890\",\n  \"amounts\": {\n    \"amount\": 100,\n    \"currency\": \"USD\"\n  },\n  \"card_details\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_card_data\": \"34363136363937323538313530393338443235303444323539\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "060d5efc-cc61-48d6-9bbc-40e44ff8712f",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "moto"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"terminal_id\": \"12345678\",\n  \"merchant_reference\": \"1234567890\",\n  \"amounts\": {\n    \"amount\": 100,\n    \"currency\": \"USD\"\n  },\n  \"card_details\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_card_data\": \"34363136363937323538313530393338443235303444323539\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "dadd145a-f8d4-4c0d-9ca5-6d39359285e4",
+              "name": "Transaction not processed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "moto"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"terminal_id\": \"12345678\",\n  \"merchant_reference\": \"1234567890\",\n  \"amounts\": {\n    \"amount\": 100,\n    \"currency\": \"USD\"\n  },\n  \"card_details\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_card_data\": \"34363136363937323538313530393338443235303444323539\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "code": 522,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b74c3388-97c8-487f-bff5-aa1d4ba2aa82",
+              "name": "Transaction failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "moto"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"terminal_id\": \"12345678\",\n  \"merchant_reference\": \"1234567890\",\n  \"amounts\": {\n    \"amount\": 100,\n    \"currency\": \"USD\"\n  },\n  \"card_details\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_card_data\": \"34363136363937323538313530393338443235303444323539\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "code": 523,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a30936fc-db52-4500-9d2c-15008938139a",
+          "name": "Process a transaction with card present",
+          "request": {
+            "name": "Process a transaction with card present",
+            "description": {
+              "content": "API to process a transaction with a physical or virtual card present at a payment terminal",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "transactions",
+                "card-present"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amounts\": {\n    \"amount\": \"<long>\",\n    \"currency\": \"<string>\",\n    \"tip\": \"<long>\"\n  },\n  \"emv_data\": \"<string>\",\n  \"entry_mode\": \"<enum>\",\n  \"track_data\": {\n    \"encryption_key_id\": \"<string>\",\n    \"encrypted_track\": \"<string>\",\n    \"encryption_ksn\": \"<string>\"\n  },\n  \"transacted_at\": \"<dateTime>\",\n  \"type\": \"<enum>\",\n  \"verification_method\": \"<enum>\",\n  \"merchant_reference\": \"<string>\",\n  \"authentication_retry\": \"<boolean>\",\n  \"terminal_id\": \"<string>\",\n  \"terminal_data\": {\n    \"entry_mode_extra_capabilities\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"cvm_extra_capabilities\": [\n      \"<string>\",\n      \"<string>\"\n    ]\n  },\n  \"pin_block\": {\n    \"block\": \"<string>\",\n    \"format\": \"<string>\",\n    \"encryption_key_id\": \"<string>\",\n    \"encryption_ksn\": \"<string>\"\n  },\n  \"card_data\": {\n    \"number\": \"<string>\",\n    \"expiry_month\": \"<string>\",\n    \"expiry_year\": \"<string>\",\n    \"cvv2\": \"<string>\"\n  },\n  \"dcc\": {\n    \"quoted_at\": \"<dateTime>\",\n    \"cardholder_amount\": {\n      \"amount\": \"<integer>\",\n      \"currency\": \"<string>\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "fbfdd219-d7c1-43bd-ad2b-138d229a5d2d",
+              "name": "Transaction processed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "card-present"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"entry_mode\": \"CONTACT_MAGSTRIPE\",\n  \"verification_method\": \"SIGNATURE\",\n  \"merchant_reference\": \"1234567890\",\n  \"authentication_retry\": false,\n  \"amounts\": {\n    \"amount\": 100,\n    \"tip\": 10,\n    \"currency\": \"USD\"\n  },\n  \"terminal_id\": \"12345678\",\n  \"emv_data\": \"9F38039F1A02\",\n  \"terminal_data\": {\n    \"entry_mode_extra_capabilities\": [\n      \"CONTACTLESS_EMV\"\n    ],\n    \"cvm_extra_capabilities\": [\n      \"CONSUMER_DEVICE\"\n    ]\n  },\n  \"track_data\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_track\": \"5188340000000011D241212099999999\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"pin_block\": {\n    \"block\": \"1234567890ABCDEF\",\n    \"format\": \"ISO_FORMAT_0\",\n    \"encryption_key_id\": \"74FF\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"transaction_id\": \"tr_5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b\",\n  \"card_acceptor_id\": \"50001325\",\n  \"status\": \"SUCCESS\",\n  \"issuer_result\": {\n    \"response_code\": \"00\",\n    \"approval_code\": \"123456\",\n    \"emv_response\": \"9F2608F8E8D9F2701809F101307010103A0A800010A01\"\n  },\n  \"processed_at\": \"2021-01-01T00:00:00.000Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0b78c91c-0e3a-4634-b013-c62cca6a2721",
+              "name": "Transaction processing",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "card-present"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"entry_mode\": \"CONTACT_MAGSTRIPE\",\n  \"verification_method\": \"SIGNATURE\",\n  \"merchant_reference\": \"1234567890\",\n  \"authentication_retry\": false,\n  \"amounts\": {\n    \"amount\": 100,\n    \"tip\": 10,\n    \"currency\": \"USD\"\n  },\n  \"terminal_id\": \"12345678\",\n  \"emv_data\": \"9F38039F1A02\",\n  \"terminal_data\": {\n    \"entry_mode_extra_capabilities\": [\n      \"CONTACTLESS_EMV\"\n    ],\n    \"cvm_extra_capabilities\": [\n      \"CONSUMER_DEVICE\"\n    ]\n  },\n  \"track_data\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_track\": \"5188340000000011D241212099999999\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"pin_block\": {\n    \"block\": \"1234567890ABCDEF\",\n    \"format\": \"ISO_FORMAT_0\",\n    \"encryption_key_id\": \"74FF\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "5810f96e-ff3c-4f6d-b049-bc7e346ff0fc",
+              "name": "Bad Request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "card-present"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"entry_mode\": \"CONTACT_MAGSTRIPE\",\n  \"verification_method\": \"SIGNATURE\",\n  \"merchant_reference\": \"1234567890\",\n  \"authentication_retry\": false,\n  \"amounts\": {\n    \"amount\": 100,\n    \"tip\": 10,\n    \"currency\": \"USD\"\n  },\n  \"terminal_id\": \"12345678\",\n  \"emv_data\": \"9F38039F1A02\",\n  \"terminal_data\": {\n    \"entry_mode_extra_capabilities\": [\n      \"CONTACTLESS_EMV\"\n    ],\n    \"cvm_extra_capabilities\": [\n      \"CONSUMER_DEVICE\"\n    ]\n  },\n  \"track_data\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_track\": \"5188340000000011D241212099999999\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"pin_block\": {\n    \"block\": \"1234567890ABCDEF\",\n    \"format\": \"ISO_FORMAT_0\",\n    \"encryption_key_id\": \"74FF\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "dc16af75-f630-4b7c-94c0-1de387519bd9",
+              "name": "Unauthorised",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "card-present"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"entry_mode\": \"CONTACT_MAGSTRIPE\",\n  \"verification_method\": \"SIGNATURE\",\n  \"merchant_reference\": \"1234567890\",\n  \"authentication_retry\": false,\n  \"amounts\": {\n    \"amount\": 100,\n    \"tip\": 10,\n    \"currency\": \"USD\"\n  },\n  \"terminal_id\": \"12345678\",\n  \"emv_data\": \"9F38039F1A02\",\n  \"terminal_data\": {\n    \"entry_mode_extra_capabilities\": [\n      \"CONTACTLESS_EMV\"\n    ],\n    \"cvm_extra_capabilities\": [\n      \"CONSUMER_DEVICE\"\n    ]\n  },\n  \"track_data\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_track\": \"5188340000000011D241212099999999\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"pin_block\": {\n    \"block\": \"1234567890ABCDEF\",\n    \"format\": \"ISO_FORMAT_0\",\n    \"encryption_key_id\": \"74FF\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "dfa61699-1e0d-4c52-8b4a-cc644300647e",
+              "name": "Forbidden",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "card-present"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"entry_mode\": \"CONTACT_MAGSTRIPE\",\n  \"verification_method\": \"SIGNATURE\",\n  \"merchant_reference\": \"1234567890\",\n  \"authentication_retry\": false,\n  \"amounts\": {\n    \"amount\": 100,\n    \"tip\": 10,\n    \"currency\": \"USD\"\n  },\n  \"terminal_id\": \"12345678\",\n  \"emv_data\": \"9F38039F1A02\",\n  \"terminal_data\": {\n    \"entry_mode_extra_capabilities\": [\n      \"CONTACTLESS_EMV\"\n    ],\n    \"cvm_extra_capabilities\": [\n      \"CONSUMER_DEVICE\"\n    ]\n  },\n  \"track_data\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_track\": \"5188340000000011D241212099999999\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"pin_block\": {\n    \"block\": \"1234567890ABCDEF\",\n    \"format\": \"ISO_FORMAT_0\",\n    \"encryption_key_id\": \"74FF\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0db00833-1a7b-4bdd-9d92-303442b74798",
+              "name": "Conflict",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "card-present"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"entry_mode\": \"CONTACT_MAGSTRIPE\",\n  \"verification_method\": \"SIGNATURE\",\n  \"merchant_reference\": \"1234567890\",\n  \"authentication_retry\": false,\n  \"amounts\": {\n    \"amount\": 100,\n    \"tip\": 10,\n    \"currency\": \"USD\"\n  },\n  \"terminal_id\": \"12345678\",\n  \"emv_data\": \"9F38039F1A02\",\n  \"terminal_data\": {\n    \"entry_mode_extra_capabilities\": [\n      \"CONTACTLESS_EMV\"\n    ],\n    \"cvm_extra_capabilities\": [\n      \"CONSUMER_DEVICE\"\n    ]\n  },\n  \"track_data\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_track\": \"5188340000000011D241212099999999\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"pin_block\": {\n    \"block\": \"1234567890ABCDEF\",\n    \"format\": \"ISO_FORMAT_0\",\n    \"encryption_key_id\": \"74FF\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "62aecf23-37c9-4a72-be5c-8d8aa6086bf1",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "card-present"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"entry_mode\": \"CONTACT_MAGSTRIPE\",\n  \"verification_method\": \"SIGNATURE\",\n  \"merchant_reference\": \"1234567890\",\n  \"authentication_retry\": false,\n  \"amounts\": {\n    \"amount\": 100,\n    \"tip\": 10,\n    \"currency\": \"USD\"\n  },\n  \"terminal_id\": \"12345678\",\n  \"emv_data\": \"9F38039F1A02\",\n  \"terminal_data\": {\n    \"entry_mode_extra_capabilities\": [\n      \"CONTACTLESS_EMV\"\n    ],\n    \"cvm_extra_capabilities\": [\n      \"CONSUMER_DEVICE\"\n    ]\n  },\n  \"track_data\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_track\": \"5188340000000011D241212099999999\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"pin_block\": {\n    \"block\": \"1234567890ABCDEF\",\n    \"format\": \"ISO_FORMAT_0\",\n    \"encryption_key_id\": \"74FF\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "1d930658-1816-4e82-ad6e-9fb0bb96db96",
+              "name": "Service Unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "card-present"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"entry_mode\": \"CONTACT_MAGSTRIPE\",\n  \"verification_method\": \"SIGNATURE\",\n  \"merchant_reference\": \"1234567890\",\n  \"authentication_retry\": false,\n  \"amounts\": {\n    \"amount\": 100,\n    \"tip\": 10,\n    \"currency\": \"USD\"\n  },\n  \"terminal_id\": \"12345678\",\n  \"emv_data\": \"9F38039F1A02\",\n  \"terminal_data\": {\n    \"entry_mode_extra_capabilities\": [\n      \"CONTACTLESS_EMV\"\n    ],\n    \"cvm_extra_capabilities\": [\n      \"CONSUMER_DEVICE\"\n    ]\n  },\n  \"track_data\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_track\": \"5188340000000011D241212099999999\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"pin_block\": {\n    \"block\": \"1234567890ABCDEF\",\n    \"format\": \"ISO_FORMAT_0\",\n    \"encryption_key_id\": \"74FF\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2b9014d2-d365-4d03-bdf0-4c859ab8cf51",
+              "name": "Origin Unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "card-present"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"SALE\",\n  \"entry_mode\": \"CONTACT_MAGSTRIPE\",\n  \"verification_method\": \"SIGNATURE\",\n  \"merchant_reference\": \"1234567890\",\n  \"authentication_retry\": false,\n  \"amounts\": {\n    \"amount\": 100,\n    \"tip\": 10,\n    \"currency\": \"USD\"\n  },\n  \"terminal_id\": \"12345678\",\n  \"emv_data\": \"9F38039F1A02\",\n  \"terminal_data\": {\n    \"entry_mode_extra_capabilities\": [\n      \"CONTACTLESS_EMV\"\n    ],\n    \"cvm_extra_capabilities\": [\n      \"CONSUMER_DEVICE\"\n    ]\n  },\n  \"track_data\": {\n    \"encryption_key_id\": \"5EE0\",\n    \"encrypted_track\": \"5188340000000011D241212099999999\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"pin_block\": {\n    \"block\": \"1234567890ABCDEF\",\n    \"format\": \"ISO_FORMAT_0\",\n    \"encryption_key_id\": \"74FF\",\n    \"encryption_ksn\": \"123456789012\"\n  },\n  \"transacted_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"quoted_at\": \"2024-01-01T10:00:00.000Z\",\n    \"cardholder_amount\": {\n      \"amount\": 78,\n      \"currency\": \"GBP\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "code": 523,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.teya.com",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "cadf4e29-1386-4413-9780-6662b40c8136",
+    "name": "Teya FX Captures Transactions API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.",
+      "type": "text/plain"
+    }
+  }
+}

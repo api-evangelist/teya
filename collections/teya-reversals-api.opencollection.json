@@ -1,0 +1,33 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures Reversals API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Reversals",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Process a reversal of a transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v2/reversals",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to process the reversal of a transaction.\n\nThe transaction to be reversed can be referenced by:\n- Its transaction ID\n- The Idempotency Key used in the transaction request"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

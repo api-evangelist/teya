@@ -1,0 +1,63 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures Print Receipts (ePOS) API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Print Receipts (ePOS)",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create a receipt to print (JSON or multipart image)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/poslink/v1/receipt-requests",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "terminal_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a receipt print job by either:\n - Sending a JSON payload that describes the receipt content to be rendered by the service; or\n - Uploading a pre-rendered receipt image via multipart/form-data.\n\n On success, a new receipt job is created and the response contains the unique receipt_id,\n initial status (NOT_PRINTED), and creation timestamp. Clients can then subscribe to status updates via the SSE endpoint or poll for the result.\n\n Content types:\n - application/json\n - multipart/form-data (f"
+        },
+        {
+          "info": {
+            "name": "Get receipt print job with real-time updates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/poslink/v1/receipt-requests/:receipt_id/status",
+            "params": [
+              {
+                "name": "receipt_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Streams real-time updates for a receipt print job using Server‑Sent Events (SSE) with content type text/event-stream.\n\nEach message in the stream is an SSE event with:\n- data: a JSON object with receipt status fields (no formal schema available for SSE payload)\n- a blank line terminates each event frame\n\nSemantics:\n- The stream emits receipt status updates as they occur.\n- When the receipt reaches a final status (for example, PRINTED or FAILED), a last event is sent and the stream is closed.\n- I"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,325 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures Pay at Table API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Pay at Table",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List tabs for a store",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/poslink/v1/tabs",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "query",
+                "description": "The store identifier"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Tab statuses to include. Repeatable (e.g., `status=OPEN&status=PAUSED`).\nWhen omitted, returns only active tabs (`OPEN`, `PAYING`, `PAUSED`).\nTo include archived tabs, pass `status=COMPLETED` and/or `status=CLOSED` explicitly.\n"
+              },
+              {
+                "name": "merchant_reference",
+                "value": "",
+                "type": "query",
+                "description": "Merchant-assigned reference to filter by. When provided, returns the single tab matching (store_id, merchant_reference) or an empty list."
+              },
+              {
+                "name": "after",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor pointing to the last item of the current page. Use to fetch the next page. Mutually exclusive with `before`."
+              },
+              {
+                "name": "before",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor pointing to the first item of the current page. Use to fetch the previous page. Mutually exclusive with `after`."
+              },
+              {
+                "name": "limit",
+                "value": "50",
+                "type": "query",
+                "description": "Maximum number of results to return. Defaults to 50, capped at 300."
+              }
+            ]
+          },
+          "docs": "Returns tabs for the specified store, cursor-paginated.\n\nSupports optional filters:\n- `status`: repeatable. When omitted, defaults to active tabs only\n  (`OPEN`, `PAYING`, `PAUSED`). To include archived tabs, pass\n  `status=COMPLETED` and/or `status=CLOSED` explicitly.\n- `merchant_reference`: merchant-assigned reference. Unique per store, so the\n  filtered response will contain at most one tab.\n"
+        },
+        {
+          "info": {
+            "name": "Create a new tab",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/poslink/v1/tabs",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new tab for a store. The tab starts in OPEN status."
+        },
+        {
+          "info": {
+            "name": "Create a show-bill intent",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/poslink/v1/tabs/:tab_id/show-bill-intents",
+            "params": [
+              {
+                "name": "tab_id",
+                "value": "",
+                "type": "path",
+                "description": "The tab identifier"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Terminal signals intent to display the bill for a tab. The server accepts\nthe intent and notifies the ePOS via a `SHOW_BILL_REQUEST` SSE event, which\nin turn posts bill content back to the server. At most one terminal can hold\nan active show-bill intent per tab at a time.\n"
+        },
+        {
+          "info": {
+            "name": "Create a payment intent",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/poslink/v1/tabs/:tab_id/payment-intents",
+            "params": [
+              {
+                "name": "tab_id",
+                "value": "",
+                "type": "path",
+                "description": "The tab identifier"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Terminal initiates a payment intent for a tab. The tab transitions to\n`PAYING` if it is in `OPEN` or `PAUSED`; PAYING tabs are no-op idempotent.\nOn a `PAUSED → PAYING` transition POSLink auto-emits a `TAB_RESUMED` SSE\nevent before the `PAY_REQUEST`. The ePOS then calls POST /v3/payment-requests\n(with tab_id and payment_type) to materialise the payment. Supports FULL and\nSPLIT payment types with CARD or CASH methods.\n"
+        },
+        {
+          "info": {
+            "name": "Pause a tab",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/poslink/v1/tabs/:tab_id/pauses",
+            "params": [
+              {
+                "name": "tab_id",
+                "value": "",
+                "type": "path",
+                "description": "The tab identifier"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Records a pause event on the tab. Strict semantics: only a tab in\n`PAYING` status can be paused — pause is a mid-split-payment\noperation. On success the tab moves to `PAUSED` and the ePOS\nreceives a `TAB_PAUSED` SSE event.\n"
+        },
+        {
+          "info": {
+            "name": "Create a hide-bill intent",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/poslink/v1/tabs/:tab_id/hide-bill-intents",
+            "params": [
+              {
+                "name": "tab_id",
+                "value": "",
+                "type": "path",
+                "description": "The tab identifier"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Terminal signals intent to stop displaying the bill for a tab. Strict\nsemantics: the lock must currently be held by the calling terminal —\na hide racing the credit-completed path or the TTL sweeper is rejected\nwith `409 TAB_NO_ACTIVE_SHOW_BILL`. On success the server clears the\nshow-bill state on the tab and notifies the ePOS via a\n`TAB_BILL_HIDDEN` SSE event.\n"
+        },
+        {
+          "info": {
+            "name": "Report a tab error",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/poslink/v1/tabs/:tab_id/errors",
+            "params": [
+              {
+                "name": "tab_id",
+                "value": "",
+                "type": "path",
+                "description": "The tab identifier"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Reports an error from the ePOS for a specific tab (e.g., table not found, bill already settled).\nThe server accepts the rejection and notifies the affected terminal so it can surface\nthe error to the operator.\n"
+        },
+        {
+          "info": {
+            "name": "Retrieve the current bill for a tab",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/poslink/v1/tabs/:tab_id/bill",
+            "params": [
+              {
+                "name": "tab_id",
+                "value": "",
+                "type": "path",
+                "description": "The tab identifier"
+              }
+            ]
+          },
+          "docs": "Returns the current bill for a tab, including items, amounts, and bill image URL (if any). If the ePOS has reported a rejection via POST /v1/tabs/{tab_id}/errors before any bill content was posted, the response still returns 200 with the bill fields empty/zero and last_error_* populated so the terminal can surface the error to the user."
+        },
+        {
+          "info": {
+            "name": "Send bill content to the server",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/poslink/v1/tabs/:tab_id/bill",
+            "params": [
+              {
+                "name": "tab_id",
+                "value": "",
+                "type": "path",
+                "description": "The tab identifier"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "ePOS pushes bill content for a tab. The server accepts the content and\nforwards it to the terminal currently holding the active show-bill intent.\n\nTwo request-body variants are supported, selected by `Content-Type`:\n- `application/json` — a structured `print_model` (see `ShowBillRequest`).\n- `multipart/form-data` — a pre-rendered bill image (PNG or JPEG) with\n  `terminal_id`, `total_amount` and `currency` form fields.\n"
+        },
+        {
+          "info": {
+            "name": "Retrieve a tab",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/poslink/v1/tabs/:tab_id",
+            "params": [
+              {
+                "name": "tab_id",
+                "value": "",
+                "type": "path",
+                "description": "The tab identifier"
+              }
+            ]
+          },
+          "docs": "Returns full details of a single tab including items and payment requests."
+        },
+        {
+          "info": {
+            "name": "Update a tab",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.teya.com/poslink/v1/tabs/:tab_id",
+            "params": [
+              {
+                "name": "tab_id",
+                "value": "",
+                "type": "path",
+                "description": "The tab identifier"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Applies an ePOS content amend to the tab (total amount and/or items).\nAll body fields are optional; only the ones provided are applied. The tab\nmust be in a state that accepts content amends (typically OPEN).\n\nTab lifecycle transitions (pause, resume, complete) are expressed as\ndedicated sub-resources, not via this endpoint. Closing a tab is done\nvia DELETE /v1/tabs/{tab_id}.\n"
+        },
+        {
+          "info": {
+            "name": "Close a tab",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.teya.com/poslink/v1/tabs/:tab_id",
+            "params": [
+              {
+                "name": "tab_id",
+                "value": "",
+                "type": "path",
+                "description": "The tab identifier"
+              }
+            ]
+          },
+          "docs": "Soft-deletes a tab by setting its status to CLOSED. The tab record is retained.\nAllowed source states: `OPEN`, `COMPLETED`, `PAUSED`. Closing a `PAYING` tab\nis rejected because a transaction is mid-flight; drive it to a stable state\nfirst (resume or pause). Closing a `PAUSED` tab is allowed — if a late\npayment-completed event lands on the now-CLOSED tab, the credit is logged\nand counted via `eposconnect.tabs.credit.on_closed_tab.count` for ops\nvisibility (no data recovery). Already-CLOSED tabs a"
+        },
+        {
+          "info": {
+            "name": "Stream tab events for a store",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/poslink/v1/tabs/events",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "query",
+                "description": "The store identifier"
+              }
+            ]
+          },
+          "docs": "Streams real-time tab events for a store using Server-Sent Events (SSE).\n\nEvent types: SHOW_BILL_REQUEST, PAY_REQUEST, TAB_PAYMENT_STATUS_PROGRESS,\nTAB_PAYMENT_COMPLETED, TAB_PAUSED, TAB_RESUMED, TAB_COMPLETED, TAB_BILL_HIDDEN.\n\nEach event frame carries:\n- `event:` line — the event type (matches the JSON `event_type` discriminator).\n- `id:` line — a per-store monotonic event id used for `Last-Event-ID` reconnection.\n- `data:` line — a flat JSON object with `event_type`, `tab_id`, `merchant_refer"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

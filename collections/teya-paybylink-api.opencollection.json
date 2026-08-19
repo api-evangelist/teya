@@ -1,0 +1,81 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures PayByLink API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "PayByLink",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Creates a new payment link",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v2/payment-links",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to create a new payment link.\n<br><strong>Access Token Required scope:</strong> payment-links/create\n"
+        },
+        {
+          "info": {
+            "name": "Gets a payment link by id",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/v1/payment-links/:payment_link_id",
+            "params": [
+              {
+                "name": "payment_link_id",
+                "value": "",
+                "type": "path",
+                "description": "The payment link id"
+              }
+            ]
+          },
+          "docs": "API to get a payment link by id.\n<br><strong>Access Token Required scope:</strong> payment-links/id/get\n"
+        },
+        {
+          "info": {
+            "name": "Updates an existing payment link",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.teya.com/v2/payment-links/:payment_link_id",
+            "params": [
+              {
+                "name": "payment_link_id",
+                "value": "",
+                "type": "path",
+                "description": "The payment link id"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates mutable properties of a payment link.\nCurrently supports updating expiration timestamp.\n<br><strong>Access Token Required scope:</strong> payment-links/id/update\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

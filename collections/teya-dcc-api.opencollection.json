@@ -1,0 +1,33 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures DCC API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "DCC",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create a DCC offer",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/fx/v1/dcc/offers",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Verifies that the cardholder's card is eligible for DCC, fetches the latest exchange rate, creates a persisted quote, and returns an offer with a quote ID.\n\n**Required OAuth scopes:** `fx/dcc/create`"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

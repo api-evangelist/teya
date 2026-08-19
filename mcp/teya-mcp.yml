@@ -1,57 +1,63 @@
 generated: '2026-07-21'
 method: derived
 status: candidate
-source: openapi/teya-online-payments-openapi.yaml, openapi/teya-payments-openapi.yaml, openapi/teya-fx-openapi.yaml, openapi/teya-poslink-openapi.json
-notes: >-
-  No official hosted/remote Teya MCP server was found (checked docs.teya.com and public MCP
-  registries). The tool list below is a candidate derived one-to-one from OpenAPI operationIds
-  so an agent gateway can expose Teya's REST surface as MCP tools.
+source: openapi/teya-online-payments-openapi.yaml, openapi/teya-payments-openapi.yaml, openapi/teya-fx-openapi.yaml,
+  openapi/teya-poslink-openapi.json
+notes: No official hosted/remote Teya MCP server was found (checked docs.teya.com and public MCP registries).
+  The tool list below is a candidate derived one-to-one from OpenAPI operationIds so an agent gateway
+  can expose Teya's REST surface as MCP tools.
 server:
   name: teya
   transport: http
 tools:
-  - name: create_checkout_session
-    description: Create a hosted checkout session.
-    source_operation: openapi/teya-online-payments-openapi.yaml#createSessionV2
-  - name: get_checkout_session
-    description: Retrieve a checkout session.
-    source_operation: openapi/teya-online-payments-openapi.yaml#getSessionInfoV2
-  - name: create_payment_link
-    description: Create a PayByLink payment link.
-    source_operation: openapi/teya-online-payments-openapi.yaml#createPaymentLinkV2
-  - name: get_payment_link
-    description: Retrieve a payment link.
-    source_operation: openapi/teya-online-payments-openapi.yaml#getPaymentLink
-  - name: process_online_transaction
-    description: Process an online (e-commerce) card transaction.
-    source_operation: openapi/teya-online-payments-openapi.yaml#processOnlineTransactionV3
-  - name: capture_transaction
-    description: Capture a previously authorized transaction.
-    source_operation: openapi/teya-online-payments-openapi.yaml#captureTransaction
-  - name: refund_online
-    description: Refund an online transaction.
-    source_operation: openapi/teya-online-payments-openapi.yaml#refunds
-  - name: create_moto_transaction
-    description: Process a MOTO (mail/telephone order) transaction.
-    source_operation: openapi/teya-payments-openapi.yaml#motoTransactions
-  - name: create_card_present_transaction
-    description: Process a card-present (SoftPOS/terminal) transaction.
-    source_operation: openapi/teya-payments-openapi.yaml#cardTransactions_2
-  - name: reverse_transaction
-    description: Reverse a transaction.
-    source_operation: openapi/teya-payments-openapi.yaml#cardTransactions_3
-  - name: create_dcc_offer
-    description: Create a Dynamic Currency Conversion offer for a card BIN.
-    source_operation: openapi/teya-fx-openapi.yaml#dccOffer
-  - name: create_poslink_payment
-    description: Create a POSLink terminal payment request.
-    source_operation: openapi/teya-poslink-openapi.json#createPaymentV3
-  - name: create_poslink_refund
-    description: Refund a POSLink terminal payment.
-    source_operation: openapi/teya-poslink-openapi.json#createRefundV2
-  - name: list_stores
-    description: List merchant stores.
-    source_operation: openapi/teya-poslink-openapi.json#getStores
-  - name: list_terminals
-    description: List terminals for a store.
-    source_operation: openapi/teya-poslink-openapi.json#getTerminals
+- name: create_checkout_session
+  description: Create a hosted checkout session.
+  source_operation: openapi/teya-online-payments-openapi.yaml#createSessionV2
+- name: get_checkout_session
+  description: Retrieve a checkout session.
+  source_operation: openapi/teya-online-payments-openapi.yaml#getSessionInfoV2
+- name: create_payment_link
+  description: Create a PayByLink payment link.
+  source_operation: openapi/teya-online-payments-openapi.yaml#createPaymentLinkV2
+- name: get_payment_link
+  description: Retrieve a payment link.
+  source_operation: openapi/teya-online-payments-openapi.yaml#getPaymentLink
+- name: process_online_transaction
+  description: Process an online (e-commerce) card transaction.
+  source_operation: openapi/teya-online-payments-openapi.yaml#processOnlineTransactionV3
+- name: capture_transaction
+  description: Capture a previously authorized transaction.
+  source_operation: openapi/teya-online-payments-openapi.yaml#captureTransaction
+- name: refund_online
+  description: Refund an online transaction.
+  source_operation: openapi/teya-online-payments-openapi.yaml#refunds
+- name: create_moto_transaction
+  description: Process a MOTO (mail/telephone order) transaction.
+  source_operation: openapi/teya-payments-openapi.yaml#motoTransactions
+- name: create_card_present_transaction
+  description: Process a card-present (SoftPOS/terminal) transaction.
+  source_operation: openapi/teya-payments-openapi.yaml#cardTransactions_2
+- name: reverse_transaction
+  description: Reverse a transaction.
+  source_operation: openapi/teya-payments-openapi.yaml#cardTransactions_3
+- name: create_dcc_offer
+  description: Create a Dynamic Currency Conversion offer for a card BIN.
+  source_operation: openapi/teya-fx-openapi.yaml#dccOffer
+- name: create_poslink_payment
+  description: Create a POSLink terminal payment request.
+  source_operation: openapi/teya-poslink-openapi.json#createPaymentV3
+- name: create_poslink_refund
+  description: Refund a POSLink terminal payment.
+  source_operation: openapi/teya-poslink-openapi.json#createRefundV2
+- name: list_stores
+  description: List merchant stores.
+  source_operation: openapi/teya-poslink-openapi.json#getStores
+- name: list_terminals
+  description: List terminals for a store.
+  source_operation: openapi/teya-poslink-openapi.json#getTerminals
+deployment:
+  mode: none
+  verified: derived
+  tools: 15
+  checked: '2026-08-12'
+  source: catalog MCP census

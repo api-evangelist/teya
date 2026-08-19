@@ -1,0 +1,47 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Captures",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Capture a pre-authorised transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v1/transactions/:id/capture",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The transaction ID of the pre-authorisation to capture"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to capture a previously pre-authorised transaction.\n<br><br><strong>Usage notes:</strong>\n<ul>\n<li>The capture amount must be less than or equal to the original authorisation amount.</li>\n<li>Only one capture is allowed per pre-authorised transaction. Once captured (fully or partially), the transaction cannot be captured again.</li>\n</ul>\n<br><strong>Access Token Required scope:</strong> captures/create\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

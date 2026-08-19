@@ -1,0 +1,892 @@
+{
+  "item": [
+    {
+      "id": "10b08968-7f25-49c9-80d0-f6af8ff73020",
+      "name": "'@internal'",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "57c20752-f3ef-4646-8e5d-a2e75eac9be4",
+          "name": "Get session details",
+          "request": {
+            "name": "Get session details",
+            "description": {
+              "content": "API to return details of a given session.\n<br><strong>Access Token Required scope:</strong> checkout/sessions/id/get\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "checkout",
+                "sessions",
+                ":session_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "session_id",
+                  "description": "(Required) The session id"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [
+            {
+              "id": "9398f39c-df20-46ce-b1f2-7a18b5c66fe7",
+              "name": "Session has been returned",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "checkout",
+                    "sessions",
+                    ":session_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "session_id",
+                      "description": "(Required) The session id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"business_data\": {\n    \"active\": false,\n    \"address\": {\n      \"city\": \"New York\",\n      \"country\": \"US\",\n      \"state\": \"NY\",\n      \"street_address_line1\": \"Main Street\",\n      \"street_address_line2\": \"No. 1\",\n      \"street_address_line3\": \"Building 1\",\n      \"zipcode\": \"10001\"\n    },\n    \"id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n    \"name\": \"Teya Global\",\n    \"notification_email\": \"example@email.com\"\n  },\n  \"payment_status\": \"SUCCESS\",\n  \"session_id\": \"14411456-79c8-4d8c-8498-f01907093b83\",\n  \"session_status\": \"ACTIVE\",\n  \"type\": \"PRE_AUTHORISATION\",\n  \"billing_address\": {\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"10001\"\n  },\n  \"cancel_url\": \"string\",\n  \"customer\": {\n    \"email\": \"emailaddress@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+447911123456\"\n  },\n  \"customer_success_email\": \"string\",\n  \"dcc\": {\n    \"cardholder_amount\": {\n      \"currency\": \"GBP\",\n      \"value\": 100\n    },\n    \"exchange_rate\": \"1.234567\",\n    \"markup\": \"0.010000\",\n    \"ecb_markup\": \"0.005000\"\n  },\n  \"enabled_card_brands\": [\n    \"VISA\",\n    \"MASTERCARD\",\n    \"AMEX\"\n  ],\n  \"failure_url\": \"string\",\n  \"language\": \"en-GB\",\n  \"line_items\": [\n    {\n      \"description\": \"Product 1\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Product 2\",\n      \"quantity\": 2,\n      \"unit_price\": 50\n    }\n  ],\n  \"merchant_reference\": \"1234567890\",\n  \"merchant_success_email\": \"string\",\n  \"metadata\": {\n    \"key_0\": \"string\",\n    \"key_1\": \"string\",\n    \"key_2\": \"string\"\n  },\n  \"payment_link_id\": \"20eb276c-5b6b-4474-a5a1-49bcd6193148\",\n  \"payment_link_type\": \"SINGLE_USE\",\n  \"post_success_payment\": \"SHOW_SUCCESS_PAGE\",\n  \"required_customer_fields\": [\n    \"PHONE\",\n    \"PHONE\"\n  ],\n  \"success_url\": \"string\",\n  \"logo_url\": \"https://example.cloudfront.net/stores/123/logo.png\",\n  \"checkout_custom_note\": \"Thank you for shopping with us!\",\n  \"privacy_policy_url\": \"https://mywebsite.com/privacy\",\n  \"terms_url\": \"https://mywebsite.com/terms\",\n  \"transaction_id\": \"tr_72302a4d-b2f9-4663-93f8-d9260e5370c8\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b0a547e0-ef16-4e44-8a7c-a4550d6077cb",
+              "name": "Bad request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "checkout",
+                    "sessions",
+                    ":session_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "session_id",
+                      "description": "(Required) The session id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e0b111ea-112c-460e-a2ba-9536d2739e2d",
+              "name": "Lacks valid authentication credentials for the requested resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "checkout",
+                    "sessions",
+                    ":session_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "session_id",
+                      "description": "(Required) The session id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"UNAUTHORISED\",\n  \"description\": \"Unauthorised\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "9a8928e3-268b-4434-a161-9a98da15efe3",
+              "name": "The server understands the request but refuses to authorise it",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "checkout",
+                    "sessions",
+                    ":session_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "session_id",
+                      "description": "(Required) The session id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"FORBIDDEN\",\n  \"description\": \"Forbidden\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f88314fd-e8c0-40fd-8433-b3c9a20cd368",
+              "name": "Session not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "checkout",
+                    "sessions",
+                    ":session_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "session_id",
+                      "description": "(Required) The session id"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "442bcf39-66ed-4ecb-af5e-2f055379ab29",
+              "name": "Too many requests in a given amount of time",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "checkout",
+                    "sessions",
+                    ":session_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "session_id",
+                      "description": "(Required) The session id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"TOO_MANY_REQUESTS\",\n  \"description\": \"Too Many Requests\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a074cec5-ea4f-4982-a94b-cdb09090fe8c",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "checkout",
+                    "sessions",
+                    ":session_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "session_id",
+                      "description": "(Required) The session id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"INTERNAL_SERVER_ERROR\",\n  \"description\": \"Internal Server Error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "e1ff357d-ec3b-4c65-9d0f-f2b95795ba33",
+          "name": "Process a refund of a transaction",
+          "request": {
+            "name": "Process a refund of a transaction",
+            "description": {
+              "content": "API to process the refund of a previous transaction.\n\nThe operation is performed as either a refund or a user-initiated reversal.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v3",
+                "refunds"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"<long>\",\n  \"transaction_id\": \"<string>\",\n  \"terminal_id\": \"<string>\",\n  \"merchant_reference\": \"<string>\",\n  \"reason\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "44f7a6d5-0fc3-44c9-bc0c-80841fb10a8d",
+              "name": "Refund processed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"terminal_id\": \"12345678\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"refund_amount\": {\n    \"amount\": 100,\n    \"currency\": \"GBP\"\n  },\n  \"status\": \"SUCCESS\",\n  \"transaction_type\": \"REFUND\",\n  \"card_acceptor_id\": \"5023045\",\n  \"issuer_result\": {\n    \"approval_code\": \"123456\",\n    \"response_code\": \"00\"\n  },\n  \"created_at\": \"2021-01-01T00:00:00.000Z\",\n  \"dcc\": {\n    \"cardholder_amount\": {\n      \"amount\": 100,\n      \"currency\": \"CHF\"\n    },\n    \"conversion_rate\": \"0.9517\",\n    \"markup\": \"0.03\",\n    \"ecb_markup\": \"0.01\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6fd04d15-018c-4c2d-9ad8-d12b286f8286",
+              "name": "Refund processing",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"terminal_id\": \"12345678\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "ad7c0e24-db8b-4cab-af66-41f7c69c5ec2",
+              "name": "Bad Request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"terminal_id\": \"12345678\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "354b9074-e31d-4ee3-8d62-3244a4f9c7b6",
+              "name": "Unauthorised",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"terminal_id\": \"12345678\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7335f7a8-6f42-4a44-93db-2da1e5b671fc",
+              "name": "Forbidden",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"terminal_id\": \"12345678\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "adee5f73-af96-45a8-a552-e02e93d059eb",
+              "name": "Conflict",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"terminal_id\": \"12345678\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "04ed1d79-b573-4a84-b8af-eceb59443b8e",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"terminal_id\": \"12345678\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2636b318-a26f-46a8-984e-5af628aa482b",
+              "name": "Service Unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"terminal_id\": \"12345678\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "68d69165-b7ae-4623-8a35-8b2511035e0d",
+              "name": "Origin Unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v3",
+                    "refunds"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new refund will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"tr_87de9bea-b32d-4ef5-a481-b8ba48764325\",\n  \"terminal_id\": \"12345678\",\n  \"amount\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "code": 523,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Invalid input\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.teya.com",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "f35d6f13-422b-49fb-b0a4-e01fb59bfd8c",
+    "name": "Teya FX Captures '@internal' API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.",
+      "type": "text/plain"
+    }
+  }
+}

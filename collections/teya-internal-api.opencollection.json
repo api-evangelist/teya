@@ -1,0 +1,58 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures '@internal' API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "'@internal'",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get session details",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/v2/checkout/sessions/:session_id",
+            "params": [
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path",
+                "description": "The session id"
+              }
+            ]
+          },
+          "docs": "API to return details of a given session.\n<br><strong>Access Token Required scope:</strong> checkout/sessions/id/get\n"
+        },
+        {
+          "info": {
+            "name": "Process a refund of a transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v3/refunds",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to process the refund of a previous transaction.\n\nThe operation is performed as either a refund or a user-initiated reversal."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

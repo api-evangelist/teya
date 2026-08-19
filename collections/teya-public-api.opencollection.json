@@ -1,0 +1,104 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures '@public' API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "'@public'",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Capture a pre-auth",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v1/transactions/:id/capture",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to process a pre-auth capture"
+        },
+        {
+          "info": {
+            "name": "Process a mail order or telephone order transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v1/transactions/moto",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to process a transaction where card details are entered by the merchant via a virtual terminal"
+        },
+        {
+          "info": {
+            "name": "Process a transaction with card present",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v1/transactions/card-present",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to process a transaction with a physical or virtual card present at a payment terminal"
+        },
+        {
+          "info": {
+            "name": "Process a reversal of a transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v2/reversals",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to process the reversal of a transaction.\n\nThe transaction to be reversed can be referenced by:\n- Its transaction ID\n- The Idempotency Key used in the transaction request"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

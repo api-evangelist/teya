@@ -1,0 +1,37 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures Terminals API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Terminals",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Retrieve a list of terminals",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/poslink/v1/stores/:store_id/terminals",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "f04fe1ce-e7bd-4c5b-b873-b156643c0bc3",
+                "type": "path",
+                "description": "The ID of the store to retrieve the terminals for"
+              }
+            ]
+          },
+          "docs": "### No Permission Required - This is an endpoint that does not require permission\n---\n\nRetrieves a list of terminals that belong to a store.\n\n**Required Scopes (one of the following):**\n\n- `stores/id/terminals` (returned via the register API: `POST /poslink/v1/epos/register`)\n- `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

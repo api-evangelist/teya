@@ -1,0 +1,173 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures Transactions API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Transactions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Process an online transaction v3",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v3/transactions/online",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to process an online transaction v3.\n<br><strong>Access Token Required scope:</strong> transactions/online/create\n"
+        },
+        {
+          "info": {
+            "name": "Get an online transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/v2/transactions/online/:authentication_id",
+            "params": [
+              {
+                "name": "authentication_id",
+                "value": "",
+                "type": "path",
+                "description": "The authentication id"
+              }
+            ]
+          },
+          "docs": "API to return details of a given online transaction by its authentication id.\n<br><strong>Access Token Required scope:</strong> transactions/online/id/get\n"
+        },
+        {
+          "info": {
+            "name": "Process a refund of a transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v3/refunds",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to process the refund of a previous transaction.\n<br><strong>Access Token Required scope:</strong> refunds/create\n"
+        },
+        {
+          "info": {
+            "name": "Create a digital receipt for a transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v1/transactions/:transaction_id/receipts",
+            "params": [
+              {
+                "name": "transaction_id",
+                "value": "5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b",
+                "type": "path",
+                "description": "Transaction id whose receipt we want to generate"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to allow merchants to request the generation of a digital receipt for a transaction.\n<br><strong>Access Token Required scope:</strong> transactions/id/receipts/create\n"
+        },
+        {
+          "info": {
+            "name": "Capture a pre-auth",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v1/transactions/:id/capture",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "A unique key to identify the request. If the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new transaction will be created.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to process a pre-auth capture"
+        },
+        {
+          "info": {
+            "name": "Process a mail order or telephone order transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v1/transactions/moto",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to process a transaction where card details are entered by the merchant via a virtual terminal"
+        },
+        {
+          "info": {
+            "name": "Process a transaction with card present",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/v1/transactions/card-present",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "API to process a transaction with a physical or virtual card present at a payment terminal"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

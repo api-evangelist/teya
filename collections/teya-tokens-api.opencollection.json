@@ -1,0 +1,43 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures Tokens API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Tokens",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Delete a saved payment token",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.teya.com/v1/tokens/:token_id",
+            "params": [
+              {
+                "name": "token_id",
+                "value": "",
+                "type": "path",
+                "description": "The unique identifier of the token to delete"
+              },
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "query",
+                "description": "The store that owns the token"
+              }
+            ]
+          },
+          "docs": "Remove a previously saved payment method token. Once deleted, the token can no longer be used for transactions.\n<br><strong>Access Token Required scope:</strong> token/delete\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

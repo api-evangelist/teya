@@ -1,0 +1,148 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures Payment Requests API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Payment Requests",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create a payment request",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.teya.com/poslink/v3/payment-requests",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new payment request.\n\nSupports two flows in a single endpoint:\n- **Standalone payment** — omit `tab_id` and `payment_type`; behaves like v2.\n- **Pay at Table (PAT)** — supply `tab_id` (the tab to link the payment to) and\n  `payment_type` (`FULL` or `SPLIT`). `payment_type` is\n  required whenever `tab_id` is present.\n\n**Required Scopes (one of the following):**\n\n- `payment_requests` (returned via the register API: `POST /poslink/v1/epos/register`)\n- `default_access` (deprecated, will be"
+        },
+        {
+          "info": {
+            "name": "List payments and refunds",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/poslink/v2/payment-requests",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "da728238-ee94-470a-a1ba-a03161fdf98c",
+                "type": "query",
+                "description": "The ID of the store to retrieve requests associated with"
+              },
+              {
+                "name": "terminal_id",
+                "value": "2a3bdd2f-b52a-426c-b0fc-48c963650882",
+                "type": "query",
+                "description": "The ID of the terminal to retrieve requests associated with"
+              },
+              {
+                "name": "status",
+                "value": "NEW",
+                "type": "query",
+                "description": "The current status of the request. Must be a valid enum value. If omitted, the returned list will include all statuses"
+              },
+              {
+                "name": "transaction_type",
+                "value": "SALE",
+                "type": "query",
+                "description": "Filter by transaction type. Accepts SALE or REFUND."
+              },
+              {
+                "name": "start_date_time",
+                "value": "2023-09-20T11:00:00Z",
+                "type": "query",
+                "description": "The start date using the ISO 8601 format"
+              },
+              {
+                "name": "end_date_time",
+                "value": "2023-09-20T11:00:00Z",
+                "type": "query",
+                "description": "The end date using the ISO 8601 format"
+              },
+              {
+                "name": "limit",
+                "value": "20",
+                "type": "query",
+                "description": "The maximum number of results to be returned"
+              },
+              {
+                "name": "offset",
+                "value": "1",
+                "type": "query",
+                "description": "The (zero-based) offset of the first record in the collection to return"
+              },
+              {
+                "name": "sort",
+                "value": "ASC",
+                "type": "query",
+                "description": "Sort the result set in ascending (ASC) or descending (DESC) order based on the date the payment request is created"
+              }
+            ]
+          },
+          "docs": "Returns the store's payments and refunds, newest first.\n\n**What to send:** the store you want to look at. You can optionally narrow the results by terminal, status, type (sale or refund), or a date range, and page through large result sets using the page size and starting position.\n\n**What you get back:** a list where each entry shows the amount, whether it was a sale or a refund, its current status, and — where relevant — the reason behind that status (for example, why a payment was declined or"
+        },
+        {
+          "info": {
+            "name": "Update a payment request",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.teya.com/poslink/v2/payment-requests/:payment-request-id",
+            "params": [
+              {
+                "name": "payment-request-id",
+                "value": "",
+                "type": "path",
+                "description": "The ID assigned to the payment request"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "### No Permission Required - This is an endpoint that does not require permission\n---\n\nThis API call is used to request the cancellation of a payment request by setting its status to `CANCELLING`.\n\nThis call is a *request* to cancel, not a confirmation that the payment was cancelled. A successful (`200`) response means the cancellation request has been accepted and the payment request has moved to `CANCELLING` — it does not mean the payment has been cancelled.\n\nWhether the payment is actually ca"
+        },
+        {
+          "info": {
+            "name": "Follow a payment or refund live",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/poslink/v3/payment-requests/:payment-request-id",
+            "params": [
+              {
+                "name": "payment-request-id",
+                "value": "",
+                "type": "path",
+                "description": "The ID assigned to the payment request"
+              }
+            ]
+          },
+          "docs": "Returns a single payment or refund and then keeps delivering its status changes as they happen, so you can show the customer live progress on screen.\n\n**What to send:** the identifier of the payment or refund you want to follow.\n\n**What you get back:** first the full details — the amount, whether it is a sale or a refund, its current status, and, where relevant, the reason behind that status. After that, you keep receiving updates as the status changes (for example, waiting for the card, then th"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

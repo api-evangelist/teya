@@ -1,0 +1,83 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Teya FX Captures Stores API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Stores",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Set a terminal configuration for a store",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.teya.com/poslink/v1/stores/:store_id/configs/:config_key",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "f04fe1ce-e7bd-4c5b-b873-b156643c0bc3",
+                "type": "path",
+                "description": "The store the configuration applies to"
+              },
+              {
+                "name": "config_key",
+                "value": "PAT_ENABLED",
+                "type": "path",
+                "description": "The configuration key to set"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Sets a configuration value for the store. The value applies to all terminals in the store. Valid values depend on the config_key - for example, PAT_ENABLED accepts true or false; other values return 400. Calling this endpoint again with the same value has no additional effect."
+        },
+        {
+          "info": {
+            "name": "Retrieve a list of stores",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/poslink/v1/stores"
+          },
+          "docs": "### No Permission Required - This is an endpoint that does not require permission\n---\n\nRetrieves all stores for a given merchant.\n\n**Required Scopes (one of the following):**\n\n- `stores/id/terminals` (returned via the register API: `POST /poslink/v1/epos/register`)\n- `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)\n"
+        },
+        {
+          "info": {
+            "name": "Retrieve configurations for a terminal scoped to a store",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.teya.com/poslink/v1/stores/:store_id/terminals/:terminal_id/configs",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "f04fe1ce-e7bd-4c5b-b873-b156643c0bc3",
+                "type": "path",
+                "description": "The store the terminal belongs to"
+              },
+              {
+                "name": "terminal_id",
+                "value": "term-001",
+                "type": "path",
+                "description": "The terminal whose configurations are being fetched"
+              }
+            ]
+          },
+          "docs": "Returns all configurations for the store. The terminal_id is recorded so future configuration updates can be pushed to this terminal."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

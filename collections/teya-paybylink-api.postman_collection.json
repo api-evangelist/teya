@@ -1,0 +1,1161 @@
+{
+  "item": [
+    {
+      "id": "f340d3c4-e5d6-493e-83c1-d8c3f75f1992",
+      "name": "PayByLink",
+      "description": {
+        "content": "APIs exposed for pay by link customers",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "53cd6839-558e-4900-a708-615efec14585",
+          "name": "Creates a new payment link",
+          "request": {
+            "name": "Creates a new payment link",
+            "description": {
+              "content": "API to create a new payment link.\n<br><strong>Access Token Required scope:</strong> payment-links/create\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "payment-links"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new session will be created.\n",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": {\n    \"currency\": \"<enum>\",\n    \"value\": \"<long>\"\n  },\n  \"billing_address\": {\n    \"country\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"street_address_line1\": \"<string>\",\n    \"street_address_line2\": \"<string>\",\n    \"street_address_line3\": \"<string>\",\n    \"zipcode\": \"<string>\"\n  },\n  \"cancel_url\": \"<string>\",\n  \"customer\": {\n    \"email\": \"<string>\",\n    \"name\": \"<string>\",\n    \"phone_number\": \"<string>\"\n  },\n  \"customer_success_email\": \"<string>\",\n  \"delivery_info\": {\n    \"email\": \"<string>\",\n    \"phone_number\": \"<string>\"\n  },\n  \"expires_at\": \"<dateTime>\",\n  \"language\": \"<string>\",\n  \"line_items\": [\n    {\n      \"description\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"unit_price\": \"<integer>\"\n    },\n    {\n      \"description\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"unit_price\": \"<integer>\"\n    }\n  ],\n  \"merchant_reference\": \"<string>\",\n  \"merchant_success_email\": \"<string>\",\n  \"metadata\": {\n    \"key_0\": \"<string>\"\n  },\n  \"post_success_payment\": \"<enum>\",\n  \"required_customer_fields\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"store_id\": \"<uuid>\",\n  \"success_url\": \"<string>\",\n  \"supported_card_brands\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"supported_payment_methods\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"transaction_type\": \"<enum>\",\n  \"type\": \"<enum>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "c20fb318-60f6-477a-9f9c-39aab0cff644",
+              "name": "New payment link has been created",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new session will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"billing_address\": {\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"SW1A1AA\"\n  },\n  \"cancel_url\": \"<string>\",\n  \"customer\": {\n    \"email\": \"emailaddress@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+447911123456\"\n  },\n  \"customer_success_email\": \"<string>\",\n  \"delivery_info\": {\n    \"email\": \"emailaddress@example.com\",\n    \"phone_number\": \"+447700900123\"\n  },\n  \"expires_at\": \"<dateTime>\",\n  \"language\": \"en-GB\",\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference\": \"1234567890\",\n  \"merchant_success_email\": \"<string>\",\n  \"metadata\": {\n    \"key_0\": \"<string>\"\n  },\n  \"post_success_payment\": \"SHOW_SUCCESS_PAGE\",\n  \"required_customer_fields\": [\n    \"<string>\"\n  ],\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"success_url\": \"<string>\",\n  \"supported_card_brands\": [\n    \"<string>\"\n  ],\n  \"supported_payment_methods\": [\n    \"<string>\"\n  ],\n  \"transaction_type\": \"SALE\",\n  \"type\": \"SINGLE_USE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"payment_link\": \"https://pbl.teya.com/20eb276c-5b6b-4474-a5a1-49bcd6193148\",\n  \"payment_link_id\": \"20eb276c-5b6b-4474-a5a1-49bcd6193148\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0bb5e776-a46a-41fb-8434-5b1ca3e0bccc",
+              "name": "Bad request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new session will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"billing_address\": {\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"SW1A1AA\"\n  },\n  \"cancel_url\": \"<string>\",\n  \"customer\": {\n    \"email\": \"emailaddress@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+447911123456\"\n  },\n  \"customer_success_email\": \"<string>\",\n  \"delivery_info\": {\n    \"email\": \"emailaddress@example.com\",\n    \"phone_number\": \"+447700900123\"\n  },\n  \"expires_at\": \"<dateTime>\",\n  \"language\": \"en-GB\",\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference\": \"1234567890\",\n  \"merchant_success_email\": \"<string>\",\n  \"metadata\": {\n    \"key_0\": \"<string>\"\n  },\n  \"post_success_payment\": \"SHOW_SUCCESS_PAGE\",\n  \"required_customer_fields\": [\n    \"<string>\"\n  ],\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"success_url\": \"<string>\",\n  \"supported_card_brands\": [\n    \"<string>\"\n  ],\n  \"supported_payment_methods\": [\n    \"<string>\"\n  ],\n  \"transaction_type\": \"SALE\",\n  \"type\": \"SINGLE_USE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "133d818b-56bb-47e5-a348-2d977a7b7b03",
+              "name": "Lacks valid authentication credentials for the requested resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new session will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"billing_address\": {\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"SW1A1AA\"\n  },\n  \"cancel_url\": \"<string>\",\n  \"customer\": {\n    \"email\": \"emailaddress@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+447911123456\"\n  },\n  \"customer_success_email\": \"<string>\",\n  \"delivery_info\": {\n    \"email\": \"emailaddress@example.com\",\n    \"phone_number\": \"+447700900123\"\n  },\n  \"expires_at\": \"<dateTime>\",\n  \"language\": \"en-GB\",\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference\": \"1234567890\",\n  \"merchant_success_email\": \"<string>\",\n  \"metadata\": {\n    \"key_0\": \"<string>\"\n  },\n  \"post_success_payment\": \"SHOW_SUCCESS_PAGE\",\n  \"required_customer_fields\": [\n    \"<string>\"\n  ],\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"success_url\": \"<string>\",\n  \"supported_card_brands\": [\n    \"<string>\"\n  ],\n  \"supported_payment_methods\": [\n    \"<string>\"\n  ],\n  \"transaction_type\": \"SALE\",\n  \"type\": \"SINGLE_USE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"UNAUTHORISED\",\n  \"description\": \"Unauthorised\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3900365e-5df8-44ae-898a-f363c52fc4d5",
+              "name": "The server understands the request but refuses to authorise it",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new session will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"billing_address\": {\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"SW1A1AA\"\n  },\n  \"cancel_url\": \"<string>\",\n  \"customer\": {\n    \"email\": \"emailaddress@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+447911123456\"\n  },\n  \"customer_success_email\": \"<string>\",\n  \"delivery_info\": {\n    \"email\": \"emailaddress@example.com\",\n    \"phone_number\": \"+447700900123\"\n  },\n  \"expires_at\": \"<dateTime>\",\n  \"language\": \"en-GB\",\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference\": \"1234567890\",\n  \"merchant_success_email\": \"<string>\",\n  \"metadata\": {\n    \"key_0\": \"<string>\"\n  },\n  \"post_success_payment\": \"SHOW_SUCCESS_PAGE\",\n  \"required_customer_fields\": [\n    \"<string>\"\n  ],\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"success_url\": \"<string>\",\n  \"supported_card_brands\": [\n    \"<string>\"\n  ],\n  \"supported_payment_methods\": [\n    \"<string>\"\n  ],\n  \"transaction_type\": \"SALE\",\n  \"type\": \"SINGLE_USE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"FORBIDDEN\",\n  \"description\": \"Forbidden\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3ac8903d-145c-4744-8f95-41f49d5587d5",
+              "name": "Too many requests in a given amount of time",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new session will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"billing_address\": {\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"SW1A1AA\"\n  },\n  \"cancel_url\": \"<string>\",\n  \"customer\": {\n    \"email\": \"emailaddress@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+447911123456\"\n  },\n  \"customer_success_email\": \"<string>\",\n  \"delivery_info\": {\n    \"email\": \"emailaddress@example.com\",\n    \"phone_number\": \"+447700900123\"\n  },\n  \"expires_at\": \"<dateTime>\",\n  \"language\": \"en-GB\",\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference\": \"1234567890\",\n  \"merchant_success_email\": \"<string>\",\n  \"metadata\": {\n    \"key_0\": \"<string>\"\n  },\n  \"post_success_payment\": \"SHOW_SUCCESS_PAGE\",\n  \"required_customer_fields\": [\n    \"<string>\"\n  ],\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"success_url\": \"<string>\",\n  \"supported_card_brands\": [\n    \"<string>\"\n  ],\n  \"supported_payment_methods\": [\n    \"<string>\"\n  ],\n  \"transaction_type\": \"SALE\",\n  \"type\": \"SINGLE_USE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"TOO_MANY_REQUESTS\",\n  \"description\": \"Too Many Requests\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a5ec5d99-cbe8-46ea-9e06-8fb3ca30644a",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "(Required) A unique key to identify the request.\nIf the request is repeated with the same key, the same response will be returned.\nIf the request is repeated with a different key or without a key, a new session will be created.\n",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": {\n    \"currency\": \"GBP\",\n    \"value\": 100\n  },\n  \"billing_address\": {\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"state\": \"London\",\n    \"street_address_line1\": \"Main Street\",\n    \"street_address_line2\": \"No. 1\",\n    \"street_address_line3\": \"Building 1\",\n    \"zipcode\": \"SW1A1AA\"\n  },\n  \"cancel_url\": \"<string>\",\n  \"customer\": {\n    \"email\": \"emailaddress@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+447911123456\"\n  },\n  \"customer_success_email\": \"<string>\",\n  \"delivery_info\": {\n    \"email\": \"emailaddress@example.com\",\n    \"phone_number\": \"+447700900123\"\n  },\n  \"expires_at\": \"<dateTime>\",\n  \"language\": \"en-GB\",\n  \"line_items\": [\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    },\n    {\n      \"description\": \"Shipping\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference\": \"1234567890\",\n  \"merchant_success_email\": \"<string>\",\n  \"metadata\": {\n    \"key_0\": \"<string>\"\n  },\n  \"post_success_payment\": \"SHOW_SUCCESS_PAGE\",\n  \"required_customer_fields\": [\n    \"<string>\"\n  ],\n  \"store_id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"success_url\": \"<string>\",\n  \"supported_card_brands\": [\n    \"<string>\"\n  ],\n  \"supported_payment_methods\": [\n    \"<string>\"\n  ],\n  \"transaction_type\": \"SALE\",\n  \"type\": \"SINGLE_USE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"INTERNAL_SERVER_ERROR\",\n  \"description\": \"Internal Server Error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "96c32642-8d04-408f-9361-567739db3e5b",
+          "name": "Gets a payment link by id",
+          "request": {
+            "name": "Gets a payment link by id",
+            "description": {
+              "content": "API to get a payment link by id.\n<br><strong>Access Token Required scope:</strong> payment-links/id/get\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "payment-links",
+                ":payment_link_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "payment_link_id",
+                  "description": "(Required) The payment link id"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [
+            {
+              "id": "3443c499-1cac-46d9-aff7-7b18b7c9ff87",
+              "name": "a payment link has been returned",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"amount\": {\n    \"currency\": \"USD\",\n    \"value\": 100\n  },\n  \"billing_address\": {\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"street_address_line1\": \"Main Street\",\n    \"zipcode\": \"SW1A1AA\"\n  },\n  \"cancel_url\": \"https://example.com/cancel\",\n  \"customer\": {\n    \"email\": \"emailaddress@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+447911123456\"\n  },\n  \"customer_success_email\": \"customer@example.com\",\n  \"expires_at\": \"2024-07-03T13:37:58.709Z\",\n  \"line_items\": [\n    {\n      \"description\": \"Product 1\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference\": \"merchant-reference-id\",\n  \"merchant_success_email\": \"merchant@example.com\",\n  \"metadata\": {\n    \"order_id\": \"12345\",\n    \"table_number\": \"5\"\n  },\n  \"payment_link_id\": \"20eb276c-5b6b-4474-a5a1-49bcd6193148\",\n  \"post_success_payment\": \"REDIRECT\",\n  \"required_customer_fields\": [\n    \"EMAIL\",\n    \"PHONE\"\n  ],\n  \"status\": \"COMPLETED\",\n  \"success_url\": \"https://example.com/success\",\n  \"supported_card_brands\": [\n    \"VISA\",\n    \"MASTERCARD\"\n  ],\n  \"supported_payment_methods\": [\n    \"CARD\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "556810ff-41ac-4fcd-80de-1813ada61d76",
+              "name": "Bad request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "181ad599-a6f7-4283-b5fd-cb8d50112b79",
+              "name": "Lacks valid authentication credentials for the requested resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"UNAUTHORISED\",\n  \"description\": \"Unauthorised\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "563f252e-5387-416c-9a33-f8dda7355350",
+              "name": "The server understands the request but refuses to authorise it",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"FORBIDDEN\",\n  \"description\": \"Forbidden\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4a5dc7b4-d2fe-475e-9037-1c2a990eb28a",
+              "name": "payment link not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "d4aeba89-1962-4062-b1e7-78f0c4a865e2",
+              "name": "Too many requests in a given amount of time",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"TOO_MANY_REQUESTS\",\n  \"description\": \"Too Many Requests\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f0fd9088-8870-4ea9-8f91-e0bee08c46b7",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"INTERNAL_SERVER_ERROR\",\n  \"description\": \"Internal Server Error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "4e09e143-3a97-490f-9d5e-738145a79929",
+          "name": "Updates an existing payment link",
+          "request": {
+            "name": "Updates an existing payment link",
+            "description": {
+              "content": "Updates mutable properties of a payment link.\nCurrently supports updating expiration timestamp.\n<br><strong>Access Token Required scope:</strong> payment-links/id/update\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "payment-links",
+                ":payment_link_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "payment_link_id",
+                  "description": "(Required) The payment link id"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expires_at\": \"<dateTime>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "27edca66-b22b-4047-a72c-3f9ab6193b3f",
+              "name": "Payment link updated successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"expires_at\": \"2026-07-03T13:37:58.709Z\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"amount\": {\n    \"currency\": \"USD\",\n    \"value\": 100\n  },\n  \"billing_address\": {\n    \"city\": \"London\",\n    \"country\": \"GB\",\n    \"street_address_line1\": \"Main Street\",\n    \"zipcode\": \"SW1A1AA\"\n  },\n  \"cancel_url\": \"https://example.com/cancel\",\n  \"customer\": {\n    \"email\": \"emailaddress@example.com\",\n    \"name\": \"John Doe\",\n    \"phone_number\": \"+447911123456\"\n  },\n  \"customer_success_email\": \"customer@example.com\",\n  \"expires_at\": \"2024-07-03T13:37:58.709Z\",\n  \"line_items\": [\n    {\n      \"description\": \"Product 1\",\n      \"quantity\": 1,\n      \"unit_price\": 100\n    }\n  ],\n  \"merchant_reference\": \"merchant-reference-id\",\n  \"merchant_success_email\": \"merchant@example.com\",\n  \"metadata\": {\n    \"order_id\": \"12345\",\n    \"table_number\": \"5\"\n  },\n  \"payment_link_id\": \"20eb276c-5b6b-4474-a5a1-49bcd6193148\",\n  \"post_success_payment\": \"REDIRECT\",\n  \"required_customer_fields\": [\n    \"EMAIL\",\n    \"PHONE\"\n  ],\n  \"status\": \"COMPLETED\",\n  \"success_url\": \"https://example.com/success\",\n  \"supported_card_brands\": [\n    \"VISA\",\n    \"MASTERCARD\"\n  ],\n  \"supported_payment_methods\": [\n    \"CARD\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b873b955-a2c2-4755-af0f-44fae3781ce1",
+              "name": "Bad request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"expires_at\": \"2026-07-03T13:37:58.709Z\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"BAD_REQUEST\",\n  \"description\": \"Bad Request\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4207b760-8082-48a6-b68d-4c4671e7f1db",
+              "name": "Lacks valid authentication credentials for the requested resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"expires_at\": \"2026-07-03T13:37:58.709Z\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"UNAUTHORISED\",\n  \"description\": \"Unauthorised\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "73aadf94-5551-479b-98f2-05bbc304b0d0",
+              "name": "The server understands the request but refuses to authorise it",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"expires_at\": \"2026-07-03T13:37:58.709Z\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"FORBIDDEN\",\n  \"description\": \"Forbidden\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ccbd5cd0-ca8e-4fe2-a5f4-1ec9bab68b32",
+              "name": "Payment link not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"expires_at\": \"2026-07-03T13:37:58.709Z\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "46794441-e3a1-463b-8b88-76ad7ff0ba64",
+              "name": "Too many requests in a given amount of time",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"expires_at\": \"2026-07-03T13:37:58.709Z\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"TOO_MANY_REQUESTS\",\n  \"description\": \"Too Many Requests\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "13606dbf-d22a-417e-bdcd-d204cddc7d6e",
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payment-links",
+                    ":payment_link_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "payment_link_id",
+                      "description": "(Required) The payment link id"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"expires_at\": \"2026-07-03T13:37:58.709Z\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"INTERNAL_SERVER_ERROR\",\n  \"description\": \"Internal Server Error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.teya.com",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "0011a7e8-13f8-460f-be44-4ca19b16ade3",
+    "name": "Teya FX Captures PayByLink API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.",
+      "type": "text/plain"
+    }
+  }
+}
