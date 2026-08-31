@@ -191,7 +191,7 @@ apis:
   humanURL: https://docs.teya.com/apis/online-payments/apis
   baseURL: https://api.teya.com
   tags:
-  - Pay by Link
+  - PayByLink
   tags_raw:
   - PayByLink
   properties:
