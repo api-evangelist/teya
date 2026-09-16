@@ -185,26 +185,6 @@ apis:
     url: https://docs.teya.com/apis/poslink/overview
   - type: Documentation
     url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
-- aid: teya:teya-paybylink-api
-  name: Teya PayByLink API
-  description: APIs exposed for pay by link customers
-  humanURL: https://docs.teya.com/apis/online-payments/apis
-  baseURL: https://api.teya.com
-  tags:
-  - Pay by Link
-  tags_raw:
-  - PayByLink
-  properties:
-  - type: OpenAPI
-    url: openapi/teya-paybylink-api-openapi.yml
-  - type: Documentation
-    url: https://docs.teya.com/apis/online-payments/apis
-  - type: Documentation
-    url: https://docs.teya.com/apis/payments/overview
-  - type: Documentation
-    url: https://docs.teya.com/apis/poslink/overview
-  - type: Documentation
-    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
 - aid: teya:teya-payment-requests-api
   name: Teya Payment Requests API
   description: The Payment Requests API from Teya — 4 operation(s) for payment requests.
@@ -269,24 +249,6 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/teya-refunds-api-openapi.yml
-  - type: Documentation
-    url: https://docs.teya.com/apis/online-payments/apis
-  - type: Documentation
-    url: https://docs.teya.com/apis/payments/overview
-  - type: Documentation
-    url: https://docs.teya.com/apis/poslink/overview
-  - type: Documentation
-    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
-- aid: teya:teya-reversals-api
-  name: Teya Reversals API
-  description: The Reversals API from Teya — 1 operation(s) for reversals.
-  humanURL: https://docs.teya.com/apis/online-payments/apis
-  baseURL: https://api.teya.com
-  tags:
-  - Reversals
-  properties:
-  - type: OpenAPI
-    url: openapi/teya-reversals-api-openapi.yml
   - type: Documentation
     url: https://docs.teya.com/apis/online-payments/apis
   - type: Documentation
@@ -361,6 +323,24 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/teya-transactions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.teya.com/apis/online-payments/apis
+  - type: Documentation
+    url: https://docs.teya.com/apis/payments/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/poslink/overview
+  - type: Documentation
+    url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
+- aid: teya:teya-pay-by-link-api
+  name: Teya Pay by Link API
+  description: APIs exposed for pay by link customers
+  humanURL: https://docs.teya.com/apis/online-payments/apis
+  baseURL: https://api.teya.com
+  tags:
+  - Pay by Link
+  properties:
+  - type: OpenAPI
+    url: openapi/teya-pay-by-link-api-openapi.yml
   - type: Documentation
     url: https://docs.teya.com/apis/online-payments/apis
   - type: Documentation
