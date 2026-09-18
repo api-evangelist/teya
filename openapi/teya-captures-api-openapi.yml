@@ -1,13 +1,9 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Teya FX Captures API
+  title: Teya APIs for external plugins Captures API
   version: 1.0.0
-  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
-servers:
-- url: https://api.teya.com
-  description: Production Server
-- url: https://api.teya.xyz
-  description: Development Server
+  description: APIs that external plugins can access
+  name: Teya
 tags:
 - name: Captures
   description: Operations related to capturing pre-authorised transactions.
@@ -20,19 +16,17 @@ paths:
       summary: Capture a pre-authorised transaction
       description: 'API to capture a previously pre-authorised transaction.
 
-        <br><br><strong>Usage notes:</strong>
 
-        <ul>
+        Usage notes:
 
-        <li>The capture amount must be less than or equal to the original authorisation amount.</li>
 
-        <li>Only one capture is allowed per pre-authorised transaction. Once captured (fully or partially), the transaction cannot be captured again.</li>
+        The capture amount must be less than or equal to the original authorisation amount.
 
-        </ul>
 
-        <br><strong>Access Token Required scope:</strong> captures/create
+        Only one capture is allowed per pre-authorised transaction. Once captured (fully or partially), the transaction cannot be captured again.
 
-        '
+
+        Access Token Required scope: captures/create'
       operationId: captureTransaction
       parameters:
       - name: id
@@ -105,19 +99,6 @@ paths:
       - Ecommerce_Transaction_Payments_-_Public_oauth: []
 components:
   schemas:
-    CaptureRequest:
-      type: object
-      description: A request to capture a pre-authorised transaction
-      example:
-        amount: 1000
-      properties:
-        amount:
-          type: integer
-          format: int64
-          description: A positive integer representing the amount to capture in the smallest currency unit (e.g., 100 cents to charge $1). Must be less than or equal to the original authorisation amount.
-      required:
-      - amount
-      title: CaptureRequest
     Payments_Gateway_Service_CaptureIssuerResult:
       type: object
       example:
@@ -209,3 +190,85 @@ components:
       - status
       - transaction_id
       title: CaptureResponse
+    CaptureRequest:
+      type: object
+      description: A request to capture a pre-authorised transaction
+      example:
+        amount: 1000
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the amount to capture in the smallest currency unit (e.g., 100 cents to charge $1). Must be less than or equal to the original authorisation amount.
+      required:
+      - amount
+      title: CaptureRequest
+  securitySchemes:
+    checkout_oauth_dev:
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.xyz/oauth/v2/oauth-authorize
+          scopes: {}
+          tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+        clientCredentials:
+          scopes: {}
+          tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+      type: oauth2
+    checkout_oauth_prd:
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+          scopes: {}
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+        clientCredentials:
+          scopes: {}
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+      type: oauth2
+    Ecommerce_Transaction_Payments_-_Public_oauth:
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+          scopes: {}
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+        clientCredentials:
+          scopes: {}
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+      type: oauth2
+    pbl_oauth_dev:
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.xyz/oauth/v2/oauth-authorize
+          scopes: {}
+          tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+        clientCredentials:
+          scopes: {}
+          tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+      type: oauth2
+    pbl_oauth_prd:
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+          scopes: {}
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+        clientCredentials:
+          scopes: {}
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+      type: oauth2
+    Teya_Digital_Receipts_Service_oauth_prd:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+          scopes: {}
+    Payments_Refunds_Wrapper_API_oauth_prd:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+          scopes:
+            terminal: ''
+        authorizationCode:
+          authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+          scopes: {}

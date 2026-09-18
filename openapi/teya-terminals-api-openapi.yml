@@ -1,13 +1,19 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Teya FX Captures Terminals API
-  version: 1.0.0
-  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
+  title: POSLink Terminals API
+  description: Handles messaging between the ePOS software and terminal.
+  contact:
+    name: Poslink Service
+    url: https://teyaglobal.atlassian.net/wiki/spaces/CE/pages/5993563200/Integration+Guide
+    email: poslink@teya.com
+  version: '1.2'
 servers:
 - url: https://api.teya.com
   description: Production Server
 - url: https://api.teya.xyz
-  description: Development Server
+  description: Staging Server
+security:
+- authorisation: []
 tags:
 - name: Terminals
 paths:
@@ -29,9 +35,7 @@ paths:
 
         - `stores/id/terminals` (returned via the register API: `POST /poslink/v1/epos/register`)
 
-        - `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)
-
-        '
+        - `default_access` (deprecated, will be removed in the future; included for backward compatibility with existing integrations)'
       operationId: getTerminals
       parameters:
       - name: store_id
@@ -132,19 +136,6 @@ paths:
         enabled: true
 components:
   schemas:
-    RetrieveTerminalResponse:
-      type: object
-      example:
-        terminals:
-        - terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
-          terminal_name: MPAS_test_terminal
-          serial_number: '202877303091039717483041'
-      properties:
-        terminals:
-          type: array
-          items:
-            $ref: '#/components/schemas/Terminal'
-      title: RetrieveTerminalResponse
     ExceptionResponse:
       type: object
       example:
@@ -166,6 +157,25 @@ components:
           items:
             $ref: '#/components/schemas/InvalidParams'
       title: ExceptionResponse
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
     Terminal:
       type: object
       example:
@@ -186,22 +196,37 @@ components:
           description: The name of the terminal
           example: MPAS_test_terminal
       title: Terminal
-    InvalidParams:
+    RetrieveTerminalResponse:
       type: object
-      description: A single failed parameter from a 4xx validation response.
       example:
-        path: requested_amount.amount
-        reason: Amount exceeds the tab's remaining balance
+        terminals:
+        - terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+          terminal_name: MPAS_test_terminal
+          serial_number: '202877303091039717483041'
       properties:
-        path:
-          type: string
-          description: Dot-notation path to the offending field on the request body, in snake_case.
-          example: requested_amount.amount
-        reason:
-          type: string
-          description: Human-readable explanation of why the parameter was rejected.
-          example: Amount exceeds the tab's remaining balance
-      required:
-      - path
-      - reason
-      title: InvalidParams
+        terminals:
+          type: array
+          items:
+            $ref: '#/components/schemas/Terminal'
+      title: RetrieveTerminalResponse
+  securitySchemes:
+    authorisation:
+      type: oauth2
+      description: 'Given a valid access token, you can now use a Bearer Token to authenticate your requests.
+
+        To do so you have to preface your access token with Bearer and send it in the HTTP Authorization header.
+
+        It should look something like this: `Authorization: Bearer <ACCESS_TOKEN>`
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+          scopes: {}
+x-teya-variables:
+  production:
+    rps-payment-request: 15
+  rps-payment-request: '1'
+  staging:
+    rps-payment-request: 15

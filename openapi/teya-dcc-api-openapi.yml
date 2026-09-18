@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Teya FX Captures DCC API
+  title: Teya FX DCC API
   version: 1.0.0
   description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
 servers:
@@ -67,67 +67,41 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    OfferV3:
+    DccOffer:
       type: object
-      description: Teya FX offer with quote ID, containing the latest exchange rate and markups offered for foreign exchange.
+      description: Request to create a public DCC offer
       example:
-        quote_id: 019502a0-7e29-7b3c-8f1a-2b3c4d5e6f70
-        exchange_rate: '1.16'
-        markup: '0.03'
-        ecb_markup: '0.02'
+        card_first9: '30489000'
+        base_amount: 5000
+        base_currency: GBP
         cardholder_currency: EUR
-        cardholder_amount: 1000
+        store_id: 550e8400-e29b-41d4-a716-446655440000
       properties:
-        quote_id:
+        card_first9:
           type: string
-          format: uuid
-          description: The unique quote identifier (UUIDv7)
-        exchange_rate:
-          type: string
-          description: Latest exchange rate for a currency pair (decimal format, with 6 decimal places)
-        markup:
-          type: string
-          description: Markup of the offered exchange rate (i.e. amount added) over the latest exchange rate for a currency pair (decimal format)
-        ecb_markup:
-          type:
-          - string
-          - 'null'
-          description: Markup of the offered exchange rate (i.e. amount added) over the latest ECB exchange rate for a currency pair (decimal format, with 6 decimal places). Only provided when both currencies are EEA currencies.
-        cardholder_currency:
-          type: string
-          description: The card currency of the currency pair in ISO-4217 format (e.g. EUR)
-        cardholder_amount:
+          description: The first 6 to 9 digits of the card PAN, used to determine whether the card is eligible for FX. The provided digits are matched against BIN ranges, so send only the actual digits available from your payment application.
+          maxLength: 9
+          minLength: 6
+        base_amount:
           type: integer
           format: int64
-          description: The calculated amount from base_currency and rate (integer format, in the smallest card currency's unit, e.g. 100 to represent $1.00, or 100 US dollar cents)
+          description: The original total amount of transaction including tips (integer format, in the base currency's minor unit, e.g. 100 to represent $1.00, or 100 US dollar cents)
+        base_currency:
+          type: string
+          description: The base (or terminal) currency of the currency pair in ISO-4217 format (e.g. EUR)
+        cardholder_currency:
+          type: string
+          description: The cardholder's billing currency in ISO-4217 format (e.g. EUR). Optional — when omitted, the currency is resolved from BIN range data using card_first9.
+        store_id:
+          type: string
+          format: uuid
+          description: The store ID associated with this DCC transaction
       required:
-      - cardholder_amount
-      - cardholder_currency
-      - exchange_rate
-      - markup
-      - quote_id
-      title: Teya FX offer with quote
-    InvalidParams:
-      type: object
-      description: Invalid parameters
-      example:
-        path: amounts.amount
-        reason: must be greater than or equal to 0
-      properties:
-        path:
-          type: string
-          description: The path to the missing/invalid parameter expressed in dot notation.
-        reason:
-          type: string
-          description: Reason why the validation failed.
-        sub_code:
-          type: string
-          format: enum
-          description: An enum corresponding to the validation error.
-      required:
-      - path
-      - reason
-      title: InvalidParams
+      - base_amount
+      - base_currency
+      - card_first9
+      - store_id
+      title: DccOffer
     Error:
       type: object
       format: enum
@@ -168,38 +142,64 @@ components:
           items:
             $ref: '#/components/schemas/InvalidParams'
       title: Error
-    DccOffer:
+    InvalidParams:
       type: object
-      description: Request to create a public DCC offer
+      description: Invalid parameters
       example:
-        card_first9: '30489000'
-        base_amount: 5000
-        base_currency: GBP
-        cardholder_currency: EUR
-        store_id: 550e8400-e29b-41d4-a716-446655440000
+        path: amounts.amount
+        reason: must be greater than or equal to 0
       properties:
-        card_first9:
+        path:
           type: string
-          description: The first 6 to 9 digits of the card PAN, used to determine whether the card is eligible for FX. The provided digits are matched against BIN ranges, so send only the actual digits available from your payment application.
-          maxLength: 9
-          minLength: 6
-        base_amount:
-          type: integer
-          format: int64
-          description: The original total amount of transaction including tips (integer format, in the base currency's minor unit, e.g. 100 to represent $1.00, or 100 US dollar cents)
-        base_currency:
+          description: The path to the missing/invalid parameter expressed in dot notation.
+        reason:
           type: string
-          description: The base (or terminal) currency of the currency pair in ISO-4217 format (e.g. EUR)
-        cardholder_currency:
+          description: Reason why the validation failed.
+        sub_code:
           type: string
-          description: The cardholder's billing currency in ISO-4217 format (e.g. EUR). Optional — when omitted, the currency is resolved from BIN range data using card_first9.
-        store_id:
+          format: enum
+          description: An enum corresponding to the validation error.
+      required:
+      - path
+      - reason
+      title: InvalidParams
+    OfferV3:
+      type: object
+      description: Teya FX offer with quote ID, containing the latest exchange rate and markups offered for foreign exchange.
+      example:
+        quote_id: 019502a0-7e29-7b3c-8f1a-2b3c4d5e6f70
+        exchange_rate: '1.16'
+        markup: '0.03'
+        ecb_markup: '0.02'
+        cardholder_currency: EUR
+        cardholder_amount: 1000
+      properties:
+        quote_id:
           type: string
           format: uuid
-          description: The store ID associated with this DCC transaction
+          description: The unique quote identifier (UUIDv7)
+        exchange_rate:
+          type: string
+          description: Latest exchange rate for a currency pair (decimal format, with 6 decimal places)
+        markup:
+          type: string
+          description: Markup of the offered exchange rate (i.e. amount added) over the latest exchange rate for a currency pair (decimal format)
+        ecb_markup:
+          type:
+          - string
+          - 'null'
+          description: Markup of the offered exchange rate (i.e. amount added) over the latest ECB exchange rate for a currency pair (decimal format, with 6 decimal places). Only provided when both currencies are EEA currencies.
+        cardholder_currency:
+          type: string
+          description: The card currency of the currency pair in ISO-4217 format (e.g. EUR)
+        cardholder_amount:
+          type: integer
+          format: int64
+          description: The calculated amount from base_currency and rate (integer format, in the smallest card currency's unit, e.g. 100 to represent $1.00, or 100 US dollar cents)
       required:
-      - base_amount
-      - base_currency
-      - card_first9
-      - store_id
-      title: DccOffer
+      - cardholder_amount
+      - cardholder_currency
+      - exchange_rate
+      - markup
+      - quote_id
+      title: Teya FX offer with quote

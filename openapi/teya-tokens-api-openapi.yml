@@ -1,13 +1,9 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Teya FX Captures Tokens API
+  title: Teya APIs for external plugins Tokens API
   version: 1.0.0
-  description: The Teya FX API allows you to fetch the latest exchange rates for currency pairs and perform Dynamic Currency Conversion (DCC). Use this API to verify card eligibility, retrieve real-time exchange rates, and create DCC offers with persisted quotes.
-servers:
-- url: https://api.teya.com
-  description: Production Server
-- url: https://api.teya.xyz
-  description: Development Server
+  description: APIs that external plugins can access
+  name: Teya
 tags:
 - name: Tokens
   description: Token management for saved payment methods
@@ -20,9 +16,8 @@ paths:
       summary: Delete a saved payment token
       description: 'Remove a previously saved payment method token. Once deleted, the token can no longer be used for transactions.
 
-        <br><strong>Access Token Required scope:</strong> token/delete
 
-        '
+        Access Token Required scope: token/delete'
       operationId: deleteToken
       parameters:
       - name: token_id
@@ -52,3 +47,73 @@ paths:
           description: Token not found
         '500':
           description: Internal Server Error
+components:
+  securitySchemes:
+    checkout_oauth_dev:
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.xyz/oauth/v2/oauth-authorize
+          scopes: {}
+          tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+        clientCredentials:
+          scopes: {}
+          tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+      type: oauth2
+    checkout_oauth_prd:
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+          scopes: {}
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+        clientCredentials:
+          scopes: {}
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+      type: oauth2
+    Ecommerce_Transaction_Payments_-_Public_oauth:
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+          scopes: {}
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+        clientCredentials:
+          scopes: {}
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+      type: oauth2
+    pbl_oauth_dev:
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.xyz/oauth/v2/oauth-authorize
+          scopes: {}
+          tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+        clientCredentials:
+          scopes: {}
+          tokenUrl: https://id.teya.xyz/oauth/v2/oauth-token
+      type: oauth2
+    pbl_oauth_prd:
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+          scopes: {}
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+        clientCredentials:
+          scopes: {}
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+      type: oauth2
+    Teya_Digital_Receipts_Service_oauth_prd:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+          scopes: {}
+    Payments_Refunds_Wrapper_API_oauth_prd:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+          scopes:
+            terminal: ''
+        authorizationCode:
+          authorizationUrl: https://id.teya.com/oauth/v2/oauth-authorize
+          tokenUrl: https://id.teya.com/oauth/v2/oauth-token
+          scopes: {}

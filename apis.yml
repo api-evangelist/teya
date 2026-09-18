@@ -281,6 +281,8 @@ apis:
   humanURL: https://docs.teya.com/apis/online-payments/apis
   baseURL: https://api.teya.com
   tags:
+  - Terminal
+  tags_raw:
   - Terminals
   properties:
   - type: OpenAPI
@@ -350,6 +352,10 @@ apis:
   - type: Documentation
     url: https://docs.teya.com/apis/dynamic-currency-conversion/overview
 common:
+- type: Successor
+  url: https://www.teya.com/
+- type: SecondaryMarket
+  url: https://forgeglobal.com/saltpay_stock/
 - type: Overlay
   url: overlays/teya-fx-overlay.yaml
 - type: Website
