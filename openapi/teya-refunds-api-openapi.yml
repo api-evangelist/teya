@@ -153,35 +153,6 @@ paths:
       - Refunds
 components:
   schemas:
-    DccResponse:
-      title: DccResponse
-      type: object
-      required:
-      - cardholder_amount
-      - conversion_rate
-      - markup
-      properties:
-        cardholder_amount:
-          $ref: '#/components/schemas/Amount'
-          description: 'The total amount refunded to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
-
-            '
-        conversion_rate:
-          type: string
-          description: Conversion rate used to calculate the cardholder amount
-        markup:
-          type: string
-          description: Markup of the exchange rate
-        ecb_markup:
-          type: string
-          description: Markup of the exchange rate over the ECB exchange rate. Only provided when both currencies are EEA currencies.
-      example:
-        cardholder_amount:
-          amount: 100
-          currency: CHF
-        conversion_rate: '0.9517'
-        markup: '0.03'
-        ecb_markup: '0.01'
     RefundIssuerResult:
       title: IssuerResult
       type: object
@@ -195,49 +166,6 @@ components:
       example:
         approval_code: '123456'
         response_code: '00'
-    RefundExceptionResponseV2:
-      type: object
-      required:
-      - code
-      - description
-      example:
-        code: BAD_REQUEST
-        description: Bad Request
-      properties:
-        code:
-          type: string
-          format: enum
-          description: The error code
-          enum:
-          - BAD_REQUEST
-          - UNAUTHORISED
-          - FORBIDDEN
-          - NOT_FOUND
-          - UNKNOWN
-          - INTERNAL_SERVER_ERROR
-          - TRANSACTION_NOT_FOUND
-          - NEGATIVE_BALANCE_LIMIT
-          - LOST_OR_STOLEN
-          - BLOCKED_CARD
-          - TRANSACTION_CANNOT_BE_REVERSED
-          - SERVICE_UNAVAILABLE
-          - IDEMPOTENCE_KEY_NOT_FOUND
-          - UNSUPPORTED_SCHEME
-          - PRE_AUTH_UNSUPPORTED_SCHEME
-          - AMOUNT_TOO_SMALL
-          - INVALID_CHALLENGE
-          - TRANSACTION_NOT_ALLOWED
-          example: BAD_REQUEST
-        description:
-          type: string
-          description: The description of the error
-          example: Bad Request
-        invalid_params:
-          type: array
-          description: List of invalid request parameters. Populated for validation failures (400); omitted otherwise.
-          items:
-            $ref: '#/components/schemas/InvalidParams'
-      title: RefundExceptionResponseV2
     RefundRequest:
       title: RefundRequest
       type: object
@@ -419,6 +347,78 @@ components:
       example:
         amount: 100
         currency: GBP
+    RefundExceptionResponseV2:
+      type: object
+      required:
+      - code
+      - description
+      example:
+        code: BAD_REQUEST
+        description: Bad Request
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - BAD_REQUEST
+          - UNAUTHORISED
+          - FORBIDDEN
+          - NOT_FOUND
+          - UNKNOWN
+          - INTERNAL_SERVER_ERROR
+          - TRANSACTION_NOT_FOUND
+          - NEGATIVE_BALANCE_LIMIT
+          - LOST_OR_STOLEN
+          - BLOCKED_CARD
+          - TRANSACTION_CANNOT_BE_REVERSED
+          - SERVICE_UNAVAILABLE
+          - IDEMPOTENCE_KEY_NOT_FOUND
+          - UNSUPPORTED_SCHEME
+          - PRE_AUTH_UNSUPPORTED_SCHEME
+          - AMOUNT_TOO_SMALL
+          - INVALID_CHALLENGE
+          - TRANSACTION_NOT_ALLOWED
+          example: BAD_REQUEST
+        description:
+          type: string
+          description: The description of the error
+          example: Bad Request
+        invalid_params:
+          type: array
+          description: List of invalid request parameters. Populated for validation failures (400); omitted otherwise.
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      title: RefundExceptionResponseV2
+    DccResponse:
+      title: DccResponse
+      type: object
+      required:
+      - cardholder_amount
+      - conversion_rate
+      - markup
+      properties:
+        cardholder_amount:
+          $ref: '#/components/schemas/Amount'
+          description: 'The total amount refunded to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
+
+            '
+        conversion_rate:
+          type: string
+          description: Conversion rate used to calculate the cardholder amount
+        markup:
+          type: string
+          description: Markup of the exchange rate
+        ecb_markup:
+          type: string
+          description: Markup of the exchange rate over the ECB exchange rate. Only provided when both currencies are EEA currencies.
+      example:
+        cardholder_amount:
+          amount: 100
+          currency: CHF
+        conversion_rate: '0.9517'
+        markup: '0.03'
+        ecb_markup: '0.01'
   securitySchemes:
     authorisation:
       type: oauth2

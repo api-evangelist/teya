@@ -174,25 +174,6 @@ components:
           items:
             $ref: '#/components/schemas/InvalidParams'
       title: ExceptionResponse
-    EposRegisterRequest:
-      type: object
-      description: Request body for ePOS registration
-      properties:
-        store_id:
-          type: string
-          format: uuid
-          description: Store ID
-          example: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
-        epos_external_id:
-          type: string
-          description: External identifier for the ePOS application/client
-          example: epos-app-12345
-          maxLength: 100
-          minLength: 1
-      required:
-      - epos_external_id
-      - store_id
-      title: EposRegisterRequest
     EposRegisterResponse:
       type: object
       description: Response body for ePOS registration containing M2M client credentials
@@ -231,6 +212,25 @@ components:
           items:
             type: string
       title: EposRegisterResponse
+    EposRegisterRequest:
+      type: object
+      description: Request body for ePOS registration
+      properties:
+        store_id:
+          type: string
+          format: uuid
+          description: Store ID
+          example: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+        epos_external_id:
+          type: string
+          description: External identifier for the ePOS application/client
+          example: epos-app-12345
+          maxLength: 100
+          minLength: 1
+      required:
+      - epos_external_id
+      - store_id
+      title: EposRegisterRequest
     InvalidParams:
       type: object
       description: A single failed parameter from a 4xx validation response.
