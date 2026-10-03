@@ -257,6 +257,12 @@ paths:
                 description: Internal Server Error
 components:
   schemas:
+    DividerRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      example:
+        type: Divider
+      title: DividerRow
     Element:
       discriminator:
         propertyName: type
@@ -272,6 +278,24 @@ components:
       required:
       - type
       title: Element
+    PrintDocument:
+      type: object
+      example:
+        rows:
+        - type: Items
+          items:
+          - type: Text
+            text: Hello
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/Row'
+          maxItems: 150
+          minItems: 1
+      required:
+      - rows
+      title: PrintDocument
     Row:
       discriminator:
         propertyName: type
@@ -309,6 +333,189 @@ components:
       required:
       - url
       title: QrCodeElement
+    ImageElement:
+      allOf:
+      - $ref: '#/components/schemas/Element'
+      - type: object
+        properties:
+          base64:
+            type: string
+            minLength: 1
+          align:
+            type: string
+            enum:
+            - LEFT
+            - RIGHT
+            - CENTER
+      example:
+        type: Image
+        base64: '...'
+        align: RIGHT
+      required:
+      - base64
+      title: ImageElement
+    SpacerRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      example:
+        type: Spacer
+      title: SpacerRow
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
+    Error:
+      type: object
+      description: Error response
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - BAD_REQUEST
+          - UNAUTHORISED
+          - FORBIDDEN
+          - CONFLICT
+          - INTERNAL_SERVER_ERROR
+          - TOO_MANY_REQUESTS
+          - NOT_FOUND
+          - GONE
+          - UNSUPPORTED_MEDIA_TYPE
+        description:
+          type: string
+          description: The description of the error
+        invalid_params:
+          type: array
+          description: Invalid parameters
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      required:
+      - code
+      - description
+      title: Error
+    ReceiptCreateRequest:
+      type: object
+      description: Request body to create a new print receipt job
+      properties:
+        store_id:
+          type: string
+          format: uuid
+          description: Store identifier
+          example: 4b33fd70-7c92-4060-9898-f066e77d3ae1
+        terminal_id:
+          type: string
+          description: Terminal identifier
+          example: 80c267d3
+        print_model:
+          $ref: '#/components/schemas/PrintDocument'
+      required:
+      - print_model
+      - store_id
+      - terminal_id
+      title: Receipt Create Request
+    TextElement:
+      allOf:
+      - $ref: '#/components/schemas/Element'
+      - type: object
+        properties:
+          text:
+            type: string
+            minLength: 1
+          bold:
+            type: boolean
+          align:
+            type: string
+            enum:
+            - LEFT
+            - RIGHT
+            - CENTER
+      example:
+        type: Text
+        text: Coffee
+        bold: false
+        align: LEFT
+      required:
+      - text
+      title: TextElement
+    ItemsRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Element'
+            maxItems: 10
+            minItems: 1
+      example:
+        type: Items
+        items:
+        - type: Text
+          text: Header
+          bold: true
+          align: CENTER
+      required:
+      - items
+      title: ItemsRow
+    TableInnerRow:
+      type: object
+      example:
+        cells:
+        - type: Text
+          text: Item
+          align: LEFT
+      properties:
+        cells:
+          type: array
+          items:
+            $ref: '#/components/schemas/Element'
+          minItems: 1
+      required:
+      - cells
+      title: TableInnerRow
+    TableRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      - type: object
+        properties:
+          header_cells:
+            type: array
+            items:
+              $ref: '#/components/schemas/TableHeaderCell'
+          rows:
+            type: array
+            items:
+              $ref: '#/components/schemas/TableInnerRow'
+      example:
+        type: Table
+        header_cells:
+        - element:
+            type: Text
+            text: QTD DESIGNACAO
+          weight: 1.5
+        rows:
+        - cells:
+          - type: Text
+            text: 1 Coffee
+            align: LEFT
+      title: TableRow
     ReceiptCreatedResponse:
       type: object
       description: Response returned after a receipt print job is created
@@ -347,213 +554,6 @@ components:
       required:
       - element
       title: TableHeaderCell
-    ItemsRow:
-      allOf:
-      - $ref: '#/components/schemas/Row'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/Element'
-            maxItems: 10
-            minItems: 1
-      example:
-        type: Items
-        items:
-        - type: Text
-          text: Header
-          bold: true
-          align: CENTER
-      required:
-      - items
-      title: ItemsRow
-    SpacerRow:
-      allOf:
-      - $ref: '#/components/schemas/Row'
-      example:
-        type: Spacer
-      title: SpacerRow
-    TableRow:
-      allOf:
-      - $ref: '#/components/schemas/Row'
-      - type: object
-        properties:
-          header_cells:
-            type: array
-            items:
-              $ref: '#/components/schemas/TableHeaderCell'
-          rows:
-            type: array
-            items:
-              $ref: '#/components/schemas/TableInnerRow'
-      example:
-        type: Table
-        header_cells:
-        - element:
-            type: Text
-            text: QTD DESIGNACAO
-          weight: 1.5
-        rows:
-        - cells:
-          - type: Text
-            text: 1 Coffee
-            align: LEFT
-      title: TableRow
-    Error:
-      type: object
-      description: Error response
-      properties:
-        code:
-          type: string
-          format: enum
-          description: The error code
-          enum:
-          - BAD_REQUEST
-          - UNAUTHORISED
-          - FORBIDDEN
-          - CONFLICT
-          - INTERNAL_SERVER_ERROR
-          - TOO_MANY_REQUESTS
-          - NOT_FOUND
-          - GONE
-          - UNSUPPORTED_MEDIA_TYPE
-        description:
-          type: string
-          description: The description of the error
-        invalid_params:
-          type: array
-          description: Invalid parameters
-          items:
-            $ref: '#/components/schemas/InvalidParams'
-      required:
-      - code
-      - description
-      title: Error
-    InvalidParams:
-      type: object
-      description: A single failed parameter from a 4xx validation response.
-      example:
-        path: requested_amount.amount
-        reason: Amount exceeds the tab's remaining balance
-      properties:
-        path:
-          type: string
-          description: Dot-notation path to the offending field on the request body, in snake_case.
-          example: requested_amount.amount
-        reason:
-          type: string
-          description: Human-readable explanation of why the parameter was rejected.
-          example: Amount exceeds the tab's remaining balance
-      required:
-      - path
-      - reason
-      title: InvalidParams
-    ImageElement:
-      allOf:
-      - $ref: '#/components/schemas/Element'
-      - type: object
-        properties:
-          base64:
-            type: string
-            minLength: 1
-          align:
-            type: string
-            enum:
-            - LEFT
-            - RIGHT
-            - CENTER
-      example:
-        type: Image
-        base64: '...'
-        align: RIGHT
-      required:
-      - base64
-      title: ImageElement
-    DividerRow:
-      allOf:
-      - $ref: '#/components/schemas/Row'
-      example:
-        type: Divider
-      title: DividerRow
-    ReceiptCreateRequest:
-      type: object
-      description: Request body to create a new print receipt job
-      properties:
-        store_id:
-          type: string
-          format: uuid
-          description: Store identifier
-          example: 4b33fd70-7c92-4060-9898-f066e77d3ae1
-        terminal_id:
-          type: string
-          description: Terminal identifier
-          example: 80c267d3
-        print_model:
-          $ref: '#/components/schemas/PrintDocument'
-      required:
-      - print_model
-      - store_id
-      - terminal_id
-      title: Receipt Create Request
-    TableInnerRow:
-      type: object
-      example:
-        cells:
-        - type: Text
-          text: Item
-          align: LEFT
-      properties:
-        cells:
-          type: array
-          items:
-            $ref: '#/components/schemas/Element'
-          minItems: 1
-      required:
-      - cells
-      title: TableInnerRow
-    TextElement:
-      allOf:
-      - $ref: '#/components/schemas/Element'
-      - type: object
-        properties:
-          text:
-            type: string
-            minLength: 1
-          bold:
-            type: boolean
-          align:
-            type: string
-            enum:
-            - LEFT
-            - RIGHT
-            - CENTER
-      example:
-        type: Text
-        text: Coffee
-        bold: false
-        align: LEFT
-      required:
-      - text
-      title: TextElement
-    PrintDocument:
-      type: object
-      example:
-        rows:
-        - type: Items
-          items:
-          - type: Text
-            text: Hello
-      properties:
-        rows:
-          type: array
-          items:
-            $ref: '#/components/schemas/Row'
-          maxItems: 150
-          minItems: 1
-      required:
-      - rows
-      title: PrintDocument
   securitySchemes:
     authorisation:
       type: oauth2

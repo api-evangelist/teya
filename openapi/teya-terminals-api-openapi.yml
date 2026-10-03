@@ -136,26 +136,38 @@ paths:
         enabled: true
 components:
   schemas:
-    Terminal:
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
+    RetrieveTerminalResponse:
       type: object
       example:
-        terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
-        terminal_name: MPAS_test_terminal
-        serial_number: '202877303091039717483041'
+        terminals:
+        - terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+          terminal_name: MPAS_test_terminal
+          serial_number: '202877303091039717483041'
       properties:
-        serial_number:
-          type: string
-          description: The serial number of the terminal
-          example: SN202877303091039717483041
-        terminal_id:
-          type: string
-          description: The terminal identifier
-          example: 70dc65ba-1c13-492a-82a0-15821e5f63ba
-        terminal_name:
-          type: string
-          description: The name of the terminal
-          example: MPAS_test_terminal
-      title: Terminal
+        terminals:
+          type: array
+          items:
+            $ref: '#/components/schemas/Terminal'
+      title: RetrieveTerminalResponse
     ExceptionResponse:
       type: object
       example:
@@ -177,38 +189,26 @@ components:
           items:
             $ref: '#/components/schemas/InvalidParams'
       title: ExceptionResponse
-    RetrieveTerminalResponse:
+    Terminal:
       type: object
       example:
-        terminals:
-        - terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
-          terminal_name: MPAS_test_terminal
-          serial_number: '202877303091039717483041'
+        terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+        terminal_name: MPAS_test_terminal
+        serial_number: '202877303091039717483041'
       properties:
-        terminals:
-          type: array
-          items:
-            $ref: '#/components/schemas/Terminal'
-      title: RetrieveTerminalResponse
-    InvalidParams:
-      type: object
-      description: A single failed parameter from a 4xx validation response.
-      example:
-        path: requested_amount.amount
-        reason: Amount exceeds the tab's remaining balance
-      properties:
-        path:
+        serial_number:
           type: string
-          description: Dot-notation path to the offending field on the request body, in snake_case.
-          example: requested_amount.amount
-        reason:
+          description: The serial number of the terminal
+          example: SN202877303091039717483041
+        terminal_id:
           type: string
-          description: Human-readable explanation of why the parameter was rejected.
-          example: Amount exceeds the tab's remaining balance
-      required:
-      - path
-      - reason
-      title: InvalidParams
+          description: The terminal identifier
+          example: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+        terminal_name:
+          type: string
+          description: The name of the terminal
+          example: MPAS_test_terminal
+      title: Terminal
   securitySchemes:
     authorisation:
       type: oauth2

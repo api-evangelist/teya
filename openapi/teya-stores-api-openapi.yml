@@ -370,54 +370,6 @@ components:
           example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
           writeOnly: true
       title: Store
-    UpdateTerminalConfigRequest:
-      type: object
-      properties:
-        value:
-          type: string
-          description: The value for the given configuration key. Accepted values depend on the key. For example, PAT_ENABLED accepts true or false; any other value results in a 400 response.
-          example: 'true'
-          title: Configuration Value
-      title: Update Configuration Request
-    TerminalConfigItem:
-      type: object
-      properties:
-        config_key:
-          type: string
-          description: The configuration key
-          example: PAT_ENABLED
-          title: Configuration Key
-        value:
-          type: string
-          description: The configuration value
-          example: 'true'
-          title: Configuration Value
-        updated_at:
-          type: string
-          format: date-time
-          description: Timestamp of the last update to this entry, in ISO 8601 format
-          example: '2026-05-20T10:00:00Z'
-          title: Updated At
-      title: Configuration Item
-    InvalidParams:
-      type: object
-      description: A single failed parameter from a 4xx validation response.
-      example:
-        path: requested_amount.amount
-        reason: Amount exceeds the tab's remaining balance
-      properties:
-        path:
-          type: string
-          description: Dot-notation path to the offending field on the request body, in snake_case.
-          example: requested_amount.amount
-        reason:
-          type: string
-          description: Human-readable explanation of why the parameter was rejected.
-          example: Amount exceeds the tab's remaining balance
-      required:
-      - path
-      - reason
-      title: InvalidParams
     RetrieveStoreResponse:
       type: object
       example:
@@ -444,6 +396,25 @@ components:
           items:
             $ref: '#/components/schemas/Store'
       title: RetrieveStoreResponse
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
     TerminalConfigsResponse:
       type: object
       properties:
@@ -454,6 +425,35 @@ components:
             $ref: '#/components/schemas/TerminalConfigItem'
           title: Configurations
       title: Configuration Response
+    TerminalConfigItem:
+      type: object
+      properties:
+        config_key:
+          type: string
+          description: The configuration key
+          example: PAT_ENABLED
+          title: Configuration Key
+        value:
+          type: string
+          description: The configuration value
+          example: 'true'
+          title: Configuration Value
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp of the last update to this entry, in ISO 8601 format
+          example: '2026-05-20T10:00:00Z'
+          title: Updated At
+      title: Configuration Item
+    UpdateTerminalConfigRequest:
+      type: object
+      properties:
+        value:
+          type: string
+          description: The value for the given configuration key. Accepted values depend on the key. For example, PAT_ENABLED accepts true or false; any other value results in a 400 response.
+          example: 'true'
+          title: Configuration Value
+      title: Update Configuration Request
     ExceptionResponse:
       type: object
       example:

@@ -174,119 +174,6 @@ paths:
       description: Production Server
 components:
   schemas:
-    checkout_Customer:
-      example:
-        email: emailaddress@example.com
-        name: John Doe
-        phone_number: '+447911123456'
-      properties:
-        email:
-          description: Customer email address
-          type: string
-        name:
-          description: Customer name, used to prefill the hosted checkout form
-          type: string
-        phone_number:
-          description: 'Customer phone number
-
-            An international phone number including the country code, formatted according to the E.164 standard.
-
-            '
-          type: string
-      title: Customer Information
-      type: object
-    checkout_BillingAddress:
-      description: Customer's Billing Address
-      example:
-        city: London
-        country: GB
-        state: London
-        street_address_line1: Main Street
-        street_address_line2: No. 1
-        street_address_line3: Building 1
-        zipcode: '10001'
-      properties:
-        city:
-          description: The city where the business is located
-          example: New York
-          title: City
-          type: string
-        country:
-          description: The country where the business is located (ISO-3166-1 alpha2)
-          example: ES
-          title: Country
-          type: string
-        state:
-          description: The state where the business is located
-          example: NY
-          title: State
-          type: string
-        street_address_line1:
-          description: The street address of a business
-          example: 123 Main St
-          title: Street Address Line
-          type: string
-        street_address_line2:
-          description: The street address of a business
-          example: 123 Main St
-          title: Street Address Line
-          type: string
-        street_address_line3:
-          description: The street address of a business
-          example: 123 Main St
-          title: Street Address Line
-          type: string
-        zipcode:
-          description: The zipcode where the business is located
-          example: '10001'
-          title: Zipcode
-          type: string
-      required:
-      - country
-      title: Billing Address
-      type: object
-    checkout_BackendBusinessData:
-      description: The business information
-      example:
-        active: true
-        address:
-          city: New York
-          country: US
-          state: NY
-          street_address_line1: 123 Main St
-          street_address_line2: Suite 100
-          street_address_line3: Building 1
-          zipcode: '10001'
-        id: 123e4567-e89b-12d3-a456-426614174000
-        name: My Business
-        notification_email: example@email.com
-      properties:
-        active:
-          type: boolean
-        address:
-          $ref: '#/components/schemas/checkout_BusinessAddress'
-        id:
-          description: The unique identifier of a business (associated store entity)
-          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
-          format: uuid
-          title: Business Id
-          type: string
-        name:
-          description: The name of a business
-          example: Teya Global
-          title: Business Name
-          type: string
-        notification_email:
-          example: example@email.com
-          title: Email Address
-          type: string
-      required:
-      - active
-      - address
-      - id
-      - name
-      title: Business Data
-      type: object
     checkout_SessionInfoResponse:
       description: Returns the Hosted Checkout session information that will be used to process an Ecommerce transaction
       example:
@@ -556,6 +443,166 @@ components:
       - type
       title: SessionInfoResponse
       type: object
+    checkout_BackendBusinessData:
+      description: The business information
+      example:
+        active: true
+        address:
+          city: New York
+          country: US
+          state: NY
+          street_address_line1: 123 Main St
+          street_address_line2: Suite 100
+          street_address_line3: Building 1
+          zipcode: '10001'
+        id: 123e4567-e89b-12d3-a456-426614174000
+        name: My Business
+        notification_email: example@email.com
+      properties:
+        active:
+          type: boolean
+        address:
+          $ref: '#/components/schemas/checkout_BusinessAddress'
+        id:
+          description: The unique identifier of a business (associated store entity)
+          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          format: uuid
+          title: Business Id
+          type: string
+        name:
+          description: The name of a business
+          example: Teya Global
+          title: Business Name
+          type: string
+        notification_email:
+          example: example@email.com
+          title: Email Address
+          type: string
+      required:
+      - active
+      - address
+      - id
+      - name
+      title: Business Data
+      type: object
+    checkout_DccOfferInfo:
+      description: Dynamic Currency Conversion offer info for a session.
+      properties:
+        cardholder_amount:
+          $ref: '#/components/schemas/checkout_Amount'
+        ecb_markup:
+          description: Markup of the offered exchange rate (i.e. amount added) over the latest ECB exchange rate for a currency pair (decimal format, with 6 decimal places). Only provided when both currencies are EEA currencies.
+          example: '0.005000'
+          type: string
+        exchange_rate:
+          description: Latest exchange rate for a currency pair (decimal format, with 6 decimal places)
+          example: '1.234567'
+          type: string
+        markup:
+          description: Markup of the offered exchange rate (i.e. amount added) over the latest exchange rate for a currency pair (decimal format)
+          example: '0.010000'
+          type: string
+      required:
+      - cardholder_amount
+      - exchange_rate
+      - markup
+      title: DccOfferInfo
+      type: object
+    checkout_BillingAddress:
+      description: Customer's Billing Address
+      example:
+        city: London
+        country: GB
+        state: London
+        street_address_line1: Main Street
+        street_address_line2: No. 1
+        street_address_line3: Building 1
+        zipcode: '10001'
+      properties:
+        city:
+          description: The city where the business is located
+          example: New York
+          title: City
+          type: string
+        country:
+          description: The country where the business is located (ISO-3166-1 alpha2)
+          example: ES
+          title: Country
+          type: string
+        state:
+          description: The state where the business is located
+          example: NY
+          title: State
+          type: string
+        street_address_line1:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        street_address_line2:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        street_address_line3:
+          description: The street address of a business
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        zipcode:
+          description: The zipcode where the business is located
+          example: '10001'
+          title: Zipcode
+          type: string
+      required:
+      - country
+      title: Billing Address
+      type: object
+    checkout_SessionLineItem:
+      description: Basket information to be shown in the payment screen
+      example:
+        description: Shipping
+        quantity: 1
+        unit_price: 100
+      properties:
+        description:
+          description: This a description for a item in the basket
+          type: string
+        quantity:
+          description: The number of items, Must to be a positive value
+          format: int32
+          type: integer
+        unit_price:
+          description: The price of a single item including VAT, Can be negative for discounts
+          format: int32
+          type: integer
+      required:
+      - description
+      - quantity
+      - unit_price
+      title: SessionLineItem
+      type: object
+    checkout_Customer:
+      example:
+        email: emailaddress@example.com
+        name: John Doe
+        phone_number: '+447911123456'
+      properties:
+        email:
+          description: Customer email address
+          type: string
+        name:
+          description: Customer name, used to prefill the hosted checkout form
+          type: string
+        phone_number:
+          description: 'Customer phone number
+
+            An international phone number including the country code, formatted according to the E.164 standard.
+
+            '
+          type: string
+      title: Customer Information
+      type: object
     checkout_Amount:
       description: 'The transaction amount in the smallest currency unit according to ISO 4217 format.
 
@@ -761,30 +808,6 @@ components:
       - value
       title: Transaction Amount
       type: object
-    checkout_SessionLineItem:
-      description: Basket information to be shown in the payment screen
-      example:
-        description: Shipping
-        quantity: 1
-        unit_price: 100
-      properties:
-        description:
-          description: This a description for a item in the basket
-          type: string
-        quantity:
-          description: The number of items, Must to be a positive value
-          format: int32
-          type: integer
-        unit_price:
-          description: The price of a single item including VAT, Can be negative for discounts
-          format: int32
-          type: integer
-      required:
-      - description
-      - quantity
-      - unit_price
-      title: SessionLineItem
-      type: object
     checkout_BusinessAddress:
       description: The address of a business
       example:
@@ -835,29 +858,149 @@ components:
       - country
       title: Business Address
       type: object
-    checkout_DccOfferInfo:
-      description: Dynamic Currency Conversion offer info for a session.
-      properties:
-        cardholder_amount:
-          $ref: '#/components/schemas/checkout_Amount'
-        ecb_markup:
-          description: Markup of the offered exchange rate (i.e. amount added) over the latest ECB exchange rate for a currency pair (decimal format, with 6 decimal places). Only provided when both currencies are EEA currencies.
-          example: '0.005000'
-          type: string
-        exchange_rate:
-          description: Latest exchange rate for a currency pair (decimal format, with 6 decimal places)
-          example: '1.234567'
-          type: string
-        markup:
-          description: Markup of the offered exchange rate (i.e. amount added) over the latest exchange rate for a currency pair (decimal format)
-          example: '0.010000'
-          type: string
-      required:
-      - cardholder_amount
-      - exchange_rate
-      - markup
-      title: DccOfferInfo
+    RefundIssuerResult:
       type: object
+      description: Issuer result data for refund transactions
+      properties:
+        approval_code:
+          type: string
+          description: Approval code from the issuer
+          example: '123456'
+        response_code:
+          type: string
+          description: Response code from the issuer
+          example: '00'
+      title: RefundIssuerResult
+    DccResponse:
+      type: object
+      description: Dynamic Currency Conversion response
+      properties:
+        conversion_rate:
+          type: string
+          description: Exchange rate used for conversion
+          example: '0.9517'
+        markup:
+          type: string
+          description: Markup applied to the exchange rate
+          example: '0.03'
+        ecb_markup:
+          type: string
+          description: ECB markup rate
+          example: '0.01'
+        cardholder_amount:
+          $ref: '#/components/schemas/Amount'
+          description: Amount in cardholder's currency
+      title: DccResponse
+    RefundRequest:
+      type: object
+      description: A request to refund a transaction
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        terminal_id: '12345678'
+        amount: 100
+      properties:
+        transaction_id:
+          type: string
+          description: The id of the original transaction that needs to be refunded
+        terminal_id:
+          type: string
+          description: The ID of the terminal processing the transaction. Only required when using a non-Teya terminal.
+          maxLength: 8
+          minLength: 1
+        merchant_reference:
+          type: string
+          description: An ID referencing the transaction on the client's side
+          maxLength: 60
+          minLength: 1
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1). The currency is the same as the original transaction.
+        reason:
+          type: string
+          description: A reason for the refund (e.g. 'customer returned the goods')
+      required:
+      - amount
+      - transaction_id
+      title: RefundRequest
+    RefundedAmount:
+      type: object
+      example:
+        amount: 100
+        currency: GBP
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1)
+        currency:
+          type: string
+          description: The currency used in this transaction. Must be a valid ISO-4217 currency code
+          example: GBP
+      required:
+      - amount
+      - currency
+      title: RefundedAmount
+    InvalidParams:
+      type: object
+      description: Invalid parameter details
+      properties:
+        field:
+          type: string
+          description: The field that contains invalid data
+          example: amount.value
+        reason:
+          type: string
+          description: Reason why the field is invalid
+          example: must be greater than 0
+      required:
+      - field
+      - reason
+      title: InvalidParams
+    Error:
+      type: object
+      description: Error response
+      example:
+        code: BAD_REQUEST
+        description: Invalid input
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - AMOUNT_TOO_SMALL
+          - BAD_REQUEST
+          - BLOCKED_CARD
+          - BLOCKED_CROSS_BORDER_TRANSACTION
+          - FORBIDDEN
+          - IDEMPOTENCE_KEY_NOT_FOUND
+          - INTERNAL_SERVER_ERROR
+          - INVALID_AUTHENTICATION_ID
+          - LOST_OR_STOLEN
+          - NEGATIVE_BALANCE_LIMIT
+          - NOT_FOUND
+          - PENDING_TRANSACTION_CANNOT_BE_REVERSED
+          - PRE_AUTH_UNSUPPORTED_SCHEME
+          - SERVICE_UNAVAILABLE
+          - TRANSACTION_CANNOT_BE_REVERSED
+          - TRANSACTION_NOT_FOUND
+          - UNAUTHORISED
+          - UNKNOWN
+          - UNSUPPORTED_ISSUER
+          - UNSUPPORTED_SCHEME
+        description:
+          type: string
+          description: The description of the error
+        invalid_params:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      required:
+      - code
+      - description
+      title: Error
+      x-internal: 'true'
     RefundResponse:
       type: object
       description: A response to refund a transaction
@@ -959,67 +1102,6 @@ components:
       - transaction_id
       - transaction_type
       title: RefundResponse
-    RefundIssuerResult:
-      type: object
-      description: Issuer result data for refund transactions
-      properties:
-        approval_code:
-          type: string
-          description: Approval code from the issuer
-          example: '123456'
-        response_code:
-          type: string
-          description: Response code from the issuer
-          example: '00'
-      title: RefundIssuerResult
-    RefundRequest:
-      type: object
-      description: A request to refund a transaction
-      example:
-        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
-        terminal_id: '12345678'
-        amount: 100
-      properties:
-        transaction_id:
-          type: string
-          description: The id of the original transaction that needs to be refunded
-        terminal_id:
-          type: string
-          description: The ID of the terminal processing the transaction. Only required when using a non-Teya terminal.
-          maxLength: 8
-          minLength: 1
-        merchant_reference:
-          type: string
-          description: An ID referencing the transaction on the client's side
-          maxLength: 60
-          minLength: 1
-        amount:
-          type: integer
-          format: int64
-          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1). The currency is the same as the original transaction.
-        reason:
-          type: string
-          description: A reason for the refund (e.g. 'customer returned the goods')
-      required:
-      - amount
-      - transaction_id
-      title: RefundRequest
-    InvalidParams:
-      type: object
-      description: Invalid parameter details
-      properties:
-        field:
-          type: string
-          description: The field that contains invalid data
-          example: amount.value
-        reason:
-          type: string
-          description: Reason why the field is invalid
-          example: must be greater than 0
-      required:
-      - field
-      - reason
-      title: InvalidParams
     Amount:
       type: object
       description: Amount object
@@ -1038,88 +1120,6 @@ components:
       - amount
       - currency
       title: Amount
-    RefundedAmount:
-      type: object
-      example:
-        amount: 100
-        currency: GBP
-      properties:
-        amount:
-          type: integer
-          format: int64
-          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1)
-        currency:
-          type: string
-          description: The currency used in this transaction. Must be a valid ISO-4217 currency code
-          example: GBP
-      required:
-      - amount
-      - currency
-      title: RefundedAmount
-    DccResponse:
-      type: object
-      description: Dynamic Currency Conversion response
-      properties:
-        conversion_rate:
-          type: string
-          description: Exchange rate used for conversion
-          example: '0.9517'
-        markup:
-          type: string
-          description: Markup applied to the exchange rate
-          example: '0.03'
-        ecb_markup:
-          type: string
-          description: ECB markup rate
-          example: '0.01'
-        cardholder_amount:
-          $ref: '#/components/schemas/Amount'
-          description: Amount in cardholder's currency
-      title: DccResponse
-    Error:
-      type: object
-      description: Error response
-      example:
-        code: BAD_REQUEST
-        description: Invalid input
-      properties:
-        code:
-          type: string
-          format: enum
-          description: The error code
-          enum:
-          - AMOUNT_TOO_SMALL
-          - BAD_REQUEST
-          - BLOCKED_CARD
-          - BLOCKED_CROSS_BORDER_TRANSACTION
-          - FORBIDDEN
-          - IDEMPOTENCE_KEY_NOT_FOUND
-          - INTERNAL_SERVER_ERROR
-          - INVALID_AUTHENTICATION_ID
-          - LOST_OR_STOLEN
-          - NEGATIVE_BALANCE_LIMIT
-          - NOT_FOUND
-          - PENDING_TRANSACTION_CANNOT_BE_REVERSED
-          - PRE_AUTH_UNSUPPORTED_SCHEME
-          - SERVICE_UNAVAILABLE
-          - TRANSACTION_CANNOT_BE_REVERSED
-          - TRANSACTION_NOT_FOUND
-          - UNAUTHORISED
-          - UNKNOWN
-          - UNSUPPORTED_ISSUER
-          - UNSUPPORTED_SCHEME
-        description:
-          type: string
-          description: The description of the error
-        invalid_params:
-          type: array
-          items:
-            $ref: '#/components/schemas/InvalidParams'
-      required:
-      - code
-      - description
-      title: Error
-      x-internal: 'true'
   securitySchemes:
     checkout_oauth_dev:
       flows:

@@ -67,6 +67,86 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    Error:
+      type: object
+      format: enum
+      description: Error response
+      example:
+        code: BAD_REQUEST
+        description: Unsupported currency
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - BAD_REQUEST
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - NOT_IMPLEMENTED
+          - BELOW_MINIMUM
+          - NON_ELIGIBLE_CARD
+          - SAME_CURRENCY
+          - CARD_CURRENCY_MISMATCH
+          - UNSUPPORTED_CURRENCY
+          - NEGATIVE_AMOUNT
+          - DCC_DISABLED
+          - INVALID_OFFER
+          - QUOTE_NOT_FOUND
+          - QUOTE_MISMATCH
+          - INVALID_FX_DATE
+          - RATE_NOT_FOUND
+          - NO_CARD_CURRENCY
+          - UNKNOWN
+        description:
+          type: string
+          description: The description of the error
+        invalid_params:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      title: Error
+    OfferV3:
+      type: object
+      description: Teya FX offer with quote ID, containing the latest exchange rate and markups offered for foreign exchange.
+      example:
+        quote_id: 019502a0-7e29-7b3c-8f1a-2b3c4d5e6f70
+        exchange_rate: '1.16'
+        markup: '0.03'
+        ecb_markup: '0.02'
+        cardholder_currency: EUR
+        cardholder_amount: 1000
+      properties:
+        quote_id:
+          type: string
+          format: uuid
+          description: The unique quote identifier (UUIDv7)
+        exchange_rate:
+          type: string
+          description: Latest exchange rate for a currency pair (decimal format, with 6 decimal places)
+        markup:
+          type: string
+          description: Markup of the offered exchange rate (i.e. amount added) over the latest exchange rate for a currency pair (decimal format)
+        ecb_markup:
+          type:
+          - string
+          - 'null'
+          description: Markup of the offered exchange rate (i.e. amount added) over the latest ECB exchange rate for a currency pair (decimal format, with 6 decimal places). Only provided when both currencies are EEA currencies.
+        cardholder_currency:
+          type: string
+          description: The card currency of the currency pair in ISO-4217 format (e.g. EUR)
+        cardholder_amount:
+          type: integer
+          format: int64
+          description: The calculated amount from base_currency and rate (integer format, in the smallest card currency's unit, e.g. 100 to represent $1.00, or 100 US dollar cents)
+      required:
+      - cardholder_amount
+      - cardholder_currency
+      - exchange_rate
+      - markup
+      - quote_id
+      title: Teya FX offer with quote
     InvalidParams:
       type: object
       description: Invalid parameters
@@ -123,83 +203,3 @@ components:
       - card_first9
       - store_id
       title: DccOffer
-    OfferV3:
-      type: object
-      description: Teya FX offer with quote ID, containing the latest exchange rate and markups offered for foreign exchange.
-      example:
-        quote_id: 019502a0-7e29-7b3c-8f1a-2b3c4d5e6f70
-        exchange_rate: '1.16'
-        markup: '0.03'
-        ecb_markup: '0.02'
-        cardholder_currency: EUR
-        cardholder_amount: 1000
-      properties:
-        quote_id:
-          type: string
-          format: uuid
-          description: The unique quote identifier (UUIDv7)
-        exchange_rate:
-          type: string
-          description: Latest exchange rate for a currency pair (decimal format, with 6 decimal places)
-        markup:
-          type: string
-          description: Markup of the offered exchange rate (i.e. amount added) over the latest exchange rate for a currency pair (decimal format)
-        ecb_markup:
-          type:
-          - string
-          - 'null'
-          description: Markup of the offered exchange rate (i.e. amount added) over the latest ECB exchange rate for a currency pair (decimal format, with 6 decimal places). Only provided when both currencies are EEA currencies.
-        cardholder_currency:
-          type: string
-          description: The card currency of the currency pair in ISO-4217 format (e.g. EUR)
-        cardholder_amount:
-          type: integer
-          format: int64
-          description: The calculated amount from base_currency and rate (integer format, in the smallest card currency's unit, e.g. 100 to represent $1.00, or 100 US dollar cents)
-      required:
-      - cardholder_amount
-      - cardholder_currency
-      - exchange_rate
-      - markup
-      - quote_id
-      title: Teya FX offer with quote
-    Error:
-      type: object
-      format: enum
-      description: Error response
-      example:
-        code: BAD_REQUEST
-        description: Unsupported currency
-      properties:
-        code:
-          type: string
-          format: enum
-          description: The error code
-          enum:
-          - BAD_REQUEST
-          - UNAUTHORIZED
-          - FORBIDDEN
-          - NOT_FOUND
-          - NOT_IMPLEMENTED
-          - BELOW_MINIMUM
-          - NON_ELIGIBLE_CARD
-          - SAME_CURRENCY
-          - CARD_CURRENCY_MISMATCH
-          - UNSUPPORTED_CURRENCY
-          - NEGATIVE_AMOUNT
-          - DCC_DISABLED
-          - INVALID_OFFER
-          - QUOTE_NOT_FOUND
-          - QUOTE_MISMATCH
-          - INVALID_FX_DATE
-          - RATE_NOT_FOUND
-          - NO_CARD_CURRENCY
-          - UNKNOWN
-        description:
-          type: string
-          description: The description of the error
-        invalid_params:
-          type: array
-          items:
-            $ref: '#/components/schemas/InvalidParams'
-      title: Error

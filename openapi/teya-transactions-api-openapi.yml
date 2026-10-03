@@ -275,227 +275,36 @@ paths:
                 description: Internal Server Error
 components:
   schemas:
-    Ecommerce_Transaction_Payments_-_Public_ProcessTransactionResponseV2:
-      description: The response for a transaction request
+    Ecommerce_Transaction_Payments_-_Public_ApplePayAuthenticationData:
+      description: Represents the decrypted data from an Apple Pay payment token, including card details, transaction information, and merchant metadata.
       example:
-        online_transaction:
-          authentication_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
-          created_at: '2022-03-01T15:29:59Z'
-          issuer_result:
-            approval_code: '123456'
-            response_code: '00'
-          status: SUCCESS
-          token_response:
-            token_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
-            token_status: SUCCESS
-          transaction_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
-          updated_at: '2022-03-01T15:35:00Z'
-        type: ONLINE_TRANSACTION
+        application_primary_account_number: '4895370012345678'
+        eci_code: '05'
+        expiry_month: '10'
+        expiry_year: '2025'
+        online_payment_cryptogram: SGVsbG8sIHdvcmxkIQ==
       properties:
-        online_transaction:
-          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_OnlineTransaction'
-        redirect_transaction_response:
-          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_RedirectTransactionResponse'
-        type:
-          enum:
-          - ONLINE_TRANSACTION
-          - REDIRECT_TRANSACTION_RESPONSE
+        application_primary_account_number:
+          description: Device-specific account number of the card that funds this transaction
           type: string
-      title: ProcessTransactionResponseV2
-      type: object
-    Payments_Refunds_Wrapper_API_RefundIssuerResult:
-      type: object
-      example:
-        approval_code: '123456'
-        response_code: '00'
-      properties:
-        approval_code:
+        eci_code:
+          description: ECI code for the transaction
           type: string
-          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
-        response_code:
+        expiry_month:
+          description: Card expiration month
           type: string
-          description: Response code returned by the issuer, indicating the result of the operation
-      title: IssuerResult
-    Ecommerce_Transaction_Payments_-_Public_TokenCreationResponse:
-      description: Details of the token which was created and if any failures will have the failure reason
-      example:
-        token_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
-        token_status: SUCCESS
-      properties:
-        failure_reason:
-          description: Failure reason
-          example: Card not valid for tokenization
+        expiry_year:
+          description: Card expiration year
           type: string
-        token_id:
-          description: ID for the token which can be used for future payments
-          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
-          title: TokenId
-          type: string
-        token_status:
-          description: Status of the token creation
-          enum:
-          - SUCCESS
-          - FAILED
-          format: enum
+        online_payment_cryptogram:
+          description: Apple pay online payment cryptogram
           type: string
       required:
-      - token_status
-      title: TokenResponse
-      type: object
-    Teya_Digital_Receipts_Service_CreateReceiptRequest:
-      type: object
-      description: Request to initiate creation of digital receipts
-      example:
-        country_code: GB
-        language: en-GB
-        recipient_phone_numbers:
-        - '+123456789'
-        - '+987654321'
-        recipient_emails:
-        - johndoe@mail.com
-        - examplemail@email.com
-      properties:
-        country_code:
-          type: string
-          description: Country code (ISO 3166 format)
-          example: HU
-        language:
-          type: string
-          description: 'The language to be used to generate the receipt.
-
-            It should follow BCP-47 https://www.rfc-editor.org/info/bcp47 format.
-
-            If provided using the wrong format, the request will be rejected. If not provided, the receipt will be generated using the default language of the merchant.
-
-            '
-          example: en-GB
-        recipient_phone_numbers:
-          type: array
-          description: List of phone numbers to send the receipt link to
-          items:
-            type: string
-            description: List of phone numbers to send the receipt link to
-            example: '+123456789'
-        recipient_emails:
-          type: array
-          description: List of emails to send the receipt link to
-          items:
-            type: string
-            description: List of emails to send the receipt link to
-            example: email@example.com
-        receipt_email_type:
-          type: string
-          default: CUSTOMER
-          description: Type that indicates which email template to use
-      required:
-      - country_code
-      title: CreateReceiptRequest
-    Ecommerce_Transaction_Payments_-_Public_OnlineTransaction:
-      description: The response for a transaction request
-      example:
-        authentication_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
-        created_at: '2022-03-01T15:29:59Z'
-        issuer_result:
-          approval_code: '123456'
-          response_code: '00'
-        status: SUCCESS
-        transaction_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
-        updated_at: '2022-03-01T15:35:00Z'
-      properties:
-        authentication_id:
-          description: The unique identifier for the authentication
-          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
-          format: uuid
-          type: string
-        created_at:
-          description: The datetime that the transaction was created (ISO 8601 format)
-          format: date-time
-          type: string
-        issuer_result:
-          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_IssuerResult'
-        status:
-          description: The status of the transaction
-          enum:
-          - SUCCESS
-          - FAILURE
-          - PENDING
-          example: SUCCESS
-          type: string
-        status_reason:
-          description: Detailed reasons for the transaction failure status. This is provided when the transaction response status is FAILURE and is null when the payment succeeds or is pending.
-          enum:
-          - ACCOUNT_INVALID
-          - BLOCKED_CARD
-          - BLOCKED_CROSS_BORDER_TRANSACTION
-          - AMOUNT_TOO_SMALL
-          - CANNOT_VALIDATE_AUTHENTICATION
-          - CARD_COUNT_EXCEEDED
-          - CARD_DECLINED
-          - CARD_EXPIRED
-          - CARD_LIMIT_EXCEEDED
-          - CARD_NOT_ACTIVE
-          - DISABLED_ACCOUNT
-          - DO_NOT_HONOR
-          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
-          - EXCEEDS_AMOUNT_LIMIT
-          - FORMAT_ERROR
-          - INCORRECT_CARD_AUTHENTICATION
-          - INSUFFICIENT_FUNDS
-          - INVALID_CARD_NUMBER
-          - INVALID_TRANSACTION
-          - ISSUER_DECLINED
-          - LOST_OR_STOLEN
-          - MERCHANT_CONFIGURATION
-          - NEGATIVE_BALANCE
-          - PIN_LIMIT_EXCEEDED
-          - PROCESSOR_UNAVAILABLE
-          - RESTRICTED_CARD
-          - SCA_PIN_REQUIRED
-          - SCA_REQUIRED
-          - SUSPECTED_FRAUD
-          - TEMPORARY_ISSUE_RETRY
-          - TIMEOUT
-          - TRANSACTION_NOT_ALLOWED
-          - UNABLE_TO_ROUTE_TRANSACTION
-          - UNSUPPORTED_ISSUER
-          - OTHER
-          format: enum
-          type: string
-        token_response:
-          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_TokenCreationResponse'
-          description: The details of the created token
-        transaction_id:
-          description: The unique identifier for the new transaction
-          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
-          format: uuid
-          type: string
-        updated_at:
-          description: The datetime that the transaction was updated (ISO 8601 format)
-          format: date-time
-          type: string
-      required:
-      - authentication_id
-      - created_at
-      - status
-      - transaction_id
-      - updated_at
-      title: OnlineTransaction
-      type: object
-    Ecommerce_Transaction_Payments_-_Public_CustomerContact:
-      description: Customer contact details
-      example:
-        phone_number: '+34610123456'
-        email: john.doe@example.com
-      properties:
-        phone_number:
-          description: Customer's phone number
-          example: '+34610123456'
-          type: string
-        email:
-          description: Customer's email address
-          example: john.doe@example.com
-          type: string
-      title: CustomerContact
+      - application_primary_account_number
+      - expiry_month
+      - expiry_year
+      - online_payment_cryptogram
+      title: ApplePayAuthenticationData
       type: object
     Ecommerce_Transaction_Payments_-_Public_RedirectTransactionResponse:
       description: 'The response for a transaction request where 3DS challenge is returned '
@@ -548,32 +357,347 @@ components:
       - updated_at
       title: RedirectTransactionResponse
       type: object
-    Ecommerce_Transaction_Payments_-_Public_Card:
+    Ecommerce_Transaction_Payments_-_Public_CustomerContact:
+      description: Customer contact details
       example:
-        cvc: '123'
-        expiry_month: '02'
-        expiry_year: '2030'
-        number: '4111111111111111'
+        phone_number: '+34610123456'
+        email: john.doe@example.com
       properties:
-        cvc:
-          description: 3 or 4 digit card verification code for the card
+        phone_number:
+          description: Customer's phone number
+          example: '+34610123456'
           type: string
-        expiry_month:
-          description: 2-digit month of expiration for the card
+        email:
+          description: Customer's email address
+          example: john.doe@example.com
           type: string
-        expiry_year:
-          description: 4-digit year of expiration for the card
+      title: CustomerContact
+      type: object
+    Payments_Refunds_Wrapper_API_DccResponse:
+      type: object
+      example:
+        cardholder_amount:
+          amount: 100
+          currency: CHF
+        conversion_rate: '0.9517'
+        markup: '0.03'
+        ecb_markup: '0.01'
+      properties:
+        cardholder_amount:
+          $ref: '#/components/schemas/Payments_Refunds_Wrapper_API_Amount'
+          description: 'The total amount refunded to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
+
+            '
+        conversion_rate:
           type: string
-        number:
-          description: Primary Account Number (PAN) of a card. Sent without spaces or dashes
+          description: Conversion rate used to calculate the cardholder amount
+        markup:
+          type: string
+          description: Markup of the exchange rate
+        ecb_markup:
+          type: string
+          description: Markup of the exchange rate over the ECB exchange rate. Only provided when both currencies are EEA currencies.
+      required:
+      - cardholder_amount
+      - conversion_rate
+      - markup
+      title: DccResponse
+    Payments_Refunds_Wrapper_API_RefundIssuerResult:
+      type: object
+      example:
+        approval_code: '123456'
+        response_code: '00'
+      properties:
+        approval_code:
+          type: string
+          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+        response_code:
+          type: string
+          description: Response code returned by the issuer, indicating the result of the operation
+      title: IssuerResult
+    Ecommerce_Transaction_Payments_-_Public_Address:
+      description: Customer's address
+      example:
+        name: John Doe
+        city: London
+        country: GB
+        state: London
+        street_address_line1: Main Street
+        street_address_line2: No. 1
+        street_address_line3: Building 1
+        zipcode: '10001'
+      properties:
+        name:
+          description: Name associated with the address
+          example: John Doe
+          type: string
+        city:
+          description: City name
+          example: London
+          title: City
+          type: string
+        country:
+          description: ISO 3166-1 alpha-2 country code
+          example: GB
+          title: Country
+          type: string
+        state:
+          description: State or region
+          example: Greater London
+          title: State
+          type: string
+        street_address_line1:
+          description: Primary street address
+          example: 123 Main St
+          title: Street Address Line
+          type: string
+        street_address_line2:
+          description: Secondary street address (apt, suite, etc.)
+          example: Flat 4
+          title: Street Address Line
+          type: string
+        street_address_line3:
+          description: Additional address line
+          example: Building A
+          title: Street Address Line
+          type: string
+        zipcode:
+          description: Postal/ZIP code
+          example: SW1A 1AA
+          title: Zipcode
           type: string
       required:
-      - cvc
-      - expiry_month
-      - expiry_year
-      - number
-      title: Card
+      - country
+      title: Address
       type: object
+    Ecommerce_Transaction_Payments_-_Public_ProcessTransactionResponseV2:
+      description: The response for a transaction request
+      example:
+        online_transaction:
+          authentication_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          created_at: '2022-03-01T15:29:59Z'
+          issuer_result:
+            approval_code: '123456'
+            response_code: '00'
+          status: SUCCESS
+          token_response:
+            token_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+            token_status: SUCCESS
+          transaction_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          updated_at: '2022-03-01T15:35:00Z'
+        type: ONLINE_TRANSACTION
+      properties:
+        online_transaction:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_OnlineTransaction'
+        redirect_transaction_response:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_RedirectTransactionResponse'
+        type:
+          enum:
+          - ONLINE_TRANSACTION
+          - REDIRECT_TRANSACTION_RESPONSE
+          type: string
+      title: ProcessTransactionResponseV2
+      type: object
+    Teya_Digital_Receipts_Service_Error:
+      type: object
+      description: Error response
+      example:
+        code: BAD_REQUEST
+        description: Invalid input
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - BAD_REQUEST
+          - UNAUTHORISED
+          - FORBIDDEN
+          - INTERNAL_SERVER_ERROR
+          - TOO_MANY_REQUESTS
+          - NOT_FOUND
+          - NOT_ACCEPTABLE
+        description:
+          type: string
+          description: The description of the error
+      required:
+      - code
+      - description
+      title: Error
+    Ecommerce_Transaction_Payments_-_Public_LineItem:
+      example:
+        description: Shipping
+        quantity: 1
+        unit_price: 100
+      properties:
+        description:
+          description: This is a description for an item in the basket
+          type: string
+        quantity:
+          description: The number of items, must be a positive value
+          format: int32
+          type: integer
+        unit_price:
+          description: The price of a single item including VAT, Can be negative for discounts
+          format: int32
+          type: integer
+      required:
+      - description
+      - quantity
+      - unit_price
+      title: LineItem
+      type: object
+    Ecommerce_Transaction_Payments_-_Public_ProcessTransactionRequestV2:
+      description: A request to process a transaction
+      example:
+        amount:
+          currency: GBP
+          value: 100
+        browser_data:
+          accept_language: en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6
+          ip_address: 127.0.0.1
+          screen_height: 1080
+          screen_width: 1920
+          user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+        billing_address:
+          name: John Doe
+          country: GB
+          city: London
+          state: Greater London
+          street_address_line1: 123 High Street
+          street_address_line2: Flat 4
+          zipcode: SW1A 1AA
+        cardholder:
+          name: John Doe
+        customer_contact:
+          phone_number: '+447123456789'
+          email: john.doe@example.com
+        initiator: CUSTOMER
+        line_items:
+        - description: Product Name
+          id: 550e8400-e29b-41d4-a716-446655440000
+          quantity: 2
+          unit_price: 1000
+        merchant_reference_id: '1234567890'
+        payment_method:
+          card:
+            cvc: '123'
+            expiry_month: '02'
+            expiry_year: '2030'
+            number: '4111111111111111'
+          type: CARD
+        redirect_url: https://mywebsite.com/processing
+        shipping_address:
+          name: Jane Doe
+          country: GB
+          city: Manchester
+          state: Greater Manchester
+          street_address_line1: 456 Oak Avenue
+          zipcode: M1 1AA
+        store_id: 7a3f2c21-5d6e-4637-8d8a-1f178d4d2a0e
+        store_payment_method: true
+        transaction_context:
+          payment_link_id: 1e2d4f80-9c3e-4f5b-83aa-9e8d2b6a6c49
+          session_id: 1e2d4f80-9c3e-4f5b-83aa-9e8d2b6a6c49
+        type: SALE
+      properties:
+        amount:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Amount'
+        billing_address:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Address'
+          description: Optional billing address of the customer
+        browser_data:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_BrowserData'
+          description: An optional parameter that provides browser data to the issuing bank, potentially increasing authorization rates.
+        cardholder:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Cardholder'
+          description: Optional cardholder information that increases authorization success with fewer payment challenges.
+        customer_contact:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_CustomerContact'
+          description: Optional customer contact details
+        initiator:
+          description: 'Identifies which actor initiated the transaction, the customer (such as in an immediate sale) or the merchant
+
+            (such as in a previously pre-authorized capture or a recurrent payment after the initial payment). Will default to customer if not provided.
+
+            This is primarily used to determine whether the consumer is present for the transaction and therefore SCA/3DS may be used.
+
+            '
+          enum:
+          - CUSTOMER
+          - MERCHANT
+          format: enum
+          type: string
+        line_items:
+          description: Optional list of line items for the transaction
+          items:
+            $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_LineItem'
+          type: array
+        merchant_reference_id:
+          description: An identifier that can be used to reference the transaction on the merchant's side. Overrides 'source_reference_id
+          example: '1234567890'
+          maxLength: 60
+          type: string
+        payment_method:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_PaymentMethod'
+          description: Payment method to be used in the transaction
+        redirect_url:
+          description: URL to redirect the customer to after 3DS completes in case 3DS will be web based. Will be shared with the 3DS provider.
+          type: string
+        shipping_address:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Address'
+          description: Optional shipping address for the order
+        store_payment_method:
+          description: When set to true, the payment method will be tokenized and a token_id returned in the response for future use.
+          type: boolean
+          example: true
+        store_id:
+          description: The unique identifier of a store
+          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          format: uuid
+          title: Store Id
+          type: string
+        type:
+          description: 'The transaction type. Use SALE for standard payments, PRE_AUTHORISATION to reserve funds for later capture, or ACCOUNT_VERIFICATION to verify a card and optionally tokenize it without charging the customer.
+
+            '
+          enum:
+          - SALE
+          - PRE_AUTHORISATION
+          - ACCOUNT_VERIFICATION
+          format: enum
+          type: string
+      required:
+      - amount
+      - initiator
+      - payment_method
+      - store_id
+      - type
+      title: ProcessTransactionRequestV2
+      type: object
+    Teya_Digital_Receipts_Service_CreateReceiptResponse:
+      type: object
+      description: Creates a url for customers to view their receipt.
+      example:
+        receipt_id: 01916f63-c6e0-75a9-9ef4-764ba287b2c6
+        transaction_id: 60cca1c7-38c5-4218-ba71-fb4a96836619
+        url: https://receipts.teya.com/01916f63-c6e0-75a9-9ef4-764ba287b2c6
+      properties:
+        receipt_id:
+          type: string
+          format: uuid
+          description: Id of the created receipt
+        transaction_id:
+          type: string
+          description: Transaction id, the same as in the request
+        url:
+          type: string
+          description: Url for receipt or error page in case or receipt generation failure
+      required:
+      - receipt_id
+      - transaction_id
+      - url
+      title: CreateReceiptResponse
     Payments_Refunds_Wrapper_API_Amount:
       type: object
       example:
@@ -591,37 +715,6 @@ components:
       - amount
       - currency
       title: Amount
-    Ecommerce_Transaction_Payments_-_Public_ApplePayAuthenticationData:
-      description: Represents the decrypted data from an Apple Pay payment token, including card details, transaction information, and merchant metadata.
-      example:
-        application_primary_account_number: '4895370012345678'
-        eci_code: '05'
-        expiry_month: '10'
-        expiry_year: '2025'
-        online_payment_cryptogram: SGVsbG8sIHdvcmxkIQ==
-      properties:
-        application_primary_account_number:
-          description: Device-specific account number of the card that funds this transaction
-          type: string
-        eci_code:
-          description: ECI code for the transaction
-          type: string
-        expiry_month:
-          description: Card expiration month
-          type: string
-        expiry_year:
-          description: Card expiration year
-          type: string
-        online_payment_cryptogram:
-          description: Apple pay online payment cryptogram
-          type: string
-      required:
-      - application_primary_account_number
-      - expiry_month
-      - expiry_year
-      - online_payment_cryptogram
-      title: ApplePayAuthenticationData
-      type: object
     Ecommerce_Transaction_Payments_-_Public_Amount:
       description: 'The transaction amount in the smallest currency unit according to ISO 4217 format.
 
@@ -827,19 +920,209 @@ components:
       - value
       title: Transaction Amount
       type: object
-    Ecommerce_Transaction_Payments_-_Public_IssuerResult:
-      description: Result data for the transaction according to issuer's response
+    Teya_Digital_Receipts_Service_CreateReceiptRequest:
+      type: object
+      description: Request to initiate creation of digital receipts
       example:
-        approval_code: '123456'
-        response_code: '00'
+        country_code: GB
+        language: en-GB
+        recipient_phone_numbers:
+        - '+123456789'
+        - '+987654321'
+        recipient_emails:
+        - johndoe@mail.com
+        - examplemail@email.com
       properties:
-        approval_code:
-          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+        country_code:
           type: string
-        response_code:
-          description: Response code returned by the issuer, indicating the result of the operation as per ISO-8583 (https://en.wikipedia.org/wiki/ISO_8583#Ver_1987)
+          description: Country code (ISO 3166 format)
+          example: HU
+        language:
           type: string
-      title: IssuerResult
+          description: 'The language to be used to generate the receipt.
+
+            It should follow BCP-47 https://www.rfc-editor.org/info/bcp47 format.
+
+            If provided using the wrong format, the request will be rejected. If not provided, the receipt will be generated using the default language of the merchant.
+
+            '
+          example: en-GB
+        recipient_phone_numbers:
+          type: array
+          description: List of phone numbers to send the receipt link to
+          items:
+            type: string
+            description: List of phone numbers to send the receipt link to
+            example: '+123456789'
+        recipient_emails:
+          type: array
+          description: List of emails to send the receipt link to
+          items:
+            type: string
+            description: List of emails to send the receipt link to
+            example: email@example.com
+        receipt_email_type:
+          type: string
+          default: CUSTOMER
+          description: Type that indicates which email template to use
+      required:
+      - country_code
+      title: CreateReceiptRequest
+    Ecommerce_Transaction_Payments_-_Public_Token:
+      description: A saved payment method token for recurring or card-on-file transactions
+      example:
+        token_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        recurring_payment_type: CARD_ON_FILE
+      properties:
+        token_id:
+          description: The unique identifier of the saved token
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          format: uuid
+          type: string
+        recurring_payment_type:
+          description: The type of recurring payment
+          enum:
+          - CARD_ON_FILE
+          - RECURRING
+          - INSTALLMENT
+          format: enum
+          type: string
+      required:
+      - token_id
+      - recurring_payment_type
+      title: Token
+      type: object
+    Ecommerce_Transaction_Payments_-_Public_Cardholder:
+      description: Information about the cardholder
+      example:
+        email: john.doe@example.com
+        name: John Doe
+        phone_number: '+34610123456'
+      properties:
+        email:
+          description: Email address of the cardholder
+          example: john.doe@example.com
+          type: string
+        name:
+          description: Full name of the cardholder
+          example: John Doe
+          title: Cardholder Name
+          type: string
+        phone_number:
+          description: Phone number of the cardholder
+          example: '+34610123456'
+          type: string
+      required:
+      - name
+      title: Cardholder
+      type: object
+    Ecommerce_Transaction_Payments_-_Public_TokenCreationResponse:
+      description: Details of the token which was created and if any failures will have the failure reason
+      example:
+        token_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        token_status: SUCCESS
+      properties:
+        failure_reason:
+          description: Failure reason
+          example: Card not valid for tokenization
+          type: string
+        token_id:
+          description: ID for the token which can be used for future payments
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          title: TokenId
+          type: string
+        token_status:
+          description: Status of the token creation
+          enum:
+          - SUCCESS
+          - FAILED
+          format: enum
+          type: string
+      required:
+      - token_status
+      title: TokenResponse
+      type: object
+    RefundRequest:
+      type: object
+      description: A request to refund a transaction
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        amount: 100
+      properties:
+        transaction_id:
+          type: string
+          description: The id of the original transaction that needs to be refunded
+          minLength: 1
+        merchant_reference:
+          type: string
+          description: An ID referencing the transaction on the client's side
+          maxLength: 30
+          minLength: 1
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1). The currency is the same as the original transaction.
+      required:
+      - amount
+      - transaction_id
+      title: RefundRequest
+    Ecommerce_Transaction_Payments_-_Public_BrowserData:
+      description: Browser information transmitted during the authentication request process to enhance verification accuracy.
+      example:
+        accept_language: en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6
+        ip_address: 192.16.1.1
+        screen_height: 1080
+        screen_width: 1920
+        user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1234.0 Safari/537.36
+      properties:
+        accept_language:
+          description: User preferred language from the browser
+          type: string
+        ip_address:
+          description: IP address of the browser
+          type: string
+        screen_height:
+          description: Screen height of the browser
+          format: int32
+          type: integer
+        screen_width:
+          description: Screen width of the browser
+          format: int32
+          type: integer
+        user_agent:
+          description: User agent of the browser
+          type: string
+      required:
+      - ip_address
+      - screen_height
+      - screen_width
+      title: BrowserData
+      type: object
+    Ecommerce_Transaction_Payments_-_Public_Card:
+      example:
+        cvc: '123'
+        expiry_month: '02'
+        expiry_year: '2030'
+        number: '4111111111111111'
+      properties:
+        cvc:
+          description: 3 or 4 digit card verification code for the card
+          type: string
+        expiry_month:
+          description: 2-digit month of expiration for the card
+          type: string
+        expiry_year:
+          description: 4-digit year of expiration for the card
+          type: string
+        number:
+          description: Primary Account Number (PAN) of a card. Sent without spaces or dashes
+          type: string
+      required:
+      - cvc
+      - expiry_month
+      - expiry_year
+      - number
+      title: Card
       type: object
     RefundResponse:
       type: object
@@ -939,266 +1222,6 @@ components:
       - status
       - transaction_id
       title: RefundResponse
-    Payments_Refunds_Wrapper_API_DccResponse:
-      type: object
-      example:
-        cardholder_amount:
-          amount: 100
-          currency: CHF
-        conversion_rate: '0.9517'
-        markup: '0.03'
-        ecb_markup: '0.01'
-      properties:
-        cardholder_amount:
-          $ref: '#/components/schemas/Payments_Refunds_Wrapper_API_Amount'
-          description: 'The total amount refunded to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
-
-            '
-        conversion_rate:
-          type: string
-          description: Conversion rate used to calculate the cardholder amount
-        markup:
-          type: string
-          description: Markup of the exchange rate
-        ecb_markup:
-          type: string
-          description: Markup of the exchange rate over the ECB exchange rate. Only provided when both currencies are EEA currencies.
-      required:
-      - cardholder_amount
-      - conversion_rate
-      - markup
-      title: DccResponse
-    Ecommerce_Transaction_Payments_-_Public_Address:
-      description: Customer's address
-      example:
-        name: John Doe
-        city: London
-        country: GB
-        state: London
-        street_address_line1: Main Street
-        street_address_line2: No. 1
-        street_address_line3: Building 1
-        zipcode: '10001'
-      properties:
-        name:
-          description: Name associated with the address
-          example: John Doe
-          type: string
-        city:
-          description: City name
-          example: London
-          title: City
-          type: string
-        country:
-          description: ISO 3166-1 alpha-2 country code
-          example: GB
-          title: Country
-          type: string
-        state:
-          description: State or region
-          example: Greater London
-          title: State
-          type: string
-        street_address_line1:
-          description: Primary street address
-          example: 123 Main St
-          title: Street Address Line
-          type: string
-        street_address_line2:
-          description: Secondary street address (apt, suite, etc.)
-          example: Flat 4
-          title: Street Address Line
-          type: string
-        street_address_line3:
-          description: Additional address line
-          example: Building A
-          title: Street Address Line
-          type: string
-        zipcode:
-          description: Postal/ZIP code
-          example: SW1A 1AA
-          title: Zipcode
-          type: string
-      required:
-      - country
-      title: Address
-      type: object
-    RefundRequest:
-      type: object
-      description: A request to refund a transaction
-      example:
-        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
-        amount: 100
-      properties:
-        transaction_id:
-          type: string
-          description: The id of the original transaction that needs to be refunded
-          minLength: 1
-        merchant_reference:
-          type: string
-          description: An ID referencing the transaction on the client's side
-          maxLength: 30
-          minLength: 1
-        amount:
-          type: integer
-          format: int64
-          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1). The currency is the same as the original transaction.
-      required:
-      - amount
-      - transaction_id
-      title: RefundRequest
-    Teya_Digital_Receipts_Service_CreateReceiptResponse:
-      type: object
-      description: Creates a url for customers to view their receipt.
-      example:
-        receipt_id: 01916f63-c6e0-75a9-9ef4-764ba287b2c6
-        transaction_id: 60cca1c7-38c5-4218-ba71-fb4a96836619
-        url: https://receipts.teya.com/01916f63-c6e0-75a9-9ef4-764ba287b2c6
-      properties:
-        receipt_id:
-          type: string
-          format: uuid
-          description: Id of the created receipt
-        transaction_id:
-          type: string
-          description: Transaction id, the same as in the request
-        url:
-          type: string
-          description: Url for receipt or error page in case or receipt generation failure
-      required:
-      - receipt_id
-      - transaction_id
-      - url
-      title: CreateReceiptResponse
-    Teya_Digital_Receipts_Service_Error:
-      type: object
-      description: Error response
-      example:
-        code: BAD_REQUEST
-        description: Invalid input
-      properties:
-        code:
-          type: string
-          format: enum
-          description: The error code
-          enum:
-          - BAD_REQUEST
-          - UNAUTHORISED
-          - FORBIDDEN
-          - INTERNAL_SERVER_ERROR
-          - TOO_MANY_REQUESTS
-          - NOT_FOUND
-          - NOT_ACCEPTABLE
-        description:
-          type: string
-          description: The description of the error
-      required:
-      - code
-      - description
-      title: Error
-    Ecommerce_Transaction_Payments_-_Public_BrowserData:
-      description: Browser information transmitted during the authentication request process to enhance verification accuracy.
-      example:
-        accept_language: en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6
-        ip_address: 192.16.1.1
-        screen_height: 1080
-        screen_width: 1920
-        user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1234.0 Safari/537.36
-      properties:
-        accept_language:
-          description: User preferred language from the browser
-          type: string
-        ip_address:
-          description: IP address of the browser
-          type: string
-        screen_height:
-          description: Screen height of the browser
-          format: int32
-          type: integer
-        screen_width:
-          description: Screen width of the browser
-          format: int32
-          type: integer
-        user_agent:
-          description: User agent of the browser
-          type: string
-      required:
-      - ip_address
-      - screen_height
-      - screen_width
-      title: BrowserData
-      type: object
-    Ecommerce_Transaction_Payments_-_Public_Token:
-      description: A saved payment method token for recurring or card-on-file transactions
-      example:
-        token_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
-        recurring_payment_type: CARD_ON_FILE
-      properties:
-        token_id:
-          description: The unique identifier of the saved token
-          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
-          format: uuid
-          type: string
-        recurring_payment_type:
-          description: The type of recurring payment
-          enum:
-          - CARD_ON_FILE
-          - RECURRING
-          - INSTALLMENT
-          format: enum
-          type: string
-      required:
-      - token_id
-      - recurring_payment_type
-      title: Token
-      type: object
-    Ecommerce_Transaction_Payments_-_Public_Cardholder:
-      description: Information about the cardholder
-      example:
-        email: john.doe@example.com
-        name: John Doe
-        phone_number: '+34610123456'
-      properties:
-        email:
-          description: Email address of the cardholder
-          example: john.doe@example.com
-          type: string
-        name:
-          description: Full name of the cardholder
-          example: John Doe
-          title: Cardholder Name
-          type: string
-        phone_number:
-          description: Phone number of the cardholder
-          example: '+34610123456'
-          type: string
-      required:
-      - name
-      title: Cardholder
-      type: object
-    Ecommerce_Transaction_Payments_-_Public_LineItem:
-      example:
-        description: Shipping
-        quantity: 1
-        unit_price: 100
-      properties:
-        description:
-          description: This is a description for an item in the basket
-          type: string
-        quantity:
-          description: The number of items, must be a positive value
-          format: int32
-          type: integer
-        unit_price:
-          description: The price of a single item including VAT, Can be negative for discounts
-          format: int32
-          type: integer
-      required:
-      - description
-      - quantity
-      - unit_price
-      title: LineItem
-      type: object
     Ecommerce_Transaction_Payments_-_Public_PaymentMethod:
       example:
         card:
@@ -1229,133 +1252,110 @@ components:
       - type
       title: PaymentMethod
       type: object
-    Ecommerce_Transaction_Payments_-_Public_ProcessTransactionRequestV2:
-      description: A request to process a transaction
+    Ecommerce_Transaction_Payments_-_Public_OnlineTransaction:
+      description: The response for a transaction request
       example:
-        amount:
-          currency: GBP
-          value: 100
-        browser_data:
-          accept_language: en-GB,en;q=0.9,pt;q=0.8,pt-PT;q=0.7,nl;q=0.6
-          ip_address: 127.0.0.1
-          screen_height: 1080
-          screen_width: 1920
-          user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
-        billing_address:
-          name: John Doe
-          country: GB
-          city: London
-          state: Greater London
-          street_address_line1: 123 High Street
-          street_address_line2: Flat 4
-          zipcode: SW1A 1AA
-        cardholder:
-          name: John Doe
-        customer_contact:
-          phone_number: '+447123456789'
-          email: john.doe@example.com
-        initiator: CUSTOMER
-        line_items:
-        - description: Product Name
-          id: 550e8400-e29b-41d4-a716-446655440000
-          quantity: 2
-          unit_price: 1000
-        merchant_reference_id: '1234567890'
-        payment_method:
-          card:
-            cvc: '123'
-            expiry_month: '02'
-            expiry_year: '2030'
-            number: '4111111111111111'
-          type: CARD
-        redirect_url: https://mywebsite.com/processing
-        shipping_address:
-          name: Jane Doe
-          country: GB
-          city: Manchester
-          state: Greater Manchester
-          street_address_line1: 456 Oak Avenue
-          zipcode: M1 1AA
-        store_id: 7a3f2c21-5d6e-4637-8d8a-1f178d4d2a0e
-        store_payment_method: true
-        transaction_context:
-          payment_link_id: 1e2d4f80-9c3e-4f5b-83aa-9e8d2b6a6c49
-          session_id: 1e2d4f80-9c3e-4f5b-83aa-9e8d2b6a6c49
-        type: SALE
+        authentication_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        created_at: '2022-03-01T15:29:59Z'
+        issuer_result:
+          approval_code: '123456'
+          response_code: '00'
+        status: SUCCESS
+        transaction_id: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        updated_at: '2022-03-01T15:35:00Z'
       properties:
-        amount:
-          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Amount'
-        billing_address:
-          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Address'
-          description: Optional billing address of the customer
-        browser_data:
-          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_BrowserData'
-          description: An optional parameter that provides browser data to the issuing bank, potentially increasing authorization rates.
-        cardholder:
-          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Cardholder'
-          description: Optional cardholder information that increases authorization success with fewer payment challenges.
-        customer_contact:
-          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_CustomerContact'
-          description: Optional customer contact details
-        initiator:
-          description: 'Identifies which actor initiated the transaction, the customer (such as in an immediate sale) or the merchant
-
-            (such as in a previously pre-authorized capture or a recurrent payment after the initial payment). Will default to customer if not provided.
-
-            This is primarily used to determine whether the consumer is present for the transaction and therefore SCA/3DS may be used.
-
-            '
-          enum:
-          - CUSTOMER
-          - MERCHANT
-          format: enum
-          type: string
-        line_items:
-          description: Optional list of line items for the transaction
-          items:
-            $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_LineItem'
-          type: array
-        merchant_reference_id:
-          description: An identifier that can be used to reference the transaction on the merchant's side. Overrides 'source_reference_id
-          example: '1234567890'
-          maxLength: 60
-          type: string
-        payment_method:
-          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_PaymentMethod'
-          description: Payment method to be used in the transaction
-        redirect_url:
-          description: URL to redirect the customer to after 3DS completes in case 3DS will be web based. Will be shared with the 3DS provider.
-          type: string
-        shipping_address:
-          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_Address'
-          description: Optional shipping address for the order
-        store_payment_method:
-          description: When set to true, the payment method will be tokenized and a token_id returned in the response for future use.
-          type: boolean
-          example: true
-        store_id:
-          description: The unique identifier of a store
-          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+        authentication_id:
+          description: The unique identifier for the authentication
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
           format: uuid
-          title: Store Id
           type: string
-        type:
-          description: 'The transaction type. Use SALE for standard payments, PRE_AUTHORISATION to reserve funds for later capture, or ACCOUNT_VERIFICATION to verify a card and optionally tokenize it without charging the customer.
-
-            '
+        created_at:
+          description: The datetime that the transaction was created (ISO 8601 format)
+          format: date-time
+          type: string
+        issuer_result:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_IssuerResult'
+        status:
+          description: The status of the transaction
           enum:
-          - SALE
-          - PRE_AUTHORISATION
-          - ACCOUNT_VERIFICATION
+          - SUCCESS
+          - FAILURE
+          - PENDING
+          example: SUCCESS
+          type: string
+        status_reason:
+          description: Detailed reasons for the transaction failure status. This is provided when the transaction response status is FAILURE and is null when the payment succeeds or is pending.
+          enum:
+          - ACCOUNT_INVALID
+          - BLOCKED_CARD
+          - BLOCKED_CROSS_BORDER_TRANSACTION
+          - AMOUNT_TOO_SMALL
+          - CANNOT_VALIDATE_AUTHENTICATION
+          - CARD_COUNT_EXCEEDED
+          - CARD_DECLINED
+          - CARD_EXPIRED
+          - CARD_LIMIT_EXCEEDED
+          - CARD_NOT_ACTIVE
+          - DISABLED_ACCOUNT
+          - DO_NOT_HONOR
+          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
+          - EXCEEDS_AMOUNT_LIMIT
+          - FORMAT_ERROR
+          - INCORRECT_CARD_AUTHENTICATION
+          - INSUFFICIENT_FUNDS
+          - INVALID_CARD_NUMBER
+          - INVALID_TRANSACTION
+          - ISSUER_DECLINED
+          - LOST_OR_STOLEN
+          - MERCHANT_CONFIGURATION
+          - NEGATIVE_BALANCE
+          - PIN_LIMIT_EXCEEDED
+          - PROCESSOR_UNAVAILABLE
+          - RESTRICTED_CARD
+          - SCA_PIN_REQUIRED
+          - SCA_REQUIRED
+          - SUSPECTED_FRAUD
+          - TEMPORARY_ISSUE_RETRY
+          - TIMEOUT
+          - TRANSACTION_NOT_ALLOWED
+          - UNABLE_TO_ROUTE_TRANSACTION
+          - UNSUPPORTED_ISSUER
+          - OTHER
           format: enum
+          type: string
+        token_response:
+          $ref: '#/components/schemas/Ecommerce_Transaction_Payments_-_Public_TokenCreationResponse'
+          description: The details of the created token
+        transaction_id:
+          description: The unique identifier for the new transaction
+          example: 5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+          format: uuid
+          type: string
+        updated_at:
+          description: The datetime that the transaction was updated (ISO 8601 format)
+          format: date-time
           type: string
       required:
-      - amount
-      - initiator
-      - payment_method
-      - store_id
-      - type
-      title: ProcessTransactionRequestV2
+      - authentication_id
+      - created_at
+      - status
+      - transaction_id
+      - updated_at
+      title: OnlineTransaction
+      type: object
+    Ecommerce_Transaction_Payments_-_Public_IssuerResult:
+      description: Result data for the transaction according to issuer's response
+      example:
+        approval_code: '123456'
+        response_code: '00'
+      properties:
+        approval_code:
+          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+          type: string
+        response_code:
+          description: Response code returned by the issuer, indicating the result of the operation as per ISO-8583 (https://en.wikipedia.org/wiki/ISO_8583#Ver_1987)
+          type: string
+      title: IssuerResult
       type: object
   securitySchemes:
     checkout_oauth_dev:
