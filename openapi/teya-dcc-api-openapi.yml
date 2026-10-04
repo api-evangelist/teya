@@ -67,46 +67,6 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    Error:
-      type: object
-      format: enum
-      description: Error response
-      example:
-        code: BAD_REQUEST
-        description: Unsupported currency
-      properties:
-        code:
-          type: string
-          format: enum
-          description: The error code
-          enum:
-          - BAD_REQUEST
-          - UNAUTHORIZED
-          - FORBIDDEN
-          - NOT_FOUND
-          - NOT_IMPLEMENTED
-          - BELOW_MINIMUM
-          - NON_ELIGIBLE_CARD
-          - SAME_CURRENCY
-          - CARD_CURRENCY_MISMATCH
-          - UNSUPPORTED_CURRENCY
-          - NEGATIVE_AMOUNT
-          - DCC_DISABLED
-          - INVALID_OFFER
-          - QUOTE_NOT_FOUND
-          - QUOTE_MISMATCH
-          - INVALID_FX_DATE
-          - RATE_NOT_FOUND
-          - NO_CARD_CURRENCY
-          - UNKNOWN
-        description:
-          type: string
-          description: The description of the error
-        invalid_params:
-          type: array
-          items:
-            $ref: '#/components/schemas/InvalidParams'
-      title: Error
     OfferV3:
       type: object
       description: Teya FX offer with quote ID, containing the latest exchange rate and markups offered for foreign exchange.
@@ -147,27 +107,6 @@ components:
       - markup
       - quote_id
       title: Teya FX offer with quote
-    InvalidParams:
-      type: object
-      description: Invalid parameters
-      example:
-        path: amounts.amount
-        reason: must be greater than or equal to 0
-      properties:
-        path:
-          type: string
-          description: The path to the missing/invalid parameter expressed in dot notation.
-        reason:
-          type: string
-          description: Reason why the validation failed.
-        sub_code:
-          type: string
-          format: enum
-          description: An enum corresponding to the validation error.
-      required:
-      - path
-      - reason
-      title: InvalidParams
     DccOffer:
       type: object
       description: Request to create a public DCC offer
@@ -203,3 +142,64 @@ components:
       - card_first9
       - store_id
       title: DccOffer
+    Error:
+      type: object
+      format: enum
+      description: Error response
+      example:
+        code: BAD_REQUEST
+        description: Unsupported currency
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - BAD_REQUEST
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - NOT_IMPLEMENTED
+          - BELOW_MINIMUM
+          - NON_ELIGIBLE_CARD
+          - SAME_CURRENCY
+          - CARD_CURRENCY_MISMATCH
+          - UNSUPPORTED_CURRENCY
+          - NEGATIVE_AMOUNT
+          - DCC_DISABLED
+          - INVALID_OFFER
+          - QUOTE_NOT_FOUND
+          - QUOTE_MISMATCH
+          - INVALID_FX_DATE
+          - RATE_NOT_FOUND
+          - NO_CARD_CURRENCY
+          - UNKNOWN
+        description:
+          type: string
+          description: The description of the error
+        invalid_params:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      title: Error
+    InvalidParams:
+      type: object
+      description: Invalid parameters
+      example:
+        path: amounts.amount
+        reason: must be greater than or equal to 0
+      properties:
+        path:
+          type: string
+          description: The path to the missing/invalid parameter expressed in dot notation.
+        reason:
+          type: string
+          description: Reason why the validation failed.
+        sub_code:
+          type: string
+          format: enum
+          description: An enum corresponding to the validation error.
+      required:
+      - path
+      - reason
+      title: InvalidParams

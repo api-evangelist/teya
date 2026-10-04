@@ -136,38 +136,6 @@ paths:
         enabled: true
 components:
   schemas:
-    InvalidParams:
-      type: object
-      description: A single failed parameter from a 4xx validation response.
-      example:
-        path: requested_amount.amount
-        reason: Amount exceeds the tab's remaining balance
-      properties:
-        path:
-          type: string
-          description: Dot-notation path to the offending field on the request body, in snake_case.
-          example: requested_amount.amount
-        reason:
-          type: string
-          description: Human-readable explanation of why the parameter was rejected.
-          example: Amount exceeds the tab's remaining balance
-      required:
-      - path
-      - reason
-      title: InvalidParams
-    RetrieveTerminalResponse:
-      type: object
-      example:
-        terminals:
-        - terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
-          terminal_name: MPAS_test_terminal
-          serial_number: '202877303091039717483041'
-      properties:
-        terminals:
-          type: array
-          items:
-            $ref: '#/components/schemas/Terminal'
-      title: RetrieveTerminalResponse
     ExceptionResponse:
       type: object
       example:
@@ -189,6 +157,38 @@ components:
           items:
             $ref: '#/components/schemas/InvalidParams'
       title: ExceptionResponse
+    RetrieveTerminalResponse:
+      type: object
+      example:
+        terminals:
+        - terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+          terminal_name: MPAS_test_terminal
+          serial_number: '202877303091039717483041'
+      properties:
+        terminals:
+          type: array
+          items:
+            $ref: '#/components/schemas/Terminal'
+      title: RetrieveTerminalResponse
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
     Terminal:
       type: object
       example:

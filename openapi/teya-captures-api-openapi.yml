@@ -99,32 +99,6 @@ paths:
       - Ecommerce_Transaction_Payments_-_Public_oauth: []
 components:
   schemas:
-    Payments_Gateway_Service_CaptureIssuerResult:
-      type: object
-      example:
-        approval_code: '123456'
-        response_code: '00'
-      properties:
-        approval_code:
-          type: string
-          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
-        response_code:
-          type: string
-          description: Response code returned by the issuer, indicating the result of the operation
-      title: CaptureIssuerResult
-    CaptureRequest:
-      type: object
-      description: A request to capture a pre-authorised transaction
-      example:
-        amount: 1000
-      properties:
-        amount:
-          type: integer
-          format: int64
-          description: A positive integer representing the amount to capture in the smallest currency unit (e.g., 100 cents to charge $1). Must be less than or equal to the original authorisation amount.
-      required:
-      - amount
-      title: CaptureRequest
     CaptureResponse:
       type: object
       description: A response to a capture request
@@ -203,6 +177,32 @@ components:
       - status
       - transaction_id
       title: CaptureResponse
+    Payments_Gateway_Service_CaptureIssuerResult:
+      type: object
+      example:
+        approval_code: '123456'
+        response_code: '00'
+      properties:
+        approval_code:
+          type: string
+          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+        response_code:
+          type: string
+          description: Response code returned by the issuer, indicating the result of the operation
+      title: CaptureIssuerResult
+    CaptureRequest:
+      type: object
+      description: A request to capture a pre-authorised transaction
+      example:
+        amount: 1000
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the amount to capture in the smallest currency unit (e.g., 100 cents to charge $1). Must be less than or equal to the original authorisation amount.
+      required:
+      - amount
+      title: CaptureRequest
   securitySchemes:
     checkout_oauth_dev:
       flows:

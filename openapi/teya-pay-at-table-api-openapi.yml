@@ -1745,7 +1745,27 @@ paths:
                 description: Internal Server Error
 components:
   schemas:
-    PayRequestEvent:
+    TabErrorResponse:
+      type: object
+      description: Response after reporting a tab error
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+      title: TabErrorResponse
+    TabResumedEvent:
       allOf:
       - $ref: '#/components/schemas/TabEvent'
       - type: object
@@ -1762,7 +1782,158 @@ components:
             - TAB_RESUMED
             - TAB_COMPLETED
             - TAB_BILL_HIDDEN
-            example: PAY_REQUEST
+            example: TAB_RESUMED
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+      description: 'SSE event: tab has been resumed'
+      example:
+        event_type: TAB_RESUMED
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+      required:
+      - event_type
+      - merchant_reference
+      title: TabResumedEvent
+    ExceptionResponse:
+      type: object
+      example:
+        code: BAD_REQUEST
+        description: Bad Request
+      properties:
+        code:
+          type: string
+          format: enum
+          description: Error code
+          example: BAD_REQUEST
+        description:
+          type: string
+          description: Error description
+          example: Bad Request
+        invalid_params:
+          type: array
+          description: List of invalid request parameters. Populated for validation failures (400 / 422); omitted otherwise.
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      title: ExceptionResponse
+    DccData:
+      type: object
+      description: Dynamic Currency Conversion data. If present, all fields are required.
+      example:
+        transaction_amount: 8500
+        transaction_currency: GBP
+        exchange_rate: '0.8650'
+        conversion_fee: 2.5%
+        disclaimer: I have been offered a choice of currencies and have chosen to accept DCC and pay in EUR at the exchange rate offered by Teya
+      properties:
+        transaction_amount:
+          type: integer
+          format: int64
+          description: Transaction amount in the smallest currency unit (8500 = £85.00)
+          example: 8500
+        transaction_currency:
+          type: string
+          description: Currency used by the cardholder in ISO 4217 format (e.g. GBP)
+          example: GBP
+          maxLength: 3
+          minLength: 3
+          pattern: ^[A-Z]{3}$
+        exchange_rate:
+          type: string
+          description: Exchange rate applied for DCC conversion (e.g. '0.8650' means 1 EUR (merchant currency) = 0.8650 GBP (cardholder currency))
+          minLength: 1
+        conversion_fee:
+          type: string
+          description: Conversion fee applied for DCC service, represented as a percentage string (e.g. '2.5%')
+          example: 2.5%
+          minLength: 1
+        disclaimer:
+          type: string
+          description: Text printed on the customer's receipt confirming DCC acceptance and exchange rate details
+          example: I have been offered a choice of currencies and have chosen to accept DCC and pay in GBP at the exchange rate offered by Teya
+          maxLength: 500
+          minLength: 1
+      required:
+      - conversion_fee
+      - disclaimer
+      - exchange_rate
+      - transaction_amount
+      - transaction_currency
+      title: DccData
+    TableHeaderCell:
+      type: object
+      example:
+        element:
+          type: Text
+          text: Header
+        weight: 1
+      properties:
+        element:
+          $ref: '#/components/schemas/Element'
+          oneOf:
+          - $ref: '#/components/schemas/TextElement'
+          - $ref: '#/components/schemas/ImageElement'
+          - $ref: '#/components/schemas/QrCodeElement'
+        weight:
+          type: number
+          format: double
+      required:
+      - element
+      title: TableHeaderCell
+    PauseTabResponse:
+      type: object
+      description: Response after pausing a tab
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        status:
+          type: string
+          description: Tab status after pause
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: PAUSED
+        total_paid:
+          type: integer
+          format: int64
+          description: Total amount paid so far, in the tab's currency
+          example: 1500
+        remaining:
+          type: integer
+          format: int64
+          description: Remaining amount to be paid, in the tab's currency
+          example: 3500
+      title: PauseTabResponse
+    ShowBillRequestEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: SHOW_BILL_REQUEST
           tab_id:
             type: string
             format: uuid
@@ -1774,37 +1945,52 @@ components:
             example: ORDER-2026-001
           terminal_id:
             type: string
-            description: Terminal requesting payment
+            description: Terminal requesting to show the bill
             example: term-001
-          type:
-            type: string
-            description: Payment type
-            example: SPLIT
-          amount:
-            $ref: '#/components/schemas/TabAmountWithCurrency'
-            description: Payment amount with currency
-          method:
-            type: string
-            description: Payment method
-            example: CARD
-      description: 'SSE event: terminal initiated a payment request'
+      description: 'SSE event: terminal requested to show bill'
       example:
-        event_type: PAY_REQUEST
+        event_type: SHOW_BILL_REQUEST
         tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
         merchant_reference: ORDER-2026-001
         terminal_id: term-001
-        type: SPLIT
-        amount:
-          amount: 2500
-          currency: GBP
-        method: CARD
       required:
       - event_type
       - merchant_reference
-      title: PayRequestEvent
-    ShowBillIntentResponse:
+      title: ShowBillRequestEvent
+    CursorPaging:
       type: object
-      description: Response for a show-bill intent — the request has been accepted and forwarded to the ePOS
+      example:
+        cursors:
+          before: MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+          after: MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+        paths:
+          previous: /poslink/v1/tabs?store_id=eac4d470-4731-45b2-af6b-c828f03c1f9d&limit=20&before=MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+          next: /poslink/v1/tabs?store_id=eac4d470-4731-45b2-af6b-c828f03c1f9d&limit=20&after=MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+      properties:
+        cursors:
+          $ref: '#/components/schemas/Cursors'
+        paths:
+          $ref: '#/components/schemas/Paths'
+      title: CursorPaging
+    Row:
+      discriminator:
+        propertyName: type
+      example:
+        type: Spacer
+      oneOf:
+      - $ref: '#/components/schemas/ItemsRow'
+      - $ref: '#/components/schemas/TableRow'
+      - $ref: '#/components/schemas/SpacerRow'
+      - $ref: '#/components/schemas/DividerRow'
+      properties:
+        type:
+          type: string
+      required:
+      - type
+      title: Row
+    ShowBillResponse:
+      type: object
+      description: Response after sending bill to a terminal (ePOS-facing)
       properties:
         tab_id:
           type: string
@@ -1823,69 +2009,50 @@ components:
           example: OPEN
         showing_bill_terminal_id:
           type: string
-          description: Terminal that requested the bill display
+          description: Terminal currently showing the bill
           example: term-001
-        show_bill_expires_at:
+        bill_file_id:
           type: string
-          format: date-time
-          description: ISO 8601 expiry timestamp for the show-bill intent (in UTC)
-          example: '2026-04-14T10:05:00Z'
-      title: ShowBillIntentResponse
-    PrintDocument:
+          description: Bill file identifier
+          example: bill-file-001
+      title: ShowBillResponse
+    TerminalIdRequest:
+      type: object
+      description: Request containing a terminal identifier
+      properties:
+        terminal_id:
+          type: string
+          description: The terminal identifier
+          example: term-001
+      required:
+      - terminal_id
+      title: TerminalIdRequest
+    RequestedAmount:
       type: object
       example:
-        rows:
-        - type: Items
-          items:
-          - type: Text
-            text: Hello
+        currency: GBP
+        amount: 50
+        tip: 0
       properties:
-        rows:
-          type: array
-          items:
-            $ref: '#/components/schemas/Row'
-          maxItems: 150
-          minItems: 1
-      required:
-      - rows
-      title: PrintDocument
-    Row:
-      discriminator:
-        propertyName: type
-      example:
-        type: Spacer
-      oneOf:
-      - $ref: '#/components/schemas/ItemsRow'
-      - $ref: '#/components/schemas/TableRow'
-      - $ref: '#/components/schemas/SpacerRow'
-      - $ref: '#/components/schemas/DividerRow'
-      properties:
-        type:
+        currency:
           type: string
+          format: ISO 4217
+          description: The currency used in this payment. Must be a valid ISO 4217 currency code
+          example: USD
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the full amount to charge in the smallest currency unit (e.g., 100 cents to charge $1). Inclusive of the tip
+          example: 1500
+        tip:
+          type: integer
+          format: int64
+          description: A positive integer that represents the tip added to the payment in the smallest currency unit (e.g., 100 cents to charge $1)
+          example: 10
       required:
-      - type
-      title: Row
-    QrCodeElement:
-      allOf:
-      - $ref: '#/components/schemas/Element'
-      - type: object
-        properties:
-          url:
-            type: string
-            minLength: 1
-          align:
-            type: string
-            enum:
-            - LEFT
-            - RIGHT
-            - CENTER
-      example:
-        type: QrCode
-        url: https://teya.com
-        align: LEFT
-      required:
-      - url
-      title: QrCodeElement
+      - amount
+      - currency
+      title: RequestedAmount
     TableRow:
       allOf:
       - $ref: '#/components/schemas/Row'
@@ -1912,51 +2079,51 @@ components:
             text: 1 Coffee
             align: LEFT
       title: TableRow
-    TransactionMetadata:
+    CloseTabResponse:
+      type: object
+      description: Response for tab closure (soft delete)
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        status:
+          type: string
+          description: Tab status after closure
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: CLOSED
+        closed_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of closure (in UTC)
+          example: '2026-04-14T12:00:00Z'
+      required:
+      - closed_at
+      - status
+      - tab_id
+      title: CloseTabResponse
+    TableInnerRow:
       type: object
       example:
-        payment_method_details:
-          card:
-            last4: '4673'
-            issuing_country: GB
-            brand: MASTERCARD
-            type: DEBIT
-            bin: '123456'
-          entry_mode: EMV_CONTACTLESS
-          verification_method: NONE
-          application_id: A0000000041010
-          mid: '5006544'
-          response_code: '00'
-          authorisation_code: '537001'
+        cells:
+        - type: Text
+          text: Item
+          align: LEFT
       properties:
-        payment_method_details:
-          $ref: '#/components/schemas/PaymentMethodDetails'
-          description: The payment method details
-        dcc:
-          $ref: '#/components/schemas/DccData'
-          description: Dynamic Currency Conversion data. Optional field
-      title: TransactionMetadata
-    ImageElement:
-      allOf:
-      - $ref: '#/components/schemas/Element'
-      - type: object
-        properties:
-          base64:
-            type: string
-            minLength: 1
-          align:
-            type: string
-            enum:
-            - LEFT
-            - RIGHT
-            - CENTER
-      example:
-        type: Image
-        base64: '...'
-        align: RIGHT
+        cells:
+          type: array
+          items:
+            $ref: '#/components/schemas/Element'
+          minItems: 1
       required:
-      - base64
-      title: ImageElement
+      - cells
+      title: TableInnerRow
     TabPaymentCompletedEvent:
       allOf:
       - $ref: '#/components/schemas/TabEvent'
@@ -2005,78 +2172,7 @@ components:
       - event_type
       - merchant_reference
       title: TabPaymentCompletedEvent
-    PaymentMethodDetails:
-      type: object
-      example:
-        card:
-          last4: '4673'
-          issuing_country: GB
-          brand: MASTERCARD
-          type: DEBIT
-          bin: '123456'
-        entry_mode: EMV_CONTACTLESS
-        verification_method: NONE
-        application_id: A0000000041010
-        response_code: '00'
-        authorisation_code: '537001'
-      properties:
-        card:
-          $ref: '#/components/schemas/Card'
-          description: Card
-        entry_mode:
-          type: string
-          description: The method by which the card was used
-          example: ECOM, EMV_PIN, CONTACT_ICC, EMV_CONTACTLESS, KEYED, MAGSTRIPE_SWIPED, ON_FILE, MAGSTRIPE_FALLBACK
-        verification_method:
-          type: string
-          description: The method by which the card was verified
-          example: NONE, ELECTRONIC_SIGNATURE, ON_DEVICE, MANUAL, SIGNATURE, OFFLINE_PIN, ONLINE_PIN, OFFLINE_PIN_PLUS_SIGNATURE, SECURED_ELECTRONIC_COMMERCE
-        application_name:
-          type: string
-          description: Application preferred name, a human-readable name of the EMV card application selected by the terminal during a chip card transaction
-          example: Debit MasterCard
-        application_id:
-          type: string
-          description: Application ID that uniquely identifies the card type
-          example: A0000000041010
-        mid:
-          type: string
-          description: Merchant acquiring MID
-          example: MID5006544
-        response_code:
-          type: string
-          description: Transaction response code provided by the schemes
-          example: '00'
-        authorisation_code:
-          type: string
-          description: Authorisation code used to approve a transaction
-          example: A8RLR8
-      title: PaymentMethodDetails
-    TextElement:
-      allOf:
-      - $ref: '#/components/schemas/Element'
-      - type: object
-        properties:
-          text:
-            type: string
-            minLength: 1
-          bold:
-            type: boolean
-          align:
-            type: string
-            enum:
-            - LEFT
-            - RIGHT
-            - CENTER
-      example:
-        type: Text
-        text: Coffee
-        bold: false
-        align: LEFT
-      required:
-      - text
-      title: TextElement
-    TabBillHiddenEvent:
+    TabPausedEvent:
       allOf:
       - $ref: '#/components/schemas/TabEvent'
       - type: object
@@ -2093,7 +2189,7 @@ components:
             - TAB_RESUMED
             - TAB_COMPLETED
             - TAB_BILL_HIDDEN
-            example: TAB_BILL_HIDDEN
+            example: TAB_PAUSED
           tab_id:
             type: string
             format: uuid
@@ -2103,15 +2199,15 @@ components:
             type: string
             description: Merchant-assigned unique reference for the tab.
             example: ORDER-2026-001
-      description: 'SSE event: bill has been hidden from terminal'
+      description: 'SSE event: tab has been paused'
       example:
-        event_type: TAB_BILL_HIDDEN
+        event_type: TAB_PAUSED
         tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
         merchant_reference: ORDER-2026-001
       required:
       - event_type
       - merchant_reference
-      title: TabBillHiddenEvent
+      title: TabPausedEvent
     PayIntentRequest:
       type: object
       description: Request from terminal to initiate a payment intent
@@ -2143,480 +2239,6 @@ components:
       - terminal_id
       - type
       title: PayIntentRequest
-    PauseTabResponse:
-      type: object
-      description: Response after pausing a tab
-      properties:
-        tab_id:
-          type: string
-          format: uuid
-          description: Tab identifier
-          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        status:
-          type: string
-          description: Tab status after pause
-          enum:
-          - OPEN
-          - PAYING
-          - PAUSED
-          - COMPLETED
-          - CLOSED
-          example: PAUSED
-        total_paid:
-          type: integer
-          format: int64
-          description: Total amount paid so far, in the tab's currency
-          example: 1500
-        remaining:
-          type: integer
-          format: int64
-          description: Remaining amount to be paid, in the tab's currency
-          example: 3500
-      title: PauseTabResponse
-    ShowBillRequest:
-      type: object
-      description: Request to push a structured bill to a terminal for display
-      properties:
-        terminal_id:
-          type: string
-          description: The terminal to display the bill on
-          example: term-001
-        total_amount:
-          $ref: '#/components/schemas/TabAmountWithCurrency'
-          description: Total amount to display on the bill
-        print_model:
-          $ref: '#/components/schemas/PrintDocument'
-          description: Structured print model for the bill.
-        tab_item_data:
-          type: array
-          description: List of items on the bill
-          items:
-            $ref: '#/components/schemas/TabItem'
-      required:
-      - terminal_id
-      - total_amount
-      title: ShowBillRequest
-    TabCompletedEvent:
-      allOf:
-      - $ref: '#/components/schemas/TabEvent'
-      - type: object
-        properties:
-          event_type:
-            type: string
-            description: Event type discriminator
-            enum:
-            - SHOW_BILL_REQUEST
-            - PAY_REQUEST
-            - TAB_PAYMENT_STATUS_PROGRESS
-            - TAB_PAYMENT_COMPLETED
-            - TAB_PAUSED
-            - TAB_RESUMED
-            - TAB_COMPLETED
-            - TAB_BILL_HIDDEN
-            example: TAB_COMPLETED
-          tab_id:
-            type: string
-            format: uuid
-            description: Tab identifier
-            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-          merchant_reference:
-            type: string
-            description: Merchant-assigned unique reference for the tab.
-            example: ORDER-2026-001
-          total_paid:
-            type: integer
-            format: int64
-            description: Total amount paid, in the tab's currency
-            example: 5000
-          payment_count:
-            type: integer
-            format: int32
-            description: Number of payments made
-            example: 3
-      description: 'SSE event: tab fully paid and completed'
-      example:
-        event_type: TAB_COMPLETED
-        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        merchant_reference: ORDER-2026-001
-        total_paid: 5000
-        payment_count: 3
-      required:
-      - event_type
-      - merchant_reference
-      title: TabCompletedEvent
-    UpdateTabRequest:
-      type: object
-      description: Request to update a tab's content. All fields optional; only the ones provided are applied.
-      properties:
-        total_amount:
-          $ref: '#/components/schemas/TabAmountWithCurrency'
-          description: Updated total amount for the tab
-        tab_item_data:
-          type: array
-          description: Updated list of tab items.
-          items:
-            $ref: '#/components/schemas/TabItem'
-          maxItems: 100
-          minItems: 0
-      title: UpdateTabRequest
-    TabSummary:
-      type: object
-      description: Summary of a tab
-      properties:
-        tab_id:
-          type: string
-          format: uuid
-          description: Tab identifier
-          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        tab_name:
-          type: string
-          description: Tab display name
-          example: Table 5
-        merchant_reference:
-          type: string
-          description: Merchant-assigned unique reference for the tab.
-          example: ORDER-2026-001
-        status:
-          type: string
-          description: Current tab status
-          enum:
-          - OPEN
-          - PAYING
-          - PAUSED
-          - COMPLETED
-          - CLOSED
-          example: OPEN
-        total_amount:
-          $ref: '#/components/schemas/TabAmountWithCurrency'
-          description: Total amount with currency
-        total_paid:
-          type: integer
-          format: int64
-          description: Total amount paid so far, in the same currency as total_amount
-          example: 0
-        remaining:
-          type: integer
-          format: int64
-          description: Remaining amount to be paid, in the same currency as total_amount
-          example: 5000
-        showing_bill_terminal_id:
-          type: string
-          description: Terminal currently showing the bill. Present only while a bill is being displayed.
-          example: term-001
-      required:
-      - merchant_reference
-      - remaining
-      - status
-      - tab_id
-      - tab_name
-      - total_amount
-      - total_paid
-      title: TabSummary
-    TabErrorRequest:
-      type: object
-      description: Request to report an error on a tab
-      properties:
-        terminal_id:
-          type: string
-          description: The terminal reporting the error
-          example: term-001
-        error_code:
-          type: string
-          description: Error code
-          enum:
-          - TABLE_NOT_FOUND
-          - BILL_ALREADY_SETTLED
-          - EPOS_ERROR
-          - REQUEST_REJECTED
-          example: TABLE_NOT_FOUND
-        message:
-          type: string
-          description: Human-readable error message
-          example: Table 5 was not found in the ePOS system
-      required:
-      - error_code
-      - message
-      - terminal_id
-      title: TabErrorRequest
-    TerminalIdRequest:
-      type: object
-      description: Request containing a terminal identifier
-      properties:
-        terminal_id:
-          type: string
-          description: The terminal identifier
-          example: term-001
-      required:
-      - terminal_id
-      title: TerminalIdRequest
-    Paths:
-      type: object
-      description: Relative paths for navigating to the previous and next pages
-      properties:
-        previous:
-          type: string
-          description: Relative path to retrieve the previous page
-          example: /poslink/v1/tabs?store_id=eac4d470-4731-45b2-af6b-c828f03c1f9d&limit=20&before=MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
-        next:
-          type: string
-          description: Relative path to retrieve the next page
-          example: /poslink/v1/tabs?store_id=eac4d470-4731-45b2-af6b-c828f03c1f9d&limit=20&after=MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
-      title: Paths
-    TabResponse:
-      type: object
-      description: Response for tab creation
-      properties:
-        tab_id:
-          type: string
-          format: uuid
-          description: Tab identifier
-          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        store_id:
-          type: string
-          format: uuid
-          description: Store identifier
-          example: eac4d470-4731-45b2-af6b-c828f03c1f9d
-        tab_name:
-          type: string
-          description: Tab display name
-          example: Table 5
-        status:
-          type: string
-          description: Current tab status
-          enum:
-          - OPEN
-          - PAYING
-          - PAUSED
-          - COMPLETED
-          - CLOSED
-          example: OPEN
-        total_amount:
-          $ref: '#/components/schemas/TabAmountWithCurrency'
-          description: Total amount with currency
-        total_paid:
-          type: integer
-          format: int64
-          description: Total amount paid so far, in the same currency as total_amount
-          example: 0
-        remaining:
-          type: integer
-          format: int64
-          description: Remaining amount to be paid, in the same currency as total_amount
-          example: 5000
-        merchant_reference:
-          type: string
-          description: Merchant-assigned unique reference for the tab.
-          example: ORDER-2026-001
-        epos_instance_id:
-          type: string
-          description: ePOS instance identifier
-          example: epos-register-1
-        payment_requests:
-          type: array
-          description: List of payment requests on this tab. Empty array on creation; never null.
-          items:
-            $ref: '#/components/schemas/PaymentRequestSummary'
-        created_at:
-          type: string
-          format: date-time
-          description: ISO 8601 creation timestamp (in UTC)
-          example: '2026-04-14T10:00:00Z'
-        updated_at:
-          type: string
-          format: date-time
-          description: ISO 8601 last update timestamp (in UTC)
-          example: '2026-04-14T10:00:00Z'
-      required:
-      - created_at
-      - merchant_reference
-      - payment_requests
-      - remaining
-      - status
-      - store_id
-      - tab_id
-      - tab_name
-      - total_amount
-      - total_paid
-      - updated_at
-      title: TabResponse
-    Cursors:
-      type: object
-      description: Opaque cursors for paginating forward (after) and backward (before)
-      properties:
-        before:
-          type: string
-          description: Opaque cursor pointing to the first item of the current page
-          example: MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
-        after:
-          type: string
-          description: Opaque cursor pointing to the last item of the current page
-          example: MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
-      title: Cursors
-    Card:
-      type: object
-      example:
-        last4: '4673'
-        issuing_country: GB
-        brand: MASTERCARD
-        type: DEBIT
-        bin: '123456'
-      properties:
-        last4:
-          type: string
-          description: The last 4 digits of a card
-          example: L1234
-        issuing_country:
-          type: string
-          description: The Country code (ISO 3166-1 alpha-2) where the card was issued
-          example: GB
-        brand:
-          type: string
-          description: The brand of the payment network used by the card
-          example: VISA,MASTERCARD,UNION_PAY,JCB,DINERS,AMEX,OTHER
-        type:
-          type: string
-          description: The type of the card
-          example: DEBIT,CREDIT,PREPAID,CHARGE,UNKNOWN
-        bin:
-          type: string
-          description: The bin number to identify the issuer of the card holder
-          example: BIN123456
-      title: Card
-    InvalidParams:
-      type: object
-      description: A single failed parameter from a 4xx validation response.
-      example:
-        path: requested_amount.amount
-        reason: Amount exceeds the tab's remaining balance
-      properties:
-        path:
-          type: string
-          description: Dot-notation path to the offending field on the request body, in snake_case.
-          example: requested_amount.amount
-        reason:
-          type: string
-          description: Human-readable explanation of why the parameter was rejected.
-          example: Amount exceeds the tab's remaining balance
-      required:
-      - path
-      - reason
-      title: InvalidParams
-    ShowBillRequestEvent:
-      allOf:
-      - $ref: '#/components/schemas/TabEvent'
-      - type: object
-        properties:
-          event_type:
-            type: string
-            description: Event type discriminator
-            enum:
-            - SHOW_BILL_REQUEST
-            - PAY_REQUEST
-            - TAB_PAYMENT_STATUS_PROGRESS
-            - TAB_PAYMENT_COMPLETED
-            - TAB_PAUSED
-            - TAB_RESUMED
-            - TAB_COMPLETED
-            - TAB_BILL_HIDDEN
-            example: SHOW_BILL_REQUEST
-          tab_id:
-            type: string
-            format: uuid
-            description: Tab identifier
-            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-          merchant_reference:
-            type: string
-            description: Merchant-assigned unique reference for the tab.
-            example: ORDER-2026-001
-          terminal_id:
-            type: string
-            description: Terminal requesting to show the bill
-            example: term-001
-      description: 'SSE event: terminal requested to show bill'
-      example:
-        event_type: SHOW_BILL_REQUEST
-        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        merchant_reference: ORDER-2026-001
-        terminal_id: term-001
-      required:
-      - event_type
-      - merchant_reference
-      title: ShowBillRequestEvent
-    ShowBillResponse:
-      type: object
-      description: Response after sending bill to a terminal (ePOS-facing)
-      properties:
-        tab_id:
-          type: string
-          format: uuid
-          description: Tab identifier
-          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        status:
-          type: string
-          description: Current tab status
-          enum:
-          - OPEN
-          - PAYING
-          - PAUSED
-          - COMPLETED
-          - CLOSED
-          example: OPEN
-        showing_bill_terminal_id:
-          type: string
-          description: Terminal currently showing the bill
-          example: term-001
-        bill_file_id:
-          type: string
-          description: Bill file identifier
-          example: bill-file-001
-      title: ShowBillResponse
-    TabPaymentProgressEvent:
-      allOf:
-      - $ref: '#/components/schemas/TabEvent'
-      - type: object
-        properties:
-          event_type:
-            type: string
-            description: Event type discriminator
-            enum:
-            - SHOW_BILL_REQUEST
-            - PAY_REQUEST
-            - TAB_PAYMENT_STATUS_PROGRESS
-            - TAB_PAYMENT_COMPLETED
-            - TAB_PAUSED
-            - TAB_RESUMED
-            - TAB_COMPLETED
-            - TAB_BILL_HIDDEN
-            example: TAB_PAYMENT_STATUS_PROGRESS
-          tab_id:
-            type: string
-            format: uuid
-            description: Tab identifier
-            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-          merchant_reference:
-            type: string
-            description: Merchant-assigned unique reference for the tab.
-            example: ORDER-2026-001
-          payment_request_detail:
-            $ref: '#/components/schemas/PaymentRequestSummary'
-            description: Payment request details
-      description: 'SSE event: payment progress update'
-      example:
-        event_type: TAB_PAYMENT_STATUS_PROGRESS
-        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        merchant_reference: ORDER-2026-001
-        payment_request_detail:
-          payment_request_id: 9c1a7c2c-3e2a-4d5b-9f8a-6c2e5a8c9d01
-          status: IN_PROGRESS
-          amount:
-            amount: 2500
-            currency: GBP
-          method: CARD
-          created_at: '2026-04-21T12:30:00Z'
-      required:
-      - event_type
-      - merchant_reference
-      title: TabPaymentProgressEvent
     TabItem:
       type: object
       description: An individual item on a tab bill
@@ -2645,388 +2267,33 @@ components:
       - name
       - quantity
       title: TabItem
-    RequestedAmount:
-      type: object
+    QrCodeElement:
+      allOf:
+      - $ref: '#/components/schemas/Element'
+      - type: object
+        properties:
+          url:
+            type: string
+            minLength: 1
+          align:
+            type: string
+            enum:
+            - LEFT
+            - RIGHT
+            - CENTER
       example:
-        currency: GBP
-        amount: 50
-        tip: 0
-      properties:
-        currency:
-          type: string
-          format: ISO 4217
-          description: The currency used in this payment. Must be a valid ISO 4217 currency code
-          example: USD
-        amount:
-          type: integer
-          format: int64
-          description: A positive integer representing the full amount to charge in the smallest currency unit (e.g., 100 cents to charge $1). Inclusive of the tip
-          example: 1500
-        tip:
-          type: integer
-          format: int64
-          description: A positive integer that represents the tip added to the payment in the smallest currency unit (e.g., 100 cents to charge $1)
-          example: 10
+        type: QrCode
+        url: https://teya.com
+        align: LEFT
       required:
-      - amount
-      - currency
-      title: RequestedAmount
-    CursorPaging:
-      type: object
-      example:
-        cursors:
-          before: MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
-          after: MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
-        paths:
-          previous: /poslink/v1/tabs?store_id=eac4d470-4731-45b2-af6b-c828f03c1f9d&limit=20&before=MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
-          next: /poslink/v1/tabs?store_id=eac4d470-4731-45b2-af6b-c828f03c1f9d&limit=20&after=MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
-      properties:
-        cursors:
-          $ref: '#/components/schemas/Cursors'
-        paths:
-          $ref: '#/components/schemas/Paths'
-      title: CursorPaging
-    PaymentRequestSummary:
-      type: object
-      description: Summary of a payment request on a tab
-      properties:
-        payment_request_id:
-          type: string
-          format: uuid
-          description: Payment request identifier
-          example: 9c1a7c2c-3e2a-4d5b-9f8a-6c2e5a8c9d01
-        merchant_reference:
-          type: string
-          description: Merchant-assigned reference for this payment request.
-          example: ORDER_123
-          maxLength: 100
-        status:
-          type: string
-          description: Payment status
-          enum:
-          - NEW
-          - IN_PROGRESS
-          - SUCCESSFUL
-          - FAILED
-          - CANCELLING
-          - CANCELLED
-          example: SUCCESSFUL
-        requested_amount:
-          $ref: '#/components/schemas/RequestedAmount'
-          description: Requested amount including tip and currency.
-        payment_method:
-          type: string
-          description: Payment method used for this request. Optional — may be unset if the ePOS did not specify one.
-          enum:
-          - CARD
-          - CASH
-          example: CARD
-        payment_type:
-          type: string
-          description: Pay-at-Table payment type. Set whenever the payment request was created against a tab.
-          enum:
-          - FULL
-          - SPLIT
-          example: FULL
-        created_at:
-          type: string
-          format: date-time
-          description: ISO 8601 timestamp of when the payment was created (in UTC)
-          example: '2026-04-14T10:00:00Z'
-        updated_at:
-          type: string
-          format: date-time
-          description: ISO 8601 timestamp of when the payment was last updated (in UTC)
-          example: '2026-04-14T10:05:00Z'
-        metadata:
-          $ref: '#/components/schemas/TransactionMetadata'
-          description: Transaction metadata; present only on SUCCESSFUL payments.
-        transaction_timestamp:
-          type: string
-          format: date-time
-          description: When the terminal completed the transaction (ISO 8601, UTC). Present only on SUCCESSFUL payments.
-          example: '2026-04-14T10:04:30Z'
-      required:
-      - created_at
-      - payment_request_id
-      - requested_amount
-      - status
-      - updated_at
-      title: PaymentRequestSummary
-    TabAmountWithCurrency:
-      type: object
-      description: Amount with currency for tab operations
-      properties:
-        amount:
-          type: integer
-          format: int64
-          description: Amount in smallest currency unit (e.g., cents)
-          example: 1500
-        currency:
-          type: string
-          description: ISO 4217 currency code
-          example: EUR
-      required:
-      - amount
-      - currency
-      title: TabAmountWithCurrency
-    HideBillIntentResponse:
-      type: object
-      description: Response for a hide-bill intent — the request has been accepted and forwarded to the ePOS
-      properties:
-        tab_id:
-          type: string
-          format: uuid
-          description: Tab identifier
-          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        status:
-          type: string
-          description: Current tab status
-          enum:
-          - OPEN
-          - PAYING
-          - PAUSED
-          - COMPLETED
-          - CLOSED
-          example: OPEN
-      title: HideBillIntentResponse
-    CloseTabResponse:
-      type: object
-      description: Response for tab closure (soft delete)
-      properties:
-        tab_id:
-          type: string
-          format: uuid
-          description: Tab identifier
-          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        status:
-          type: string
-          description: Tab status after closure
-          enum:
-          - OPEN
-          - PAYING
-          - PAUSED
-          - COMPLETED
-          - CLOSED
-          example: CLOSED
-        closed_at:
-          type: string
-          format: date-time
-          description: ISO 8601 timestamp of closure (in UTC)
-          example: '2026-04-14T12:00:00Z'
-      required:
-      - closed_at
-      - status
-      - tab_id
-      title: CloseTabResponse
-    Element:
-      discriminator:
-        propertyName: type
-      example:
-        type: Text
-      oneOf:
-      - $ref: '#/components/schemas/TextElement'
-      - $ref: '#/components/schemas/QrCodeElement'
-      - $ref: '#/components/schemas/ImageElement'
-      properties:
-        type:
-          type: string
-      required:
-      - type
-      title: Element
+      - url
+      title: QrCodeElement
     DividerRow:
       allOf:
       - $ref: '#/components/schemas/Row'
       example:
         type: Divider
       title: DividerRow
-    TabEvent:
-      description: Union of all SSE events emitted by the tab stream. See discriminator `event_type` for the concrete variant.
-      discriminator:
-        propertyName: event_type
-        mapping:
-          SHOW_BILL_REQUEST: '#/components/schemas/ShowBillRequestEvent'
-          PAY_REQUEST: '#/components/schemas/PayRequestEvent'
-          TAB_PAYMENT_STATUS_PROGRESS: '#/components/schemas/TabPaymentProgressEvent'
-          TAB_PAYMENT_COMPLETED: '#/components/schemas/TabPaymentCompletedEvent'
-          TAB_PAUSED: '#/components/schemas/TabPausedEvent'
-          TAB_RESUMED: '#/components/schemas/TabResumedEvent'
-          TAB_COMPLETED: '#/components/schemas/TabCompletedEvent'
-          TAB_BILL_HIDDEN: '#/components/schemas/TabBillHiddenEvent'
-      example: event_type=SHOW_BILL_REQUEST; see oneOf variants for full payload shapes
-      oneOf:
-      - $ref: '#/components/schemas/ShowBillRequestEvent'
-      - $ref: '#/components/schemas/PayRequestEvent'
-      - $ref: '#/components/schemas/TabPaymentProgressEvent'
-      - $ref: '#/components/schemas/TabPaymentCompletedEvent'
-      - $ref: '#/components/schemas/TabPausedEvent'
-      - $ref: '#/components/schemas/TabResumedEvent'
-      - $ref: '#/components/schemas/TabCompletedEvent'
-      - $ref: '#/components/schemas/TabBillHiddenEvent'
-      properties:
-        event_type:
-          type: string
-      required:
-      - event_type
-      title: TabEvent
-    BillDetailResponse:
-      type: object
-      description: Detailed bill information for terminal
-      properties:
-        tab_id:
-          type: string
-          format: uuid
-          description: Tab identifier
-          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        tab_name:
-          type: string
-          description: Tab display name
-          example: Table 5
-        status:
-          type: string
-          description: Current tab status
-          enum:
-          - OPEN
-          - PAYING
-          - PAUSED
-          - COMPLETED
-          - CLOSED
-          example: OPEN
-        total_amount:
-          $ref: '#/components/schemas/TabAmountWithCurrency'
-          description: Total amount with currency
-        total_paid:
-          type: integer
-          format: int64
-          description: Total amount paid so far, in the same currency as total_amount
-          example: 0
-        remaining:
-          type: integer
-          format: int64
-          description: Remaining amount to be paid, in the same currency as total_amount
-          example: 5000
-        merchant_reference:
-          type: string
-          description: Merchant-assigned unique reference for the tab.
-          example: ORDER-2026-001
-        bill_file_url:
-          type: string
-          format: uri
-          description: Presigned URL to the bill file/image. Null when the ePOS POSTed the bill without a print_model (no print-receipt round-trip occurred).
-          example: https://files.example.com/bills/bill-file-001.png
-        showing_bill_terminal_id:
-          type: string
-          description: Terminal currently holding the show-bill intent. Null when no show-bill intent is active for the tab (e.g. bill_posted was reset, or the intent expired).
-          example: term-001
-        show_bill_expires_at:
-          type: string
-          format: date-time
-          description: ISO 8601 expiry timestamp for show-bill (in UTC). Null when no show-bill intent is active.
-          example: '2026-04-14T10:05:00Z'
-        last_error_code:
-          type: string
-          description: Last ePOS-reported rejection on this tab. Present only when the ePOS POSTed /errors and no subsequent teardown event has cleared it.
-          example: BILL_ALREADY_SETTLED
-        last_error_message:
-          type: string
-          description: Human-readable error message paired with last_error_code.
-          example: Bill has already been paid in full
-        last_error_at:
-          type: string
-          format: date-time
-          description: ISO 8601 timestamp when the rejection was recorded (in UTC).
-          example: '2026-04-14T10:07:00Z'
-      required:
-      - merchant_reference
-      - remaining
-      - status
-      - tab_id
-      - tab_name
-      - total_amount
-      - total_paid
-      title: BillDetailResponse
-    DccData:
-      type: object
-      description: Dynamic Currency Conversion data. If present, all fields are required.
-      example:
-        transaction_amount: 8500
-        transaction_currency: GBP
-        exchange_rate: '0.8650'
-        conversion_fee: 2.5%
-        disclaimer: I have been offered a choice of currencies and have chosen to accept DCC and pay in EUR at the exchange rate offered by Teya
-      properties:
-        transaction_amount:
-          type: integer
-          format: int64
-          description: Transaction amount in the smallest currency unit (8500 = £85.00)
-          example: 8500
-        transaction_currency:
-          type: string
-          description: Currency used by the cardholder in ISO 4217 format (e.g. GBP)
-          example: GBP
-          maxLength: 3
-          minLength: 3
-          pattern: ^[A-Z]{3}$
-        exchange_rate:
-          type: string
-          description: Exchange rate applied for DCC conversion (e.g. '0.8650' means 1 EUR (merchant currency) = 0.8650 GBP (cardholder currency))
-          minLength: 1
-        conversion_fee:
-          type: string
-          description: Conversion fee applied for DCC service, represented as a percentage string (e.g. '2.5%')
-          example: 2.5%
-          minLength: 1
-        disclaimer:
-          type: string
-          description: Text printed on the customer's receipt confirming DCC acceptance and exchange rate details
-          example: I have been offered a choice of currencies and have chosen to accept DCC and pay in GBP at the exchange rate offered by Teya
-          maxLength: 500
-          minLength: 1
-      required:
-      - conversion_fee
-      - disclaimer
-      - exchange_rate
-      - transaction_amount
-      - transaction_currency
-      title: DccData
-    CreateTabRequest:
-      type: object
-      description: Request to create a new tab
-      properties:
-        store_id:
-          type: string
-          format: uuid
-          description: The store identifier
-          example: eac4d470-4731-45b2-af6b-c828f03c1f9d
-        tab_name:
-          type: string
-          description: Display name for the tab.
-          example: Table 5
-          maxLength: 100
-          minLength: 1
-        merchant_reference:
-          type: string
-          description: Merchant-assigned reference for this tab. Unique per store.
-          example: ORDER-2026-001
-          maxLength: 100
-          minLength: 1
-        epos_instance_id:
-          type: string
-          description: External ID of the ePOS instance that opened the tab.
-          example: epos-register-1
-          maxLength: 100
-          minLength: 0
-        currency_code:
-          type: string
-          description: ISO 4217 currency code for the tab
-          example: GBP
-          maxLength: 3
-      required:
-      - currency_code
-      - merchant_reference
-      - store_id
-      - tab_name
-      title: CreateTabRequest
     TabDetailResponse:
       type: object
       description: Detailed tab response including bill state and linked payment requests.
@@ -3125,15 +2392,228 @@ components:
       - total_paid
       - updated_at
       title: TabDetailResponse
-    TabErrorResponse:
+    TabPaymentProgressEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: TAB_PAYMENT_STATUS_PROGRESS
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+          payment_request_detail:
+            $ref: '#/components/schemas/PaymentRequestSummary'
+            description: Payment request details
+      description: 'SSE event: payment progress update'
+      example:
+        event_type: TAB_PAYMENT_STATUS_PROGRESS
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+        payment_request_detail:
+          payment_request_id: 9c1a7c2c-3e2a-4d5b-9f8a-6c2e5a8c9d01
+          status: IN_PROGRESS
+          amount:
+            amount: 2500
+            currency: GBP
+          method: CARD
+          created_at: '2026-04-21T12:30:00Z'
+      required:
+      - event_type
+      - merchant_reference
+      title: TabPaymentProgressEvent
+    ImageElement:
+      allOf:
+      - $ref: '#/components/schemas/Element'
+      - type: object
+        properties:
+          base64:
+            type: string
+            minLength: 1
+          align:
+            type: string
+            enum:
+            - LEFT
+            - RIGHT
+            - CENTER
+      example:
+        type: Image
+        base64: '...'
+        align: RIGHT
+      required:
+      - base64
+      title: ImageElement
+    ShowBillRequest:
       type: object
-      description: Response after reporting a tab error
+      description: Request to push a structured bill to a terminal for display
+      properties:
+        terminal_id:
+          type: string
+          description: The terminal to display the bill on
+          example: term-001
+        total_amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Total amount to display on the bill
+        print_model:
+          $ref: '#/components/schemas/PrintDocument'
+          description: Structured print model for the bill.
+        tab_item_data:
+          type: array
+          description: List of items on the bill
+          items:
+            $ref: '#/components/schemas/TabItem'
+      required:
+      - terminal_id
+      - total_amount
+      title: ShowBillRequest
+    PaymentMethodDetails:
+      type: object
+      example:
+        card:
+          last4: '4673'
+          issuing_country: GB
+          brand: MASTERCARD
+          type: DEBIT
+          bin: '123456'
+        entry_mode: EMV_CONTACTLESS
+        verification_method: NONE
+        application_id: A0000000041010
+        response_code: '00'
+        authorisation_code: '537001'
+      properties:
+        card:
+          $ref: '#/components/schemas/Card'
+          description: Card
+        entry_mode:
+          type: string
+          description: The method by which the card was used
+          example: ECOM, EMV_PIN, CONTACT_ICC, EMV_CONTACTLESS, KEYED, MAGSTRIPE_SWIPED, ON_FILE, MAGSTRIPE_FALLBACK
+        verification_method:
+          type: string
+          description: The method by which the card was verified
+          example: NONE, ELECTRONIC_SIGNATURE, ON_DEVICE, MANUAL, SIGNATURE, OFFLINE_PIN, ONLINE_PIN, OFFLINE_PIN_PLUS_SIGNATURE, SECURED_ELECTRONIC_COMMERCE
+        application_name:
+          type: string
+          description: Application preferred name, a human-readable name of the EMV card application selected by the terminal during a chip card transaction
+          example: Debit MasterCard
+        application_id:
+          type: string
+          description: Application ID that uniquely identifies the card type
+          example: A0000000041010
+        mid:
+          type: string
+          description: Merchant acquiring MID
+          example: MID5006544
+        response_code:
+          type: string
+          description: Transaction response code provided by the schemes
+          example: '00'
+        authorisation_code:
+          type: string
+          description: Authorisation code used to approve a transaction
+          example: A8RLR8
+      title: PaymentMethodDetails
+    PaymentRequestSummary:
+      type: object
+      description: Summary of a payment request on a tab
+      properties:
+        payment_request_id:
+          type: string
+          format: uuid
+          description: Payment request identifier
+          example: 9c1a7c2c-3e2a-4d5b-9f8a-6c2e5a8c9d01
+        merchant_reference:
+          type: string
+          description: Merchant-assigned reference for this payment request.
+          example: ORDER_123
+          maxLength: 100
+        status:
+          type: string
+          description: Payment status
+          enum:
+          - NEW
+          - IN_PROGRESS
+          - SUCCESSFUL
+          - FAILED
+          - CANCELLING
+          - CANCELLED
+          example: SUCCESSFUL
+        requested_amount:
+          $ref: '#/components/schemas/RequestedAmount'
+          description: Requested amount including tip and currency.
+        payment_method:
+          type: string
+          description: Payment method used for this request. Optional — may be unset if the ePOS did not specify one.
+          enum:
+          - CARD
+          - CASH
+          example: CARD
+        payment_type:
+          type: string
+          description: Pay-at-Table payment type. Set whenever the payment request was created against a tab.
+          enum:
+          - FULL
+          - SPLIT
+          example: FULL
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the payment was created (in UTC)
+          example: '2026-04-14T10:00:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the payment was last updated (in UTC)
+          example: '2026-04-14T10:05:00Z'
+        metadata:
+          $ref: '#/components/schemas/TransactionMetadata'
+          description: Transaction metadata; present only on SUCCESSFUL payments.
+        transaction_timestamp:
+          type: string
+          format: date-time
+          description: When the terminal completed the transaction (ISO 8601, UTC). Present only on SUCCESSFUL payments.
+          example: '2026-04-14T10:04:30Z'
+      required:
+      - created_at
+      - payment_request_id
+      - requested_amount
+      - status
+      - updated_at
+      title: PaymentRequestSummary
+    TabSummary:
+      type: object
+      description: Summary of a tab
       properties:
         tab_id:
           type: string
           format: uuid
           description: Tab identifier
           example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        tab_name:
+          type: string
+          description: Tab display name
+          example: Table 5
+        merchant_reference:
+          type: string
+          description: Merchant-assigned unique reference for the tab.
+          example: ORDER-2026-001
         status:
           type: string
           description: Current tab status
@@ -3144,42 +2624,108 @@ components:
           - COMPLETED
           - CLOSED
           example: OPEN
-      title: TabErrorResponse
-    TabListResponse:
-      type: object
-      description: Paginated list of tabs
-      properties:
-        tabs:
-          type: array
-          description: Page of tab summaries
-          items:
-            $ref: '#/components/schemas/TabSummary'
-        paging:
-          $ref: '#/components/schemas/CursorPaging'
-          description: Cursor pagination envelope
-      title: TabListResponse
-    SpacerRow:
-      allOf:
-      - $ref: '#/components/schemas/Row'
-      example:
-        type: Spacer
-      title: SpacerRow
-    TableInnerRow:
-      type: object
-      example:
-        cells:
-        - type: Text
-          text: Item
-          align: LEFT
-      properties:
-        cells:
-          type: array
-          items:
-            $ref: '#/components/schemas/Element'
-          minItems: 1
+        total_amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Total amount with currency
+        total_paid:
+          type: integer
+          format: int64
+          description: Total amount paid so far, in the same currency as total_amount
+          example: 0
+        remaining:
+          type: integer
+          format: int64
+          description: Remaining amount to be paid, in the same currency as total_amount
+          example: 5000
+        showing_bill_terminal_id:
+          type: string
+          description: Terminal currently showing the bill. Present only while a bill is being displayed.
+          example: term-001
       required:
-      - cells
-      title: TableInnerRow
+      - merchant_reference
+      - remaining
+      - status
+      - tab_id
+      - tab_name
+      - total_amount
+      - total_paid
+      title: TabSummary
+    BillDetailResponse:
+      type: object
+      description: Detailed bill information for terminal
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        tab_name:
+          type: string
+          description: Tab display name
+          example: Table 5
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+        total_amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Total amount with currency
+        total_paid:
+          type: integer
+          format: int64
+          description: Total amount paid so far, in the same currency as total_amount
+          example: 0
+        remaining:
+          type: integer
+          format: int64
+          description: Remaining amount to be paid, in the same currency as total_amount
+          example: 5000
+        merchant_reference:
+          type: string
+          description: Merchant-assigned unique reference for the tab.
+          example: ORDER-2026-001
+        bill_file_url:
+          type: string
+          format: uri
+          description: Presigned URL to the bill file/image. Null when the ePOS POSTed the bill without a print_model (no print-receipt round-trip occurred).
+          example: https://files.example.com/bills/bill-file-001.png
+        showing_bill_terminal_id:
+          type: string
+          description: Terminal currently holding the show-bill intent. Null when no show-bill intent is active for the tab (e.g. bill_posted was reset, or the intent expired).
+          example: term-001
+        show_bill_expires_at:
+          type: string
+          format: date-time
+          description: ISO 8601 expiry timestamp for show-bill (in UTC). Null when no show-bill intent is active.
+          example: '2026-04-14T10:05:00Z'
+        last_error_code:
+          type: string
+          description: Last ePOS-reported rejection on this tab. Present only when the ePOS POSTed /errors and no subsequent teardown event has cleared it.
+          example: BILL_ALREADY_SETTLED
+        last_error_message:
+          type: string
+          description: Human-readable error message paired with last_error_code.
+          example: Bill has already been paid in full
+        last_error_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the rejection was recorded (in UTC).
+          example: '2026-04-14T10:07:00Z'
+      required:
+      - merchant_reference
+      - remaining
+      - status
+      - tab_id
+      - tab_name
+      - total_amount
+      - total_paid
+      title: BillDetailResponse
     ItemsRow:
       allOf:
       - $ref: '#/components/schemas/Row'
@@ -3201,34 +2747,80 @@ components:
       required:
       - items
       title: ItemsRow
-    SendBillImageForm:
+    TabErrorRequest:
       type: object
-      description: multipart/form-data payload for pushing a pre-rendered bill image
+      description: Request to report an error on a tab
       properties:
         terminal_id:
           type: string
-          description: The terminal to display the bill on
+          description: The terminal reporting the error
           example: term-001
-        total_amount:
-          type: integer
-          format: int64
-          description: Total amount in the smallest currency unit
-          example: 3200
-        currency:
+        error_code:
           type: string
-          description: ISO 4217 currency code
-          example: GBP
-        image:
+          description: Error code
+          enum:
+          - TABLE_NOT_FOUND
+          - BILL_ALREADY_SETTLED
+          - EPOS_ERROR
+          - REQUEST_REJECTED
+          example: TABLE_NOT_FOUND
+        message:
           type: string
-          format: binary
-          description: Pre-rendered bill image (PNG or JPEG)
-          example: bill.png
+          description: Human-readable error message
+          example: Table 5 was not found in the ePOS system
       required:
-      - currency
-      - image
+      - error_code
+      - message
       - terminal_id
-      - total_amount
-      title: SendBillImageForm
+      title: TabErrorRequest
+    TabCompletedEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: TAB_COMPLETED
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+          total_paid:
+            type: integer
+            format: int64
+            description: Total amount paid, in the tab's currency
+            example: 5000
+          payment_count:
+            type: integer
+            format: int32
+            description: Number of payments made
+            example: 3
+      description: 'SSE event: tab fully paid and completed'
+      example:
+        event_type: TAB_COMPLETED
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+        total_paid: 5000
+        payment_count: 3
+      required:
+      - event_type
+      - merchant_reference
+      title: TabCompletedEvent
     PayIntentResponse:
       type: object
       description: Response after creating a pay intent
@@ -3271,119 +2863,527 @@ components:
           description: Show-bill expiry timestamp (ISO 8601, UTC), updated by this pay intent. Null when no show-bill is active for the tab.
           example: '2026-05-26T15:30:00Z'
       title: PayIntentResponse
-    TabResumedEvent:
-      allOf:
-      - $ref: '#/components/schemas/TabEvent'
-      - type: object
-        properties:
-          event_type:
-            type: string
-            description: Event type discriminator
-            enum:
-            - SHOW_BILL_REQUEST
-            - PAY_REQUEST
-            - TAB_PAYMENT_STATUS_PROGRESS
-            - TAB_PAYMENT_COMPLETED
-            - TAB_PAUSED
-            - TAB_RESUMED
-            - TAB_COMPLETED
-            - TAB_BILL_HIDDEN
-            example: TAB_RESUMED
-          tab_id:
-            type: string
-            format: uuid
-            description: Tab identifier
-            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-          merchant_reference:
-            type: string
-            description: Merchant-assigned unique reference for the tab.
-            example: ORDER-2026-001
-      description: 'SSE event: tab has been resumed'
-      example:
-        event_type: TAB_RESUMED
-        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        merchant_reference: ORDER-2026-001
-      required:
-      - event_type
-      - merchant_reference
-      title: TabResumedEvent
-    TabPausedEvent:
-      allOf:
-      - $ref: '#/components/schemas/TabEvent'
-      - type: object
-        properties:
-          event_type:
-            type: string
-            description: Event type discriminator
-            enum:
-            - SHOW_BILL_REQUEST
-            - PAY_REQUEST
-            - TAB_PAYMENT_STATUS_PROGRESS
-            - TAB_PAYMENT_COMPLETED
-            - TAB_PAUSED
-            - TAB_RESUMED
-            - TAB_COMPLETED
-            - TAB_BILL_HIDDEN
-            example: TAB_PAUSED
-          tab_id:
-            type: string
-            format: uuid
-            description: Tab identifier
-            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-          merchant_reference:
-            type: string
-            description: Merchant-assigned unique reference for the tab.
-            example: ORDER-2026-001
-      description: 'SSE event: tab has been paused'
-      example:
-        event_type: TAB_PAUSED
-        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        merchant_reference: ORDER-2026-001
-      required:
-      - event_type
-      - merchant_reference
-      title: TabPausedEvent
-    ExceptionResponse:
+    TabResponse:
       type: object
-      example:
-        code: BAD_REQUEST
-        description: Bad Request
+      description: Response for tab creation
       properties:
-        code:
+        tab_id:
           type: string
-          format: enum
-          description: Error code
-          example: BAD_REQUEST
-        description:
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        store_id:
           type: string
-          description: Error description
-          example: Bad Request
-        invalid_params:
+          format: uuid
+          description: Store identifier
+          example: eac4d470-4731-45b2-af6b-c828f03c1f9d
+        tab_name:
+          type: string
+          description: Tab display name
+          example: Table 5
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+        total_amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Total amount with currency
+        total_paid:
+          type: integer
+          format: int64
+          description: Total amount paid so far, in the same currency as total_amount
+          example: 0
+        remaining:
+          type: integer
+          format: int64
+          description: Remaining amount to be paid, in the same currency as total_amount
+          example: 5000
+        merchant_reference:
+          type: string
+          description: Merchant-assigned unique reference for the tab.
+          example: ORDER-2026-001
+        epos_instance_id:
+          type: string
+          description: ePOS instance identifier
+          example: epos-register-1
+        payment_requests:
           type: array
-          description: List of invalid request parameters. Populated for validation failures (400 / 422); omitted otherwise.
+          description: List of payment requests on this tab. Empty array on creation; never null.
           items:
-            $ref: '#/components/schemas/InvalidParams'
-      title: ExceptionResponse
-    TableHeaderCell:
+            $ref: '#/components/schemas/PaymentRequestSummary'
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 creation timestamp (in UTC)
+          example: '2026-04-14T10:00:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: ISO 8601 last update timestamp (in UTC)
+          example: '2026-04-14T10:00:00Z'
+      required:
+      - created_at
+      - merchant_reference
+      - payment_requests
+      - remaining
+      - status
+      - store_id
+      - tab_id
+      - tab_name
+      - total_amount
+      - total_paid
+      - updated_at
+      title: TabResponse
+    TransactionMetadata:
       type: object
       example:
-        element:
-          type: Text
-          text: Header
-        weight: 1
+        payment_method_details:
+          card:
+            last4: '4673'
+            issuing_country: GB
+            brand: MASTERCARD
+            type: DEBIT
+            bin: '123456'
+          entry_mode: EMV_CONTACTLESS
+          verification_method: NONE
+          application_id: A0000000041010
+          mid: '5006544'
+          response_code: '00'
+          authorisation_code: '537001'
       properties:
-        element:
-          $ref: '#/components/schemas/Element'
-          oneOf:
-          - $ref: '#/components/schemas/TextElement'
-          - $ref: '#/components/schemas/ImageElement'
-          - $ref: '#/components/schemas/QrCodeElement'
-        weight:
-          type: number
-          format: double
+        payment_method_details:
+          $ref: '#/components/schemas/PaymentMethodDetails'
+          description: The payment method details
+        dcc:
+          $ref: '#/components/schemas/DccData'
+          description: Dynamic Currency Conversion data. Optional field
+      title: TransactionMetadata
+    PrintDocument:
+      type: object
+      example:
+        rows:
+        - type: Items
+          items:
+          - type: Text
+            text: Hello
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/Row'
+          maxItems: 150
+          minItems: 1
       required:
-      - element
-      title: TableHeaderCell
+      - rows
+      title: PrintDocument
+    TabListResponse:
+      type: object
+      description: Paginated list of tabs
+      properties:
+        tabs:
+          type: array
+          description: Page of tab summaries
+          items:
+            $ref: '#/components/schemas/TabSummary'
+        paging:
+          $ref: '#/components/schemas/CursorPaging'
+          description: Cursor pagination envelope
+      title: TabListResponse
+    ShowBillIntentResponse:
+      type: object
+      description: Response for a show-bill intent — the request has been accepted and forwarded to the ePOS
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+        showing_bill_terminal_id:
+          type: string
+          description: Terminal that requested the bill display
+          example: term-001
+        show_bill_expires_at:
+          type: string
+          format: date-time
+          description: ISO 8601 expiry timestamp for the show-bill intent (in UTC)
+          example: '2026-04-14T10:05:00Z'
+      title: ShowBillIntentResponse
+    TextElement:
+      allOf:
+      - $ref: '#/components/schemas/Element'
+      - type: object
+        properties:
+          text:
+            type: string
+            minLength: 1
+          bold:
+            type: boolean
+          align:
+            type: string
+            enum:
+            - LEFT
+            - RIGHT
+            - CENTER
+      example:
+        type: Text
+        text: Coffee
+        bold: false
+        align: LEFT
+      required:
+      - text
+      title: TextElement
+    Card:
+      type: object
+      example:
+        last4: '4673'
+        issuing_country: GB
+        brand: MASTERCARD
+        type: DEBIT
+        bin: '123456'
+      properties:
+        last4:
+          type: string
+          description: The last 4 digits of a card
+          example: L1234
+        issuing_country:
+          type: string
+          description: The Country code (ISO 3166-1 alpha-2) where the card was issued
+          example: GB
+        brand:
+          type: string
+          description: The brand of the payment network used by the card
+          example: VISA,MASTERCARD,UNION_PAY,JCB,DINERS,AMEX,OTHER
+        type:
+          type: string
+          description: The type of the card
+          example: DEBIT,CREDIT,PREPAID,CHARGE,UNKNOWN
+        bin:
+          type: string
+          description: The bin number to identify the issuer of the card holder
+          example: BIN123456
+      title: Card
+    TabAmountWithCurrency:
+      type: object
+      description: Amount with currency for tab operations
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: Amount in smallest currency unit (e.g., cents)
+          example: 1500
+        currency:
+          type: string
+          description: ISO 4217 currency code
+          example: EUR
+      required:
+      - amount
+      - currency
+      title: TabAmountWithCurrency
+    SendBillImageForm:
+      type: object
+      description: multipart/form-data payload for pushing a pre-rendered bill image
+      properties:
+        terminal_id:
+          type: string
+          description: The terminal to display the bill on
+          example: term-001
+        total_amount:
+          type: integer
+          format: int64
+          description: Total amount in the smallest currency unit
+          example: 3200
+        currency:
+          type: string
+          description: ISO 4217 currency code
+          example: GBP
+        image:
+          type: string
+          format: binary
+          description: Pre-rendered bill image (PNG or JPEG)
+          example: bill.png
+      required:
+      - currency
+      - image
+      - terminal_id
+      - total_amount
+      title: SendBillImageForm
+    TabBillHiddenEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: TAB_BILL_HIDDEN
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+      description: 'SSE event: bill has been hidden from terminal'
+      example:
+        event_type: TAB_BILL_HIDDEN
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+      required:
+      - event_type
+      - merchant_reference
+      title: TabBillHiddenEvent
+    TabEvent:
+      description: Union of all SSE events emitted by the tab stream. See discriminator `event_type` for the concrete variant.
+      discriminator:
+        propertyName: event_type
+        mapping:
+          SHOW_BILL_REQUEST: '#/components/schemas/ShowBillRequestEvent'
+          PAY_REQUEST: '#/components/schemas/PayRequestEvent'
+          TAB_PAYMENT_STATUS_PROGRESS: '#/components/schemas/TabPaymentProgressEvent'
+          TAB_PAYMENT_COMPLETED: '#/components/schemas/TabPaymentCompletedEvent'
+          TAB_PAUSED: '#/components/schemas/TabPausedEvent'
+          TAB_RESUMED: '#/components/schemas/TabResumedEvent'
+          TAB_COMPLETED: '#/components/schemas/TabCompletedEvent'
+          TAB_BILL_HIDDEN: '#/components/schemas/TabBillHiddenEvent'
+      example: event_type=SHOW_BILL_REQUEST; see oneOf variants for full payload shapes
+      oneOf:
+      - $ref: '#/components/schemas/ShowBillRequestEvent'
+      - $ref: '#/components/schemas/PayRequestEvent'
+      - $ref: '#/components/schemas/TabPaymentProgressEvent'
+      - $ref: '#/components/schemas/TabPaymentCompletedEvent'
+      - $ref: '#/components/schemas/TabPausedEvent'
+      - $ref: '#/components/schemas/TabResumedEvent'
+      - $ref: '#/components/schemas/TabCompletedEvent'
+      - $ref: '#/components/schemas/TabBillHiddenEvent'
+      properties:
+        event_type:
+          type: string
+      required:
+      - event_type
+      title: TabEvent
+    Paths:
+      type: object
+      description: Relative paths for navigating to the previous and next pages
+      properties:
+        previous:
+          type: string
+          description: Relative path to retrieve the previous page
+          example: /poslink/v1/tabs?store_id=eac4d470-4731-45b2-af6b-c828f03c1f9d&limit=20&before=MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+        next:
+          type: string
+          description: Relative path to retrieve the next page
+          example: /poslink/v1/tabs?store_id=eac4d470-4731-45b2-af6b-c828f03c1f9d&limit=20&after=MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+      title: Paths
+    HideBillIntentResponse:
+      type: object
+      description: Response for a hide-bill intent — the request has been accepted and forwarded to the ePOS
+      properties:
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        status:
+          type: string
+          description: Current tab status
+          enum:
+          - OPEN
+          - PAYING
+          - PAUSED
+          - COMPLETED
+          - CLOSED
+          example: OPEN
+      title: HideBillIntentResponse
+    Element:
+      discriminator:
+        propertyName: type
+      example:
+        type: Text
+      oneOf:
+      - $ref: '#/components/schemas/TextElement'
+      - $ref: '#/components/schemas/QrCodeElement'
+      - $ref: '#/components/schemas/ImageElement'
+      properties:
+        type:
+          type: string
+      required:
+      - type
+      title: Element
+    SpacerRow:
+      allOf:
+      - $ref: '#/components/schemas/Row'
+      example:
+        type: Spacer
+      title: SpacerRow
+    Cursors:
+      type: object
+      description: Opaque cursors for paginating forward (after) and backward (before)
+      properties:
+        before:
+          type: string
+          description: Opaque cursor pointing to the first item of the current page
+          example: MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+        after:
+          type: string
+          description: Opaque cursor pointing to the last item of the current page
+          example: MTY1NTMxMDI0MDAwMHxkZmM0ZmM1Mi04MjkzLTQ1YjYtOWYzZS1iM2IwZjhmODgxODg
+      title: Cursors
+    CreateTabRequest:
+      type: object
+      description: Request to create a new tab
+      properties:
+        store_id:
+          type: string
+          format: uuid
+          description: The store identifier
+          example: eac4d470-4731-45b2-af6b-c828f03c1f9d
+        tab_name:
+          type: string
+          description: Display name for the tab.
+          example: Table 5
+          maxLength: 100
+          minLength: 1
+        merchant_reference:
+          type: string
+          description: Merchant-assigned reference for this tab. Unique per store.
+          example: ORDER-2026-001
+          maxLength: 100
+          minLength: 1
+        epos_instance_id:
+          type: string
+          description: External ID of the ePOS instance that opened the tab.
+          example: epos-register-1
+          maxLength: 100
+          minLength: 0
+        currency_code:
+          type: string
+          description: ISO 4217 currency code for the tab
+          example: GBP
+          maxLength: 3
+      required:
+      - currency_code
+      - merchant_reference
+      - store_id
+      - tab_name
+      title: CreateTabRequest
+    PayRequestEvent:
+      allOf:
+      - $ref: '#/components/schemas/TabEvent'
+      - type: object
+        properties:
+          event_type:
+            type: string
+            description: Event type discriminator
+            enum:
+            - SHOW_BILL_REQUEST
+            - PAY_REQUEST
+            - TAB_PAYMENT_STATUS_PROGRESS
+            - TAB_PAYMENT_COMPLETED
+            - TAB_PAUSED
+            - TAB_RESUMED
+            - TAB_COMPLETED
+            - TAB_BILL_HIDDEN
+            example: PAY_REQUEST
+          tab_id:
+            type: string
+            format: uuid
+            description: Tab identifier
+            example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+          merchant_reference:
+            type: string
+            description: Merchant-assigned unique reference for the tab.
+            example: ORDER-2026-001
+          terminal_id:
+            type: string
+            description: Terminal requesting payment
+            example: term-001
+          type:
+            type: string
+            description: Payment type
+            example: SPLIT
+          amount:
+            $ref: '#/components/schemas/TabAmountWithCurrency'
+            description: Payment amount with currency
+          method:
+            type: string
+            description: Payment method
+            example: CARD
+      description: 'SSE event: terminal initiated a payment request'
+      example:
+        event_type: PAY_REQUEST
+        tab_id: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        merchant_reference: ORDER-2026-001
+        terminal_id: term-001
+        type: SPLIT
+        amount:
+          amount: 2500
+          currency: GBP
+        method: CARD
+      required:
+      - event_type
+      - merchant_reference
+      title: PayRequestEvent
+    UpdateTabRequest:
+      type: object
+      description: Request to update a tab's content. All fields optional; only the ones provided are applied.
+      properties:
+        total_amount:
+          $ref: '#/components/schemas/TabAmountWithCurrency'
+          description: Updated total amount for the tab
+        tab_item_data:
+          type: array
+          description: Updated list of tab items.
+          items:
+            $ref: '#/components/schemas/TabItem'
+          maxItems: 100
+          minItems: 0
+      title: UpdateTabRequest
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
   securitySchemes:
     authorisation:
       type: oauth2

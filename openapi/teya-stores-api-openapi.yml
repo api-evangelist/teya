@@ -309,6 +309,102 @@ paths:
                 description: Internal Server Error
 components:
   schemas:
+    ExceptionResponse:
+      type: object
+      example:
+        code: BAD_REQUEST
+        description: Bad Request
+      properties:
+        code:
+          type: string
+          format: enum
+          description: Error code
+          example: BAD_REQUEST
+        description:
+          type: string
+          description: Error description
+          example: Bad Request
+        invalid_params:
+          type: array
+          description: List of invalid request parameters. Populated for validation failures (400 / 422); omitted otherwise.
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      title: ExceptionResponse
+    RetrieveStoreResponse:
+      type: object
+      example:
+        stores:
+        - id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+          name: Mari Sucos - Main Store
+          address:
+            city: Porto
+            country: PT
+            street_address_line_1: Rua da boavista 531
+            street_address_line_2: Towns
+            zipcode: 4050-104
+        - id: 34a735b9-58a6-4622-af5f-054e6d87e22d
+          name: Mari Sucos - Fast Express
+          address:
+            city: Lisboa
+            country: PT
+            street_address_line_1: Avenida dos almirantes 112
+            street_address_line_2: ''
+            zipcode: 4098-104
+      properties:
+        stores:
+          type: array
+          items:
+            $ref: '#/components/schemas/Store'
+      title: RetrieveStoreResponse
+    Store:
+      type: object
+      example:
+        id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+        name: Mari Sucos - Main Store
+        address:
+          city: Porto
+          country: PT
+          street_address_line_1: Rua da boavista 531
+          street_address_line_2: Towns
+          zipcode: 4050-104
+      properties:
+        id:
+          type: string
+          description: The store identifier
+          example: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+        name:
+          type: string
+          description: The name of the store
+          example: Mari Sucos - Main Store
+        address:
+          $ref: '#/components/schemas/Address'
+          description: The address of the store
+        company_id:
+          type: string
+          description: The company identifier
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+          writeOnly: true
+      title: Store
+    TerminalConfigItem:
+      type: object
+      properties:
+        config_key:
+          type: string
+          description: The configuration key
+          example: PAT_ENABLED
+          title: Configuration Key
+        value:
+          type: string
+          description: The configuration value
+          example: 'true'
+          title: Configuration Value
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp of the last update to this entry, in ISO 8601 format
+          example: '2026-05-20T10:00:00Z'
+          title: Updated At
+      title: Configuration Item
     Address:
       type: object
       example:
@@ -341,61 +437,25 @@ components:
           description: Zip code of the store
           example: 4050-104
       title: Address
-    Store:
+    UpdateTerminalConfigRequest:
       type: object
-      example:
-        id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
-        name: Mari Sucos - Main Store
-        address:
-          city: Porto
-          country: PT
-          street_address_line_1: Rua da boavista 531
-          street_address_line_2: Towns
-          zipcode: 4050-104
       properties:
-        id:
+        value:
           type: string
-          description: The store identifier
-          example: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
-        name:
-          type: string
-          description: The name of the store
-          example: Mari Sucos - Main Store
-        address:
-          $ref: '#/components/schemas/Address'
-          description: The address of the store
-        company_id:
-          type: string
-          description: The company identifier
-          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-          writeOnly: true
-      title: Store
-    RetrieveStoreResponse:
+          description: The value for the given configuration key. Accepted values depend on the key. For example, PAT_ENABLED accepts true or false; any other value results in a 400 response.
+          example: 'true'
+          title: Configuration Value
+      title: Update Configuration Request
+    TerminalConfigsResponse:
       type: object
-      example:
-        stores:
-        - id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
-          name: Mari Sucos - Main Store
-          address:
-            city: Porto
-            country: PT
-            street_address_line_1: Rua da boavista 531
-            street_address_line_2: Towns
-            zipcode: 4050-104
-        - id: 34a735b9-58a6-4622-af5f-054e6d87e22d
-          name: Mari Sucos - Fast Express
-          address:
-            city: Lisboa
-            country: PT
-            street_address_line_1: Avenida dos almirantes 112
-            street_address_line_2: ''
-            zipcode: 4098-104
       properties:
-        stores:
+        configs:
           type: array
+          description: Configurations applicable to the terminal
           items:
-            $ref: '#/components/schemas/Store'
-      title: RetrieveStoreResponse
+            $ref: '#/components/schemas/TerminalConfigItem'
+          title: Configurations
+      title: Configuration Response
     InvalidParams:
       type: object
       description: A single failed parameter from a 4xx validation response.
@@ -415,66 +475,6 @@ components:
       - path
       - reason
       title: InvalidParams
-    TerminalConfigsResponse:
-      type: object
-      properties:
-        configs:
-          type: array
-          description: Configurations applicable to the terminal
-          items:
-            $ref: '#/components/schemas/TerminalConfigItem'
-          title: Configurations
-      title: Configuration Response
-    TerminalConfigItem:
-      type: object
-      properties:
-        config_key:
-          type: string
-          description: The configuration key
-          example: PAT_ENABLED
-          title: Configuration Key
-        value:
-          type: string
-          description: The configuration value
-          example: 'true'
-          title: Configuration Value
-        updated_at:
-          type: string
-          format: date-time
-          description: Timestamp of the last update to this entry, in ISO 8601 format
-          example: '2026-05-20T10:00:00Z'
-          title: Updated At
-      title: Configuration Item
-    UpdateTerminalConfigRequest:
-      type: object
-      properties:
-        value:
-          type: string
-          description: The value for the given configuration key. Accepted values depend on the key. For example, PAT_ENABLED accepts true or false; any other value results in a 400 response.
-          example: 'true'
-          title: Configuration Value
-      title: Update Configuration Request
-    ExceptionResponse:
-      type: object
-      example:
-        code: BAD_REQUEST
-        description: Bad Request
-      properties:
-        code:
-          type: string
-          format: enum
-          description: Error code
-          example: BAD_REQUEST
-        description:
-          type: string
-          description: Error description
-          example: Bad Request
-        invalid_params:
-          type: array
-          description: List of invalid request parameters. Populated for validation failures (400 / 422); omitted otherwise.
-          items:
-            $ref: '#/components/schemas/InvalidParams'
-      title: ExceptionResponse
   securitySchemes:
     authorisation:
       type: oauth2

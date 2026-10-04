@@ -336,86 +336,6 @@ paths:
       - oauth: []
 components:
   schemas:
-    CaptureIssuerResult:
-      type: object
-      description: Issuer result data for capture transactions
-      properties:
-        approval_code:
-          type: string
-          description: Approval code from the issuer
-          example: '123456'
-        response_code:
-          type: string
-          description: Response code from the issuer
-          example: '00'
-        original_network_response_code:
-          type: string
-          description: Original network response code
-          example: '00'
-      title: CaptureIssuerResult
-    EncryptedMotoCard:
-      type: object
-      example:
-        encryption_key_id: 5EE0
-        encrypted_card_data: '34363136363937323538313530393338443235303444323539'
-        encryption_ksn: '123456789012'
-        encryption_mode: ECB
-        encryption_padding: F_PADDING
-      properties:
-        encryption_key_id:
-          type: string
-          description: Identifier of the encryption key used for encrypting the card number
-          minLength: 1
-        encrypted_card_data:
-          type: string
-          description: 'Encrypted card data for a card not present transaction.
-
-
-            Card Data structure:
-
-
-            | Field Name | Length | Comments |
-
-            | --- | --- | --- |
-
-            | Primary Account Number (PAN) | up to 19 digits | Credit/debit card number |
-
-            | Field Separator (FS) | 1 character | Delimits Data fields; set to ''='' |
-
-            | Expiration Date (ED) | 4 digits | Always in the format YYMM |
-
-            | Field Separator (FS) | 1 character | Delimits Data fields; set to ''='' |
-
-            | Card Verification Value 2 (CVV2) | 3 or 4 digits | Card''s CVV2 value |
-
-            '
-          minLength: 1
-        encryption_ksn:
-          type: string
-          description: Identifier of the encryption key serial number (KSN) used for encrypting the card data
-          maxLength: 20
-          minLength: 12
-        encryption_mode:
-          type: string
-          format: enum
-          default: ECB
-          description: Encryption mode used for encrypting the card data (ECB or CBC)
-          enum:
-          - ECB
-          - CBC
-        encryption_padding:
-          type: string
-          format: enum
-          default: F_PADDING
-          description: Padding method used for encrypting the card data (F_PADDING or PKCS7)
-          enum:
-          - F_PADDING
-          - PKCS7
-      required:
-      - encrypted_card_data
-      - encryption_key_id
-      - encryption_ksn
-      title: EncryptedMotoCard
     MotoTransactionResponse:
       type: object
       description: The response for a processed MOTO transaction
@@ -487,126 +407,6 @@ components:
       - status
       - transaction_id
       title: MotoTransactionResponse
-    Error:
-      type: object
-      description: Error response
-      example:
-        code: BAD_REQUEST
-        description: Invalid input
-      properties:
-        code:
-          type: string
-          format: enum
-          description: The error code
-          enum:
-          - AMOUNT_TOO_SMALL
-          - BAD_REQUEST
-          - BLOCKED_CARD
-          - BLOCKED_CROSS_BORDER_TRANSACTION
-          - FORBIDDEN
-          - IDEMPOTENCE_KEY_NOT_FOUND
-          - INTERNAL_SERVER_ERROR
-          - INVALID_AUTHENTICATION_ID
-          - LOST_OR_STOLEN
-          - NEGATIVE_BALANCE_LIMIT
-          - NOT_FOUND
-          - PENDING_TRANSACTION_CANNOT_BE_REVERSED
-          - PRE_AUTH_UNSUPPORTED_SCHEME
-          - SERVICE_UNAVAILABLE
-          - TRANSACTION_CANNOT_BE_REVERSED
-          - TRANSACTION_NOT_FOUND
-          - UNAUTHORISED
-          - UNKNOWN
-          - UNSUPPORTED_ISSUER
-          - UNSUPPORTED_SCHEME
-        description:
-          type: string
-          description: The description of the error
-        invalid_params:
-          type: array
-          items:
-            $ref: '#/components/schemas/InvalidParams'
-      required:
-      - code
-      - description
-      title: Error
-      x-internal: 'true'
-    TransactionResponse:
-      type: object
-      description: The response for a processed transaction
-      example:
-        transaction_id: tr_5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
-        card_acceptor_id: '50001325'
-        status: SUCCESS
-        issuer_result:
-          response_code: '00'
-          approval_code: '123456'
-          emv_response: 9F2608F8E8D9F2701809F101307010103A0A800010A01
-        processed_at: '2021-01-01T00:00:00.000Z'
-      properties:
-        transaction_id:
-          type: string
-          description: The unique identifier for the processed transaction
-        card_acceptor_id:
-          type: string
-          description: '`mid` or `card_acceptor_id` (ISO 8583 field standard)'
-        status:
-          type: string
-          description: The status of the transaction
-          enum:
-          - SUCCESS
-          - FAILURE
-          - PENDING
-        status_reason:
-          type: string
-          description: Reason for `FAILURE` status
-          enum:
-          - ACCOUNT_INVALID
-          - CANNOT_VALIDATE_AUTHENTICATION
-          - CARD_COUNT_EXCEEDED
-          - CARD_DECLINED
-          - CARD_EXPIRED
-          - CARD_LIMIT_EXCEEDED
-          - CARD_NOT_ACTIVE
-          - DISABLED_ACCOUNT
-          - DO_NOT_HONOR
-          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
-          - EXCEEDS_AMOUNT_LIMIT
-          - FORMAT_ERROR
-          - INCORRECT_CARD_AUTHENTICATION
-          - INSUFFICIENT_FUNDS
-          - INVALID_CARD_NUMBER
-          - INVALID_TRANSACTION
-          - ISSUER_DECLINED
-          - LOST_OR_STOLEN
-          - MERCHANT_CONFIGURATION
-          - PIN_LIMIT_EXCEEDED
-          - PROCESSOR_UNAVAILABLE
-          - RESTRICTED_CARD
-          - SCA_PIN_REQUIRED
-          - SCA_REQUIRED
-          - SUSPECTED_FRAUD
-          - TEMPORARY_ISSUE_RETRY
-          - TIMEOUT
-          - TRANSACTION_NOT_ALLOWED
-          - UNABLE_TO_ROUTE_TRANSACTION
-          - UNSUPPORTED_ISSUER
-          - NEGATIVE_BALANCE
-          - OTHER
-        issuer_result:
-          $ref: '#/components/schemas/IssuerResult'
-          description: Result data for the transaction according to issuer's response
-          title: IssuerResult
-        processed_at:
-          type: string
-          format: date-time
-          description: The datetime in UTC when the transaction was processed (ISO-8601)
-      required:
-      - card_acceptor_id
-      - issuer_result
-      - status
-      - transaction_id
-      title: TransactionResponse
     EncryptedTrack:
       type: object
       description: Encrypted track data from card reader
@@ -628,45 +428,23 @@ components:
       - encrypted_track
       - encryption_ksn
       title: EncryptedTrack
-    MotoIssuerResult:
+    CaptureIssuerResult:
       type: object
-      example:
-        approval_code: '123456'
-        response_code: '00'
+      description: Issuer result data for capture transactions
       properties:
         approval_code:
           type: string
-          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+          description: Approval code from the issuer
+          example: '123456'
         response_code:
           type: string
-          description: Response code returned by the issuer, indicating the result of the operation
-      title: MotoIssuerResult
-    ReversalRequest:
-      type: object
-      description: A request to reverse a transaction
-      example:
-        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
-        reversal_reason: COMMUNICATION_REVERSAL
-      properties:
-        transaction_id:
+          description: Response code from the issuer
+          example: '00'
+        original_network_response_code:
           type: string
-          description: The id of the original transaction that needs to be reversed
-        idempotency_key:
-          type: string
-          description: The idempotency key of the original transaction that needs to be reversed
-          maxLength: 64
-          minLength: 1
-        reversal_reason:
-          type: string
-          format: enum
-          description: Used for determining whether it is an automatic or manual reversal
-          enum:
-          - CARD_REVERSAL
-          - CARD_REMOVED
-          - COMMUNICATION_REVERSAL
-      required:
-      - reversal_reason
-      title: ReversalRequest
+          description: Original network response code
+          example: '00'
+      title: CaptureIssuerResult
     MotoTransactionRequest:
       type: object
       description: A request to process a MOTO transaction
@@ -727,6 +505,72 @@ components:
       - transacted_at
       - type
       title: MotoTransactionRequest
+    TerminalData:
+      type: object
+      description: Terminal specific data for transactions
+      properties:
+        entry_mode_extra_capabilities:
+          type: array
+          description: Additional entry mode capabilities
+          items:
+            type: string
+            enum:
+            - CONTACTLESS_EMV
+            - CONTACTLESS_MAGSTRIPE
+          example:
+          - CONTACTLESS_EMV
+        cvm_extra_capabilities:
+          type: array
+          description: Additional cardholder verification method capabilities
+          items:
+            type: string
+            enum:
+            - CONSUMER_DEVICE
+            - BIOMETRIC
+          example:
+          - CONSUMER_DEVICE
+      title: TerminalData
+    Amount:
+      type: object
+      description: Amount object
+      properties:
+        amount:
+          type: integer
+          description: Amount in the smallest currency unit (e.g., cents)
+          minimum: 1
+          example: 1000
+        currency:
+          type: string
+          description: 3-letter ISO currency code
+          pattern: ^[A-Z]{3}$
+          example: USD
+      required:
+      - amount
+      - currency
+      title: Amount
+    CaptureRequest:
+      type: object
+      description: A request to capture pre-authorised transaction
+      example:
+        amount: 10
+        terminal_id: '12345678'
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: 'A positive integer representing the total amount to be charged to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
+
+            Note that it must be less than or equal to the original amount.
+
+            '
+        terminal_id:
+          type: string
+          description: The ID of the terminal processing the transaction. Only required when using a non-Teya terminal.
+          maxLength: 8
+          minLength: 1
+      required:
+      - amount
+      title: CaptureRequest
     TransactionRequest:
       type: object
       description: A request to process a transaction
@@ -881,93 +725,155 @@ components:
       - quoted_at
       - cardholder_amount
       title: DccRequest
-    CaptureRequest:
+    CardData:
       type: object
-      description: A request to capture pre-authorised transaction
+      description: Card details for payment
+      properties:
+        number:
+          type: string
+          description: Card number (PAN)
+          pattern: ^[0-9]{13,19}$
+          example: '4111111111111111'
+        expiry_month:
+          type: string
+          description: Card expiry month (MM)
+          pattern: ^(0[1-9]|1[0-2])$
+          example: '12'
+        expiry_year:
+          type: string
+          description: Card expiry year (YYYY)
+          pattern: ^[0-9]{4}$
+          example: '2030'
+        cvv2:
+          type: string
+          description: Card verification value
+          pattern: ^[0-9]{3,4}$
+          example: '123'
+      required:
+      - number
+      - expiry_month
+      - expiry_year
+      title: CardData
+    Error:
+      type: object
+      description: Error response
       example:
-        amount: 10
-        terminal_id: '12345678'
+        code: BAD_REQUEST
+        description: Invalid input
       properties:
-        amount:
-          type: integer
-          format: int64
-          description: 'A positive integer representing the total amount to be charged to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
-
-            Note that it must be less than or equal to the original amount.
-
-            '
-        terminal_id:
+        code:
           type: string
-          description: The ID of the terminal processing the transaction. Only required when using a non-Teya terminal.
-          maxLength: 8
-          minLength: 1
+          format: enum
+          description: The error code
+          enum:
+          - AMOUNT_TOO_SMALL
+          - BAD_REQUEST
+          - BLOCKED_CARD
+          - BLOCKED_CROSS_BORDER_TRANSACTION
+          - FORBIDDEN
+          - IDEMPOTENCE_KEY_NOT_FOUND
+          - INTERNAL_SERVER_ERROR
+          - INVALID_AUTHENTICATION_ID
+          - LOST_OR_STOLEN
+          - NEGATIVE_BALANCE_LIMIT
+          - NOT_FOUND
+          - PENDING_TRANSACTION_CANNOT_BE_REVERSED
+          - PRE_AUTH_UNSUPPORTED_SCHEME
+          - SERVICE_UNAVAILABLE
+          - TRANSACTION_CANNOT_BE_REVERSED
+          - TRANSACTION_NOT_FOUND
+          - UNAUTHORISED
+          - UNKNOWN
+          - UNSUPPORTED_ISSUER
+          - UNSUPPORTED_SCHEME
+        description:
+          type: string
+          description: The description of the error
+        invalid_params:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvalidParams'
       required:
-      - amount
-      title: CaptureRequest
-    IssuerResult:
+      - code
+      - description
+      title: Error
+      x-internal: 'true'
+    TransactionResponse:
       type: object
-      description: Result data from the issuer
-      properties:
-        approval_code:
-          type: string
-          description: Approval code from the issuer
-          example: '123456'
-        response_code:
-          type: string
-          description: Response code from the issuer
-          example: '00'
-        original_network_response_code:
-          type: string
-          description: Original network response code
-          example: '00'
-        emv_response:
-          type: string
-          description: Hex-encoded EMV response data returned by the issuer, in TLV format
-          example: 9F2608F8E8D9F2701809F101307010103A0A800010A01
-      title: IssuerResult
-    RequestedAmounts:
-      type: object
+      description: The response for a processed transaction
       example:
-        amount: 100
-        tip: 10
-        currency: USD
+        transaction_id: tr_5f7b1a3a-3b7a-4b1a-9b1a-3a3b7a4b1a9b
+        card_acceptor_id: '50001325'
+        status: SUCCESS
+        issuer_result:
+          response_code: '00'
+          approval_code: '123456'
+          emv_response: 9F2608F8E8D9F2701809F101307010103A0A800010A01
+        processed_at: '2021-01-01T00:00:00.000Z'
       properties:
-        amount:
-          type: integer
-          format: int64
-          description: 'A positive integer representing the total amount to be charged to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
-
-            Note that tip amount is included in this total
-
-            '
-        tip:
-          type: integer
-          format: int64
-          description: A positive integer representing the total amount that was tipped in the smallest currency unit (e.g., 100 cents to charge $1).
-          minimum: 0
-        currency:
+        transaction_id:
           type: string
-          description: Currency code (e.g. `USD`, `GBP`, `EUR`) following ISO-4217 format.
+          description: The unique identifier for the processed transaction
+        card_acceptor_id:
+          type: string
+          description: '`mid` or `card_acceptor_id` (ISO 8583 field standard)'
+        status:
+          type: string
+          description: The status of the transaction
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+        status_reason:
+          type: string
+          description: Reason for `FAILURE` status
+          enum:
+          - ACCOUNT_INVALID
+          - CANNOT_VALIDATE_AUTHENTICATION
+          - CARD_COUNT_EXCEEDED
+          - CARD_DECLINED
+          - CARD_EXPIRED
+          - CARD_LIMIT_EXCEEDED
+          - CARD_NOT_ACTIVE
+          - DISABLED_ACCOUNT
+          - DO_NOT_HONOR
+          - ECOM_NEGATIVE_CARD_AUTHENTICATION_VERIFICATION
+          - EXCEEDS_AMOUNT_LIMIT
+          - FORMAT_ERROR
+          - INCORRECT_CARD_AUTHENTICATION
+          - INSUFFICIENT_FUNDS
+          - INVALID_CARD_NUMBER
+          - INVALID_TRANSACTION
+          - ISSUER_DECLINED
+          - LOST_OR_STOLEN
+          - MERCHANT_CONFIGURATION
+          - PIN_LIMIT_EXCEEDED
+          - PROCESSOR_UNAVAILABLE
+          - RESTRICTED_CARD
+          - SCA_PIN_REQUIRED
+          - SCA_REQUIRED
+          - SUSPECTED_FRAUD
+          - TEMPORARY_ISSUE_RETRY
+          - TIMEOUT
+          - TRANSACTION_NOT_ALLOWED
+          - UNABLE_TO_ROUTE_TRANSACTION
+          - UNSUPPORTED_ISSUER
+          - NEGATIVE_BALANCE
+          - OTHER
+        issuer_result:
+          $ref: '#/components/schemas/IssuerResult'
+          description: Result data for the transaction according to issuer's response
+          title: IssuerResult
+        processed_at:
+          type: string
+          format: date-time
+          description: The datetime in UTC when the transaction was processed (ISO-8601)
       required:
-      - amount
-      - currency
-      title: PurchaseAmount
-    InvalidParams:
-      type: object
-      description: Invalid parameter details
-      properties:
-        field:
-          type: string
-          description: The field that contains invalid data
-          example: amount.value
-        reason:
-          type: string
-          description: Reason why the field is invalid
-          example: must be greater than 0
-      required:
-      - field
-      - reason
-      title: InvalidParams
+      - card_acceptor_id
+      - issuer_result
+      - status
+      - transaction_id
+      title: TransactionResponse
     PinBlock:
       type: object
       description: PIN block data
@@ -998,107 +904,46 @@ components:
       - encryption_key_id
       - encryption_ksn
       title: PinBlock
-    TerminalData:
+    MotoIssuerResult:
       type: object
-      description: Terminal specific data for transactions
-      properties:
-        entry_mode_extra_capabilities:
-          type: array
-          description: Additional entry mode capabilities
-          items:
-            type: string
-            enum:
-            - CONTACTLESS_EMV
-            - CONTACTLESS_MAGSTRIPE
-          example:
-          - CONTACTLESS_EMV
-        cvm_extra_capabilities:
-          type: array
-          description: Additional cardholder verification method capabilities
-          items:
-            type: string
-            enum:
-            - CONSUMER_DEVICE
-            - BIOMETRIC
-          example:
-          - CONSUMER_DEVICE
-      title: TerminalData
-    ReversalResponse:
-      type: object
-      description: A response to reverse a transaction
       example:
-        status: SUCCESS
-        reversal_amount:
-          amount: 100
-          currency: GBP
+        approval_code: '123456'
+        response_code: '00'
       properties:
-        status:
+        approval_code:
           type: string
-          description: The status of the transaction
-          enum:
-          - SUCCESS
-          - FAILURE
-          - PENDING
-          - ACKNOWLEDGED
-        reversal_amount:
-          $ref: '#/components/schemas/Amount'
-          description: A positive integer representing the total amount reversed in the smallest currency unit (e.g., 100 cents to charge $1)
-        sub_account_id:
+          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+        response_code:
           type: string
-          enum:
-          - ACTIVE_HUNGARIANS
-          - ACCOMMODATION
-      required:
-      - reversal_amount
-      - status
-      title: ReversalResponse
-    CardData:
+          description: Response code returned by the issuer, indicating the result of the operation
+      title: MotoIssuerResult
+    RequestedAmounts:
       type: object
-      description: Card details for payment
-      properties:
-        number:
-          type: string
-          description: Card number (PAN)
-          pattern: ^[0-9]{13,19}$
-          example: '4111111111111111'
-        expiry_month:
-          type: string
-          description: Card expiry month (MM)
-          pattern: ^(0[1-9]|1[0-2])$
-          example: '12'
-        expiry_year:
-          type: string
-          description: Card expiry year (YYYY)
-          pattern: ^[0-9]{4}$
-          example: '2030'
-        cvv2:
-          type: string
-          description: Card verification value
-          pattern: ^[0-9]{3,4}$
-          example: '123'
-      required:
-      - number
-      - expiry_month
-      - expiry_year
-      title: CardData
-    Amount:
-      type: object
-      description: Amount object
+      example:
+        amount: 100
+        tip: 10
+        currency: USD
       properties:
         amount:
           type: integer
-          description: Amount in the smallest currency unit (e.g., cents)
-          minimum: 1
-          example: 1000
+          format: int64
+          description: 'A positive integer representing the total amount to be charged to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
+
+            Note that tip amount is included in this total
+
+            '
+        tip:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount that was tipped in the smallest currency unit (e.g., 100 cents to charge $1).
+          minimum: 0
         currency:
           type: string
-          description: 3-letter ISO currency code
-          pattern: ^[A-Z]{3}$
-          example: USD
+          description: Currency code (e.g. `USD`, `GBP`, `EUR`) following ISO-4217 format.
       required:
       - amount
       - currency
-      title: Amount
+      title: PurchaseAmount
     CaptureResponse:
       type: object
       description: The response for a processed capture
@@ -1174,6 +1019,161 @@ components:
       - status
       - transaction_id
       title: CaptureResponse
+    ReversalRequest:
+      type: object
+      description: A request to reverse a transaction
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        reversal_reason: COMMUNICATION_REVERSAL
+      properties:
+        transaction_id:
+          type: string
+          description: The id of the original transaction that needs to be reversed
+        idempotency_key:
+          type: string
+          description: The idempotency key of the original transaction that needs to be reversed
+          maxLength: 64
+          minLength: 1
+        reversal_reason:
+          type: string
+          format: enum
+          description: Used for determining whether it is an automatic or manual reversal
+          enum:
+          - CARD_REVERSAL
+          - CARD_REMOVED
+          - COMMUNICATION_REVERSAL
+      required:
+      - reversal_reason
+      title: ReversalRequest
+    ReversalResponse:
+      type: object
+      description: A response to reverse a transaction
+      example:
+        status: SUCCESS
+        reversal_amount:
+          amount: 100
+          currency: GBP
+      properties:
+        status:
+          type: string
+          description: The status of the transaction
+          enum:
+          - SUCCESS
+          - FAILURE
+          - PENDING
+          - ACKNOWLEDGED
+        reversal_amount:
+          $ref: '#/components/schemas/Amount'
+          description: A positive integer representing the total amount reversed in the smallest currency unit (e.g., 100 cents to charge $1)
+        sub_account_id:
+          type: string
+          enum:
+          - ACTIVE_HUNGARIANS
+          - ACCOMMODATION
+      required:
+      - reversal_amount
+      - status
+      title: ReversalResponse
+    IssuerResult:
+      type: object
+      description: Result data from the issuer
+      properties:
+        approval_code:
+          type: string
+          description: Approval code from the issuer
+          example: '123456'
+        response_code:
+          type: string
+          description: Response code from the issuer
+          example: '00'
+        original_network_response_code:
+          type: string
+          description: Original network response code
+          example: '00'
+        emv_response:
+          type: string
+          description: Hex-encoded EMV response data returned by the issuer, in TLV format
+          example: 9F2608F8E8D9F2701809F101307010103A0A800010A01
+      title: IssuerResult
+    EncryptedMotoCard:
+      type: object
+      example:
+        encryption_key_id: 5EE0
+        encrypted_card_data: '34363136363937323538313530393338443235303444323539'
+        encryption_ksn: '123456789012'
+        encryption_mode: ECB
+        encryption_padding: F_PADDING
+      properties:
+        encryption_key_id:
+          type: string
+          description: Identifier of the encryption key used for encrypting the card number
+          minLength: 1
+        encrypted_card_data:
+          type: string
+          description: 'Encrypted card data for a card not present transaction.
+
+
+            Card Data structure:
+
+
+            | Field Name | Length | Comments |
+
+            | --- | --- | --- |
+
+            | Primary Account Number (PAN) | up to 19 digits | Credit/debit card number |
+
+            | Field Separator (FS) | 1 character | Delimits Data fields; set to ''='' |
+
+            | Expiration Date (ED) | 4 digits | Always in the format YYMM |
+
+            | Field Separator (FS) | 1 character | Delimits Data fields; set to ''='' |
+
+            | Card Verification Value 2 (CVV2) | 3 or 4 digits | Card''s CVV2 value |
+
+            '
+          minLength: 1
+        encryption_ksn:
+          type: string
+          description: Identifier of the encryption key serial number (KSN) used for encrypting the card data
+          maxLength: 20
+          minLength: 12
+        encryption_mode:
+          type: string
+          format: enum
+          default: ECB
+          description: Encryption mode used for encrypting the card data (ECB or CBC)
+          enum:
+          - ECB
+          - CBC
+        encryption_padding:
+          type: string
+          format: enum
+          default: F_PADDING
+          description: Padding method used for encrypting the card data (F_PADDING or PKCS7)
+          enum:
+          - F_PADDING
+          - PKCS7
+      required:
+      - encrypted_card_data
+      - encryption_key_id
+      - encryption_ksn
+      title: EncryptedMotoCard
+    InvalidParams:
+      type: object
+      description: Invalid parameter details
+      properties:
+        field:
+          type: string
+          description: The field that contains invalid data
+          example: amount.value
+        reason:
+          type: string
+          description: Reason why the field is invalid
+          example: must be greater than 0
+      required:
+      - field
+      - reason
+      title: InvalidParams
   securitySchemes:
     oauth:
       type: oauth2

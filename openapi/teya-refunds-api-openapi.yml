@@ -153,66 +153,6 @@ paths:
       - Refunds
 components:
   schemas:
-    RefundIssuerResult:
-      title: IssuerResult
-      type: object
-      properties:
-        approval_code:
-          type: string
-          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
-        response_code:
-          type: string
-          description: Response code returned by the issuer, indicating the result of the operation
-      example:
-        approval_code: '123456'
-        response_code: '00'
-    Amount:
-      title: Amount
-      type: object
-      required:
-      - amount
-      - currency
-      properties:
-        amount:
-          type: integer
-          format: int64
-          description: A positive integer representing the total amount in the smallest currency unit (e.g., 100 cents to charge $1)
-          minimum: 0
-        currency:
-          type: string
-          description: Currency code (e.g. `USD`, `GBP`, `EUR`) following ISO-4217 format.
-      example:
-        amount: 100
-        currency: GBP
-    DccResponse:
-      title: DccResponse
-      type: object
-      required:
-      - cardholder_amount
-      - conversion_rate
-      - markup
-      properties:
-        cardholder_amount:
-          $ref: '#/components/schemas/Amount'
-          description: 'The total amount refunded to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
-
-            '
-        conversion_rate:
-          type: string
-          description: Conversion rate used to calculate the cardholder amount
-        markup:
-          type: string
-          description: Markup of the exchange rate
-        ecb_markup:
-          type: string
-          description: Markup of the exchange rate over the ECB exchange rate. Only provided when both currencies are EEA currencies.
-      example:
-        cardholder_amount:
-          amount: 100
-          currency: CHF
-        conversion_rate: '0.9517'
-        markup: '0.03'
-        ecb_markup: '0.01'
     RefundRequest:
       title: RefundRequest
       type: object
@@ -254,25 +194,19 @@ components:
         amount: 100
         currency: EUR
         merchant_reference: merchant-ref-123
-    InvalidParams:
+    RefundIssuerResult:
+      title: IssuerResult
       type: object
-      description: A single failed parameter from a 4xx validation response.
-      example:
-        path: requested_amount.amount
-        reason: Amount exceeds the tab's remaining balance
       properties:
-        path:
+        approval_code:
           type: string
-          description: Dot-notation path to the offending field on the request body, in snake_case.
-          example: requested_amount.amount
-        reason:
+          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+        response_code:
           type: string
-          description: Human-readable explanation of why the parameter was rejected.
-          example: Amount exceeds the tab's remaining balance
-      required:
-      - path
-      - reason
-      title: InvalidParams
+          description: Response code returned by the issuer, indicating the result of the operation
+      example:
+        approval_code: '123456'
+        response_code: '00'
     RefundExceptionResponseV2:
       type: object
       required:
@@ -419,6 +353,72 @@ components:
           conversion_rate: '0.9517'
           markup: '0.03'
           ecb_markup: '0.01'
+    DccResponse:
+      title: DccResponse
+      type: object
+      required:
+      - cardholder_amount
+      - conversion_rate
+      - markup
+      properties:
+        cardholder_amount:
+          $ref: '#/components/schemas/Amount'
+          description: 'The total amount refunded to the customer in the smallest currency unit (e.g., 100 cents to charge $1).
+
+            '
+        conversion_rate:
+          type: string
+          description: Conversion rate used to calculate the cardholder amount
+        markup:
+          type: string
+          description: Markup of the exchange rate
+        ecb_markup:
+          type: string
+          description: Markup of the exchange rate over the ECB exchange rate. Only provided when both currencies are EEA currencies.
+      example:
+        cardholder_amount:
+          amount: 100
+          currency: CHF
+        conversion_rate: '0.9517'
+        markup: '0.03'
+        ecb_markup: '0.01'
+    Amount:
+      title: Amount
+      type: object
+      required:
+      - amount
+      - currency
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount in the smallest currency unit (e.g., 100 cents to charge $1)
+          minimum: 0
+        currency:
+          type: string
+          description: Currency code (e.g. `USD`, `GBP`, `EUR`) following ISO-4217 format.
+      example:
+        amount: 100
+        currency: GBP
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
   securitySchemes:
     authorisation:
       type: oauth2
