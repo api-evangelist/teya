@@ -1035,74 +1035,111 @@ components:
           items:
             $ref: '#/components/schemas/InvalidParams'
       title: ExceptionResponse
-    DccData:
+    CreatePaymentRequestV3:
       type: object
-      description: Dynamic Currency Conversion data. If present, all fields are required.
+      description: Request to create a new payment request. Supports standalone payments (SALE or REFUND) and Pay at Table payments (SALE only, when tab_id is provided). See transaction_type for how to request a standalone unreferenced refund.
       example:
-        transaction_amount: 8500
-        transaction_currency: GBP
-        exchange_rate: '0.8650'
-        conversion_fee: 2.5%
-        disclaimer: I have been offered a choice of currencies and have chosen to accept DCC and pay in EUR at the exchange rate offered by Teya
+        store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
+        terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+        requested_amount:
+          amount: 1500
+          currency: GBP
+          tip: 10
+        transaction_type: SALE
+        merchant_reference: ORDER_123
+        epos_instance_id: eposName_1
+        basket_transaction_id: 2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b
       properties:
-        transaction_amount:
-          type: integer
-          format: int64
-          description: Transaction amount in the smallest currency unit (8500 = £85.00)
-          example: 8500
-        transaction_currency:
-          type: string
-          description: Currency used by the cardholder in ISO 4217 format (e.g. GBP)
-          example: GBP
-          maxLength: 3
-          minLength: 3
-          pattern: ^[A-Z]{3}$
-        exchange_rate:
-          type: string
-          description: Exchange rate applied for DCC conversion (e.g. '0.8650' means 1 EUR (merchant currency) = 0.8650 GBP (cardholder currency))
-          minLength: 1
-        conversion_fee:
-          type: string
-          description: Conversion fee applied for DCC service, represented as a percentage string (e.g. '2.5%')
-          example: 2.5%
-          minLength: 1
-        disclaimer:
-          type: string
-          description: Text printed on the customer's receipt confirming DCC acceptance and exchange rate details
-          example: I have been offered a choice of currencies and have chosen to accept DCC and pay in GBP at the exchange rate offered by Teya
-          maxLength: 500
-          minLength: 1
-      required:
-      - conversion_fee
-      - disclaimer
-      - exchange_rate
-      - transaction_amount
-      - transaction_currency
-      title: DccData
-    CancelPaymentRequestResponse:
-      type: object
-      example:
-        payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
-        status: CANCELLING
-        updated_at: '2023-08-14T11:28:45.610Z'
-      properties:
-        payment_request_id:
+        store_id:
           type: string
           format: uuid
-          description: The ID assigned to the payment request
-          example: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
-        status:
+          description: The ID of the store sending the request
+          example: eac4d470-4731-45b2-af6b-c828f03c1f9d
+        terminal_id:
           type: string
-          description: The current status of the request. Note that this cannot be NEW
+          description: The ID of the terminal the request is assigned to.
+          example: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+          maxLength: 100
+          minLength: 1
+        requested_amount:
+          $ref: '#/components/schemas/RequestedAmount'
+          description: Requested Amount
+        transaction_type:
+          type: string
+          format: enum
+          description: 'The transaction type of this request.
+
+            - `SALE`: a standard card-present payment (customer pays the merchant).
+
+            - `REFUND`: a standalone, unreferenced card-present refund (money returned to the customer''s card with no original transaction to reference). The customer taps their card at the terminal; a new gateway transaction is created. `REFUND` is only valid for standalone requests — it is rejected with HTTP 422 when `tab_id` is present, because Pay at Table supports `SALE` only.'
           enum:
-          - CANCELLING
-          - CANCELLED
-          example: CANCELLED
-        updated_at:
+          - SALE
+          - REFUND
+          example: SALE
+          maxLength: 8
+          minLength: 1
+        merchant_reference:
           type: string
-          description: The date and time the payment request was last updated (ISO 8601 format)
-          example: '2023-03-02T16:24:16.449Z'
-      title: CancelPaymentRequestResponse
+          description: The merchant reference for this payment request. Must be a unique reference that can be used to uniquely identify this payment.
+          example: ORDER_123
+          maxLength: 100
+          minLength: 1
+        epos_instance_id:
+          type: string
+          description: The external ID of the ePOS sending the request. Identifies that particular ePOS instance / device.
+          example: eposName_1
+          maxLength: 100
+          minLength: 0
+        basket_transaction_id:
+          type: string
+          format: uuid
+          description: Opaque correlation ID issued by Basket Data Service (BDS) at basket checkout.
+          example: 2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b
+        tab_id:
+          type: string
+          format: uuid
+          description: Tab identifier for Pay at Table flows. When provided, links this payment to an existing tab and payment_type becomes required.
+          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
+        payment_type:
+          type: string
+          description: Payment settlement type. Required when tab_id is present; ignored otherwise.
+          enum:
+          - FULL
+          - SPLIT
+          example: FULL
+        payment_method:
+          type: string
+          description: How the payment is tendered. Optional; typically supplied for Pay at Table flows.
+          enum:
+          - CARD
+          - CASH
+          example: CARD
+      required:
+      - merchant_reference
+      - requested_amount
+      - store_id
+      - terminal_id
+      - transaction_type
+      title: CreatePaymentRequestV3
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
     RetrievePaymentResponse:
       type: object
       example:
@@ -1228,6 +1265,116 @@ components:
           description: Transaction timestamp when the transaction occurred (in ISO 8601 with time-zone)
           example: '2025-10-24T21:56:24.464Z'
       title: RetrievePaymentResponse
+    Card:
+      type: object
+      example:
+        last4: '4673'
+        issuing_country: GB
+        brand: MASTERCARD
+        type: DEBIT
+        bin: '123456'
+      properties:
+        last4:
+          type: string
+          description: The last 4 digits of a card
+          example: L1234
+        issuing_country:
+          type: string
+          description: The Country code (ISO 3166-1 alpha-2) where the card was issued
+          example: GB
+        brand:
+          type: string
+          description: The brand of the payment network used by the card
+          example: VISA,MASTERCARD,UNION_PAY,JCB,DINERS,AMEX,OTHER
+        type:
+          type: string
+          description: The type of the card
+          example: DEBIT,CREDIT,PREPAID,CHARGE,UNKNOWN
+        bin:
+          type: string
+          description: The bin number to identify the issuer of the card holder
+          example: BIN123456
+      title: Card
+    RequestedAmount:
+      type: object
+      example:
+        currency: GBP
+        amount: 50
+        tip: 0
+      properties:
+        currency:
+          type: string
+          format: ISO 4217
+          description: The currency used in this payment. Must be a valid ISO 4217 currency code
+          example: USD
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the full amount to charge in the smallest currency unit (e.g., 100 cents to charge $1). Inclusive of the tip
+          example: 1500
+        tip:
+          type: integer
+          format: int64
+          description: A positive integer that represents the tip added to the payment in the smallest currency unit (e.g., 100 cents to charge $1)
+          example: 10
+      required:
+      - amount
+      - currency
+      title: RequestedAmount
+    TransactionMetadata:
+      type: object
+      example:
+        payment_method_details:
+          card:
+            last4: '4673'
+            issuing_country: GB
+            brand: MASTERCARD
+            type: DEBIT
+            bin: '123456'
+          entry_mode: EMV_CONTACTLESS
+          verification_method: NONE
+          application_id: A0000000041010
+          mid: '5006544'
+          response_code: '00'
+          authorisation_code: '537001'
+      properties:
+        payment_method_details:
+          $ref: '#/components/schemas/PaymentMethodDetails'
+          description: The payment method details
+        dcc:
+          $ref: '#/components/schemas/DccData'
+          description: Dynamic Currency Conversion data. Optional field
+      title: TransactionMetadata
+    GetAllPaymentRequestsResponse:
+      type: object
+      example:
+        payment_requests:
+        - payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+          requested_amount:
+            currency: GBP
+            amount: 10
+            tip: 0
+          status: NEW
+          transaction_type: SALE
+          created_at: '2022-06-15T16:24:12Z'
+          updated_at: '2022-06-15T16:26:12Z'
+          source_reference_id: '423897410'
+          merchant_reference: '423897410'
+          terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
+          store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
+        pagination:
+          offset: 0
+          limit: 10
+          total_pages: 1
+          total_count: 1
+      properties:
+        payment_requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/RetrievePaymentResponse'
+        pagination:
+          $ref: '#/components/schemas/Paging'
+      title: GetAllPaymentRequestsResponse
     RetrieveStreamPaymentResponse:
       type: object
       example:
@@ -1340,36 +1487,115 @@ components:
           description: Transaction timestamp when the transaction occurred (in ISO 8601 with time-zone)
           example: '2025-10-24T21:56:24.464Z'
       title: RetrieveStreamPaymentResponse
-    Card:
+    DccData:
+      type: object
+      description: Dynamic Currency Conversion data. If present, all fields are required.
+      example:
+        transaction_amount: 8500
+        transaction_currency: GBP
+        exchange_rate: '0.8650'
+        conversion_fee: 2.5%
+        disclaimer: I have been offered a choice of currencies and have chosen to accept DCC and pay in EUR at the exchange rate offered by Teya
+      properties:
+        transaction_amount:
+          type: integer
+          format: int64
+          description: Transaction amount in the smallest currency unit (8500 = £85.00)
+          example: 8500
+        transaction_currency:
+          type: string
+          description: Currency used by the cardholder in ISO 4217 format (e.g. GBP)
+          example: GBP
+          maxLength: 3
+          minLength: 3
+          pattern: ^[A-Z]{3}$
+        exchange_rate:
+          type: string
+          description: Exchange rate applied for DCC conversion (e.g. '0.8650' means 1 EUR (merchant currency) = 0.8650 GBP (cardholder currency))
+          minLength: 1
+        conversion_fee:
+          type: string
+          description: Conversion fee applied for DCC service, represented as a percentage string (e.g. '2.5%')
+          example: 2.5%
+          minLength: 1
+        disclaimer:
+          type: string
+          description: Text printed on the customer's receipt confirming DCC acceptance and exchange rate details
+          example: I have been offered a choice of currencies and have chosen to accept DCC and pay in GBP at the exchange rate offered by Teya
+          maxLength: 500
+          minLength: 1
+      required:
+      - conversion_fee
+      - disclaimer
+      - exchange_rate
+      - transaction_amount
+      - transaction_currency
+      title: DccData
+    CancelPaymentRequestResponse:
       type: object
       example:
-        last4: '4673'
-        issuing_country: GB
-        brand: MASTERCARD
-        type: DEBIT
-        bin: '123456'
+        payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+        status: CANCELLING
+        updated_at: '2023-08-14T11:28:45.610Z'
       properties:
-        last4:
+        payment_request_id:
           type: string
-          description: The last 4 digits of a card
-          example: L1234
-        issuing_country:
+          format: uuid
+          description: The ID assigned to the payment request
+          example: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
+        status:
           type: string
-          description: The Country code (ISO 3166-1 alpha-2) where the card was issued
-          example: GB
-        brand:
+          description: The current status of the request. Note that this cannot be NEW
+          enum:
+          - CANCELLING
+          - CANCELLED
+          example: CANCELLED
+        updated_at:
           type: string
-          description: The brand of the payment network used by the card
-          example: VISA,MASTERCARD,UNION_PAY,JCB,DINERS,AMEX,OTHER
-        type:
+          description: The date and time the payment request was last updated (ISO 8601 format)
+          example: '2023-03-02T16:24:16.449Z'
+      title: CancelPaymentRequestResponse
+    Paging:
+      type: object
+      example:
+        offset: 0
+        limit: 10
+        total_pages: 1
+      properties:
+        offset:
+          type: integer
+          format: int32
+          description: Current page number
+          example: 2
+        limit:
+          type: integer
+          format: int32
+          description: Current page size
+          example: 5
+        total_pages:
+          type: integer
+          format: int32
+          description: Total number of pages
+          example: 3
+        total_count:
+          type: integer
+          format: int64
+          description: Total size
+          example: 15
+      title: Paging
+    NewCancelPaymentRequest:
+      type: object
+      example:
+        status: CANCELLING
+      properties:
+        status:
           type: string
-          description: The type of the card
-          example: DEBIT,CREDIT,PREPAID,CHARGE,UNKNOWN
-        bin:
-          type: string
-          description: The bin number to identify the issuer of the card holder
-          example: BIN123456
-      title: Card
+          description: The status to update the payment request to
+          enum:
+          - CANCELLING
+      required:
+      - status
+      title: NewCancelPaymentRequest
     CreatePaymentResponseV3:
       type: object
       description: Response to a request to create a new payment request. Includes tab_id and payment_type when the payment is linked to a tab.
@@ -1451,36 +1677,6 @@ components:
           - CASH
           example: CARD
       title: CreatePaymentResponseV3
-    GetAllPaymentRequestsResponse:
-      type: object
-      example:
-        payment_requests:
-        - payment_request_id: dfc4fc52-8293-45b6-9f3e-b3b0f8f88188
-          requested_amount:
-            currency: GBP
-            amount: 10
-            tip: 0
-          status: NEW
-          transaction_type: SALE
-          created_at: '2022-06-15T16:24:12Z'
-          updated_at: '2022-06-15T16:26:12Z'
-          source_reference_id: '423897410'
-          merchant_reference: '423897410'
-          terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
-          store_id: f04fe1ce-e7bd-4c5b-b873-b156643c0bc3
-        pagination:
-          offset: 0
-          limit: 10
-          total_pages: 1
-          total_count: 1
-      properties:
-        payment_requests:
-          type: array
-          items:
-            $ref: '#/components/schemas/RetrievePaymentResponse'
-        pagination:
-          $ref: '#/components/schemas/Paging'
-      title: GetAllPaymentRequestsResponse
     PaymentMethodDetails:
       type: object
       example:
@@ -1528,202 +1724,6 @@ components:
           description: Authorisation code used to approve a transaction
           example: A8RLR8
       title: PaymentMethodDetails
-    Paging:
-      type: object
-      example:
-        offset: 0
-        limit: 10
-        total_pages: 1
-      properties:
-        offset:
-          type: integer
-          format: int32
-          description: Current page number
-          example: 2
-        limit:
-          type: integer
-          format: int32
-          description: Current page size
-          example: 5
-        total_pages:
-          type: integer
-          format: int32
-          description: Total number of pages
-          example: 3
-        total_count:
-          type: integer
-          format: int64
-          description: Total size
-          example: 15
-      title: Paging
-    RequestedAmount:
-      type: object
-      example:
-        currency: GBP
-        amount: 50
-        tip: 0
-      properties:
-        currency:
-          type: string
-          format: ISO 4217
-          description: The currency used in this payment. Must be a valid ISO 4217 currency code
-          example: USD
-        amount:
-          type: integer
-          format: int64
-          description: A positive integer representing the full amount to charge in the smallest currency unit (e.g., 100 cents to charge $1). Inclusive of the tip
-          example: 1500
-        tip:
-          type: integer
-          format: int64
-          description: A positive integer that represents the tip added to the payment in the smallest currency unit (e.g., 100 cents to charge $1)
-          example: 10
-      required:
-      - amount
-      - currency
-      title: RequestedAmount
-    CreatePaymentRequestV3:
-      type: object
-      description: Request to create a new payment request. Supports standalone payments (SALE or REFUND) and Pay at Table payments (SALE only, when tab_id is provided). See transaction_type for how to request a standalone unreferenced refund.
-      example:
-        store_id: eac4d470-4731-45b2-af6b-c828f03c1f9d
-        terminal_id: 70dc65ba-1c13-492a-82a0-15821e5f63ba
-        requested_amount:
-          amount: 1500
-          currency: GBP
-          tip: 10
-        transaction_type: SALE
-        merchant_reference: ORDER_123
-        epos_instance_id: eposName_1
-        basket_transaction_id: 2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b
-      properties:
-        store_id:
-          type: string
-          format: uuid
-          description: The ID of the store sending the request
-          example: eac4d470-4731-45b2-af6b-c828f03c1f9d
-        terminal_id:
-          type: string
-          description: The ID of the terminal the request is assigned to.
-          example: 70dc65ba-1c13-492a-82a0-15821e5f63ba
-          maxLength: 100
-          minLength: 1
-        requested_amount:
-          $ref: '#/components/schemas/RequestedAmount'
-          description: Requested Amount
-        transaction_type:
-          type: string
-          format: enum
-          description: 'The transaction type of this request.
-
-            - `SALE`: a standard card-present payment (customer pays the merchant).
-
-            - `REFUND`: a standalone, unreferenced card-present refund (money returned to the customer''s card with no original transaction to reference). The customer taps their card at the terminal; a new gateway transaction is created. `REFUND` is only valid for standalone requests — it is rejected with HTTP 422 when `tab_id` is present, because Pay at Table supports `SALE` only.'
-          enum:
-          - SALE
-          - REFUND
-          example: SALE
-          maxLength: 8
-          minLength: 1
-        merchant_reference:
-          type: string
-          description: The merchant reference for this payment request. Must be a unique reference that can be used to uniquely identify this payment.
-          example: ORDER_123
-          maxLength: 100
-          minLength: 1
-        epos_instance_id:
-          type: string
-          description: The external ID of the ePOS sending the request. Identifies that particular ePOS instance / device.
-          example: eposName_1
-          maxLength: 100
-          minLength: 0
-        basket_transaction_id:
-          type: string
-          format: uuid
-          description: Opaque correlation ID issued by Basket Data Service (BDS) at basket checkout.
-          example: 2f1b9c7c-8f0a-4e9c-9b04-8c9f4f0f0a2b
-        tab_id:
-          type: string
-          format: uuid
-          description: Tab identifier for Pay at Table flows. When provided, links this payment to an existing tab and payment_type becomes required.
-          example: 3f2b6a2e-9d3e-4a1f-8f1e-6b2e5a8c9d01
-        payment_type:
-          type: string
-          description: Payment settlement type. Required when tab_id is present; ignored otherwise.
-          enum:
-          - FULL
-          - SPLIT
-          example: FULL
-        payment_method:
-          type: string
-          description: How the payment is tendered. Optional; typically supplied for Pay at Table flows.
-          enum:
-          - CARD
-          - CASH
-          example: CARD
-      required:
-      - merchant_reference
-      - requested_amount
-      - store_id
-      - terminal_id
-      - transaction_type
-      title: CreatePaymentRequestV3
-    TransactionMetadata:
-      type: object
-      example:
-        payment_method_details:
-          card:
-            last4: '4673'
-            issuing_country: GB
-            brand: MASTERCARD
-            type: DEBIT
-            bin: '123456'
-          entry_mode: EMV_CONTACTLESS
-          verification_method: NONE
-          application_id: A0000000041010
-          mid: '5006544'
-          response_code: '00'
-          authorisation_code: '537001'
-      properties:
-        payment_method_details:
-          $ref: '#/components/schemas/PaymentMethodDetails'
-          description: The payment method details
-        dcc:
-          $ref: '#/components/schemas/DccData'
-          description: Dynamic Currency Conversion data. Optional field
-      title: TransactionMetadata
-    NewCancelPaymentRequest:
-      type: object
-      example:
-        status: CANCELLING
-      properties:
-        status:
-          type: string
-          description: The status to update the payment request to
-          enum:
-          - CANCELLING
-      required:
-      - status
-      title: NewCancelPaymentRequest
-    InvalidParams:
-      type: object
-      description: A single failed parameter from a 4xx validation response.
-      example:
-        path: requested_amount.amount
-        reason: Amount exceeds the tab's remaining balance
-      properties:
-        path:
-          type: string
-          description: Dot-notation path to the offending field on the request body, in snake_case.
-          example: requested_amount.amount
-        reason:
-          type: string
-          description: Human-readable explanation of why the parameter was rejected.
-          example: Amount exceeds the tab's remaining balance
-      required:
-      - path
-      - reason
-      title: InvalidParams
   securitySchemes:
     authorisation:
       type: oauth2

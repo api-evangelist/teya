@@ -236,29 +236,54 @@ paths:
       - Pay by Link
 components:
   schemas:
-    pbl_PaymentLinkLineItem:
-      description: Basket information to be shown in payment page
+    pbl_AddressDto:
+      description: An address
       example:
-        description: Shipping
-        quantity: 1
-        unit_price: 100
+        city: London
+        country: GB
+        state: London
+        street_address_line1: Main Street
+        street_address_line2: No. 1
+        street_address_line3: Building 1
+        zipcode: SW1A1AA
       properties:
-        description:
-          description: This a description for a item in the basket
+        city:
+          description: City name
+          example: London
+          maxLength: 100
           type: string
-        quantity:
-          description: The number of items, Must be a positive value
-          format: int32
-          type: integer
-        unit_price:
-          description: The price of a single item including VAT, Can be negative for discounts
-          format: int32
-          type: integer
+        country:
+          description: ISO-3166-1 alpha2 country code
+          example: GB
+          type: string
+        state:
+          description: State or province
+          example: London
+          maxLength: 100
+          type: string
+        street_address_line1:
+          description: Street address line 1
+          example: Main Street
+          maxLength: 100
+          type: string
+        street_address_line2:
+          description: Street address line 2
+          example: No. 1
+          maxLength: 100
+          type: string
+        street_address_line3:
+          description: Street address line 3
+          example: Building 1
+          maxLength: 100
+          type: string
+        zipcode:
+          description: Postal/ZIP code
+          example: SW1A1AA
+          maxLength: 16
+          type: string
       required:
-      - description
-      - quantity
-      - unit_price
-      title: PaymentLinkLineItem
+      - country
+      title: Address
       type: object
     pbl_GetPaymentLinkResponse:
       description: The requested payment link data
@@ -396,21 +421,6 @@ components:
       - payment_link_id
       - status
       title: GetPaymentLinkResponse
-      type: object
-    pbl_DeliveryInfo:
-      example:
-        email: emailaddress@example.com
-        phone_number: '+447700900123'
-      properties:
-        email:
-          description: Email address to send the payment link to
-          type: string
-        phone_number:
-          description: 'An international phone number  including the country code, formatted according to the E.164 standard.
-
-            This is the phone number that we will use to share the payment link via SMS'
-          type: string
-      title: DeliveryInfo
       type: object
     pbl_Amount:
       description: 'The transaction amount in the smallest currency unit according to ISO 4217 format.
@@ -617,24 +627,29 @@ components:
       - value
       title: Transaction Amount
       type: object
-    pbl_CreatePaymentLinkResponse:
-      description: The created payment link information
+    pbl_PaymentLinkLineItem:
+      description: Basket information to be shown in payment page
       example:
-        payment_link: https://pbl.teya.com/20eb276c-5b6b-4474-a5a1-49bcd6193148
-        payment_link_id: 20eb276c-5b6b-4474-a5a1-49bcd6193148
+        description: Shipping
+        quantity: 1
+        unit_price: 100
       properties:
-        payment_link:
-          description: The created payment link
-          format: url
+        description:
+          description: This a description for a item in the basket
           type: string
-        payment_link_id:
-          description: A unique identifier for the created payment link
-          example: 20eb276c-5b6b-4474-a5a1-49bcd6193148
-          format: uuid
-          type: string
+        quantity:
+          description: The number of items, Must be a positive value
+          format: int32
+          type: integer
+        unit_price:
+          description: The price of a single item including VAT, Can be negative for discounts
+          format: int32
+          type: integer
       required:
-      - payment_link_id
-      title: Create Payment Link Response
+      - description
+      - quantity
+      - unit_price
+      title: PaymentLinkLineItem
       type: object
     pbl_UpdatePaymentLinkRequest:
       properties:
@@ -656,76 +671,6 @@ components:
           format: date-time
           type: string
       title: UpdatePaymentLinkRequest
-      type: object
-    pbl_AddressDto:
-      description: An address
-      example:
-        city: London
-        country: GB
-        state: London
-        street_address_line1: Main Street
-        street_address_line2: No. 1
-        street_address_line3: Building 1
-        zipcode: SW1A1AA
-      properties:
-        city:
-          description: City name
-          example: London
-          maxLength: 100
-          type: string
-        country:
-          description: ISO-3166-1 alpha2 country code
-          example: GB
-          type: string
-        state:
-          description: State or province
-          example: London
-          maxLength: 100
-          type: string
-        street_address_line1:
-          description: Street address line 1
-          example: Main Street
-          maxLength: 100
-          type: string
-        street_address_line2:
-          description: Street address line 2
-          example: No. 1
-          maxLength: 100
-          type: string
-        street_address_line3:
-          description: Street address line 3
-          example: Building 1
-          maxLength: 100
-          type: string
-        zipcode:
-          description: Postal/ZIP code
-          example: SW1A1AA
-          maxLength: 16
-          type: string
-      required:
-      - country
-      title: Address
-      type: object
-    pbl_Customer:
-      example:
-        email: emailaddress@example.com
-        name: John Doe
-        phone_number: '+447911123456'
-      properties:
-        email:
-          description: Customer email address
-          type: string
-        name:
-          description: Customer name, used to prefill the hosted checkout form
-          type: string
-        phone_number:
-          description: 'Customer phone number.
-
-            An international phone number including the country code, formatted according to the E.164 standard.
-
-            '
-          type: string
-      title: Customer Information
       type: object
     pbl_CreatePaymentLinkRequestV2:
       description: 'A request to create a payment link.
@@ -897,6 +842,61 @@ components:
       required:
       - amount
       title: CreatePaymentLinkRequestV2
+      type: object
+    pbl_CreatePaymentLinkResponse:
+      description: The created payment link information
+      example:
+        payment_link: https://pbl.teya.com/20eb276c-5b6b-4474-a5a1-49bcd6193148
+        payment_link_id: 20eb276c-5b6b-4474-a5a1-49bcd6193148
+      properties:
+        payment_link:
+          description: The created payment link
+          format: url
+          type: string
+        payment_link_id:
+          description: A unique identifier for the created payment link
+          example: 20eb276c-5b6b-4474-a5a1-49bcd6193148
+          format: uuid
+          type: string
+      required:
+      - payment_link_id
+      title: Create Payment Link Response
+      type: object
+    pbl_DeliveryInfo:
+      example:
+        email: emailaddress@example.com
+        phone_number: '+447700900123'
+      properties:
+        email:
+          description: Email address to send the payment link to
+          type: string
+        phone_number:
+          description: 'An international phone number  including the country code, formatted according to the E.164 standard.
+
+            This is the phone number that we will use to share the payment link via SMS'
+          type: string
+      title: DeliveryInfo
+      type: object
+    pbl_Customer:
+      example:
+        email: emailaddress@example.com
+        name: John Doe
+        phone_number: '+447911123456'
+      properties:
+        email:
+          description: Customer email address
+          type: string
+        name:
+          description: Customer name, used to prefill the hosted checkout form
+          type: string
+        phone_number:
+          description: 'Customer phone number.
+
+            An international phone number including the country code, formatted according to the E.164 standard.
+
+            '
+          type: string
+      title: Customer Information
       type: object
   securitySchemes:
     checkout_oauth_dev:

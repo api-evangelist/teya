@@ -174,51 +174,6 @@ paths:
       description: Production Server
 components:
   schemas:
-    checkout_SessionLineItem:
-      description: Basket information to be shown in the payment screen
-      example:
-        description: Shipping
-        quantity: 1
-        unit_price: 100
-      properties:
-        description:
-          description: This a description for a item in the basket
-          type: string
-        quantity:
-          description: The number of items, Must to be a positive value
-          format: int32
-          type: integer
-        unit_price:
-          description: The price of a single item including VAT, Can be negative for discounts
-          format: int32
-          type: integer
-      required:
-      - description
-      - quantity
-      - unit_price
-      title: SessionLineItem
-      type: object
-    checkout_Customer:
-      example:
-        email: emailaddress@example.com
-        name: John Doe
-        phone_number: '+447911123456'
-      properties:
-        email:
-          description: Customer email address
-          type: string
-        name:
-          description: Customer name, used to prefill the hosted checkout form
-          type: string
-        phone_number:
-          description: 'Customer phone number
-
-            An international phone number including the country code, formatted according to the E.164 standard.
-
-            '
-          type: string
-      title: Customer Information
-      type: object
     checkout_BackendBusinessData:
       description: The business information
       example:
@@ -553,6 +508,27 @@ components:
       - markup
       title: DccOfferInfo
       type: object
+    checkout_Customer:
+      example:
+        email: emailaddress@example.com
+        name: John Doe
+        phone_number: '+447911123456'
+      properties:
+        email:
+          description: Customer email address
+          type: string
+        name:
+          description: Customer name, used to prefill the hosted checkout form
+          type: string
+        phone_number:
+          description: 'Customer phone number
+
+            An international phone number including the country code, formatted according to the E.164 standard.
+
+            '
+          type: string
+      title: Customer Information
+      type: object
     checkout_Amount:
       description: 'The transaction amount in the smallest currency unit according to ISO 4217 format.
 
@@ -808,6 +784,30 @@ components:
       - country
       title: Business Address
       type: object
+    checkout_SessionLineItem:
+      description: Basket information to be shown in the payment screen
+      example:
+        description: Shipping
+        quantity: 1
+        unit_price: 100
+      properties:
+        description:
+          description: This a description for a item in the basket
+          type: string
+        quantity:
+          description: The number of items, Must to be a positive value
+          format: int32
+          type: integer
+        unit_price:
+          description: The price of a single item including VAT, Can be negative for discounts
+          format: int32
+          type: integer
+      required:
+      - description
+      - quantity
+      - unit_price
+      title: SessionLineItem
+      type: object
     checkout_BillingAddress:
       description: Customer's Billing Address
       example:
@@ -858,151 +858,6 @@ components:
       - country
       title: Billing Address
       type: object
-    Error:
-      type: object
-      description: Error response
-      example:
-        code: BAD_REQUEST
-        description: Invalid input
-      properties:
-        code:
-          type: string
-          format: enum
-          description: The error code
-          enum:
-          - AMOUNT_TOO_SMALL
-          - BAD_REQUEST
-          - BLOCKED_CARD
-          - BLOCKED_CROSS_BORDER_TRANSACTION
-          - FORBIDDEN
-          - IDEMPOTENCE_KEY_NOT_FOUND
-          - INTERNAL_SERVER_ERROR
-          - INVALID_AUTHENTICATION_ID
-          - LOST_OR_STOLEN
-          - NEGATIVE_BALANCE_LIMIT
-          - NOT_FOUND
-          - PENDING_TRANSACTION_CANNOT_BE_REVERSED
-          - PRE_AUTH_UNSUPPORTED_SCHEME
-          - SERVICE_UNAVAILABLE
-          - TRANSACTION_CANNOT_BE_REVERSED
-          - TRANSACTION_NOT_FOUND
-          - UNAUTHORISED
-          - UNKNOWN
-          - UNSUPPORTED_ISSUER
-          - UNSUPPORTED_SCHEME
-        description:
-          type: string
-          description: The description of the error
-        invalid_params:
-          type: array
-          items:
-            $ref: '#/components/schemas/InvalidParams'
-      required:
-      - code
-      - description
-      title: Error
-      x-internal: 'true'
-    RefundRequest:
-      type: object
-      description: A request to refund a transaction
-      example:
-        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
-        terminal_id: '12345678'
-        amount: 100
-      properties:
-        transaction_id:
-          type: string
-          description: The id of the original transaction that needs to be refunded
-        terminal_id:
-          type: string
-          description: The ID of the terminal processing the transaction. Only required when using a non-Teya terminal.
-          maxLength: 8
-          minLength: 1
-        merchant_reference:
-          type: string
-          description: An ID referencing the transaction on the client's side
-          maxLength: 60
-          minLength: 1
-        amount:
-          type: integer
-          format: int64
-          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1). The currency is the same as the original transaction.
-        reason:
-          type: string
-          description: A reason for the refund (e.g. 'customer returned the goods')
-      required:
-      - amount
-      - transaction_id
-      title: RefundRequest
-    RefundIssuerResult:
-      type: object
-      description: Issuer result data for refund transactions
-      properties:
-        approval_code:
-          type: string
-          description: Approval code from the issuer
-          example: '123456'
-        response_code:
-          type: string
-          description: Response code from the issuer
-          example: '00'
-      title: RefundIssuerResult
-    RefundedAmount:
-      type: object
-      example:
-        amount: 100
-        currency: GBP
-      properties:
-        amount:
-          type: integer
-          format: int64
-          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1)
-        currency:
-          type: string
-          description: The currency used in this transaction. Must be a valid ISO-4217 currency code
-          example: GBP
-      required:
-      - amount
-      - currency
-      title: RefundedAmount
-    Amount:
-      type: object
-      description: Amount object
-      properties:
-        amount:
-          type: integer
-          description: Amount in the smallest currency unit (e.g., cents)
-          minimum: 1
-          example: 1000
-        currency:
-          type: string
-          description: 3-letter ISO currency code
-          pattern: ^[A-Z]{3}$
-          example: USD
-      required:
-      - amount
-      - currency
-      title: Amount
-    DccResponse:
-      type: object
-      description: Dynamic Currency Conversion response
-      properties:
-        conversion_rate:
-          type: string
-          description: Exchange rate used for conversion
-          example: '0.9517'
-        markup:
-          type: string
-          description: Markup applied to the exchange rate
-          example: '0.03'
-        ecb_markup:
-          type: string
-          description: ECB markup rate
-          example: '0.01'
-        cardholder_amount:
-          $ref: '#/components/schemas/Amount'
-          description: Amount in cardholder's currency
-      title: DccResponse
     RefundResponse:
       type: object
       description: A response to refund a transaction
@@ -1104,6 +959,24 @@ components:
       - transaction_id
       - transaction_type
       title: RefundResponse
+    RefundedAmount:
+      type: object
+      example:
+        amount: 100
+        currency: GBP
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1)
+        currency:
+          type: string
+          description: The currency used in this transaction. Must be a valid ISO-4217 currency code
+          example: GBP
+      required:
+      - amount
+      - currency
+      title: RefundedAmount
     InvalidParams:
       type: object
       description: Invalid parameter details
@@ -1120,6 +993,133 @@ components:
       - field
       - reason
       title: InvalidParams
+    DccResponse:
+      type: object
+      description: Dynamic Currency Conversion response
+      properties:
+        conversion_rate:
+          type: string
+          description: Exchange rate used for conversion
+          example: '0.9517'
+        markup:
+          type: string
+          description: Markup applied to the exchange rate
+          example: '0.03'
+        ecb_markup:
+          type: string
+          description: ECB markup rate
+          example: '0.01'
+        cardholder_amount:
+          $ref: '#/components/schemas/Amount'
+          description: Amount in cardholder's currency
+      title: DccResponse
+    Amount:
+      type: object
+      description: Amount object
+      properties:
+        amount:
+          type: integer
+          description: Amount in the smallest currency unit (e.g., cents)
+          minimum: 1
+          example: 1000
+        currency:
+          type: string
+          description: 3-letter ISO currency code
+          pattern: ^[A-Z]{3}$
+          example: USD
+      required:
+      - amount
+      - currency
+      title: Amount
+    RefundRequest:
+      type: object
+      description: A request to refund a transaction
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        terminal_id: '12345678'
+        amount: 100
+      properties:
+        transaction_id:
+          type: string
+          description: The id of the original transaction that needs to be refunded
+        terminal_id:
+          type: string
+          description: The ID of the terminal processing the transaction. Only required when using a non-Teya terminal.
+          maxLength: 8
+          minLength: 1
+        merchant_reference:
+          type: string
+          description: An ID referencing the transaction on the client's side
+          maxLength: 60
+          minLength: 1
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1). The currency is the same as the original transaction.
+        reason:
+          type: string
+          description: A reason for the refund (e.g. 'customer returned the goods')
+      required:
+      - amount
+      - transaction_id
+      title: RefundRequest
+    RefundIssuerResult:
+      type: object
+      description: Issuer result data for refund transactions
+      properties:
+        approval_code:
+          type: string
+          description: Approval code from the issuer
+          example: '123456'
+        response_code:
+          type: string
+          description: Response code from the issuer
+          example: '00'
+      title: RefundIssuerResult
+    Error:
+      type: object
+      description: Error response
+      example:
+        code: BAD_REQUEST
+        description: Invalid input
+      properties:
+        code:
+          type: string
+          format: enum
+          description: The error code
+          enum:
+          - AMOUNT_TOO_SMALL
+          - BAD_REQUEST
+          - BLOCKED_CARD
+          - BLOCKED_CROSS_BORDER_TRANSACTION
+          - FORBIDDEN
+          - IDEMPOTENCE_KEY_NOT_FOUND
+          - INTERNAL_SERVER_ERROR
+          - INVALID_AUTHENTICATION_ID
+          - LOST_OR_STOLEN
+          - NEGATIVE_BALANCE_LIMIT
+          - NOT_FOUND
+          - PENDING_TRANSACTION_CANNOT_BE_REVERSED
+          - PRE_AUTH_UNSUPPORTED_SCHEME
+          - SERVICE_UNAVAILABLE
+          - TRANSACTION_CANNOT_BE_REVERSED
+          - TRANSACTION_NOT_FOUND
+          - UNAUTHORISED
+          - UNKNOWN
+          - UNSUPPORTED_ISSUER
+          - UNSUPPORTED_SCHEME
+        description:
+          type: string
+          description: The description of the error
+        invalid_params:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      required:
+      - code
+      - description
+      title: Error
+      x-internal: 'true'
   securitySchemes:
     checkout_oauth_dev:
       flows:

@@ -153,60 +153,6 @@ paths:
       - Refunds
 components:
   schemas:
-    RefundRequest:
-      title: RefundRequest
-      type: object
-      description: A request to refund a transaction
-      required:
-      - amount
-      - transaction_id
-      properties:
-        transaction_id:
-          type: string
-          description: The id of the original transaction that needs to be refunded
-          minLength: 1
-        terminal_id:
-          type: string
-          description: An optional terminal identifier for Delegated access
-          maxLength: 8
-          minLength: 1
-        merchant_reference:
-          type: string
-          description: An identifier referencing the transaction on the client's side
-          maxLength: 30
-          minLength: 1
-        amount:
-          type: integer
-          format: int64
-          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1). The currency is the same as the original transaction.
-          minimum: 0
-        currency:
-          type: string
-          description: The ISO 4217 currency code (e.g., 'EUR', 'USD'). Required for CIBA authentication flow
-        basket_transaction_id:
-          type: string
-          format: uuid
-          description: Unique identifier of basket-data transaction
-          example: 7979e979-f6ab-409d-b968-e336d552e20a
-      example:
-        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
-        terminal_id: '12345678'
-        amount: 100
-        currency: EUR
-        merchant_reference: merchant-ref-123
-    RefundIssuerResult:
-      title: IssuerResult
-      type: object
-      properties:
-        approval_code:
-          type: string
-          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
-        response_code:
-          type: string
-          description: Response code returned by the issuer, indicating the result of the operation
-      example:
-        approval_code: '123456'
-        response_code: '00'
     RefundExceptionResponseV2:
       type: object
       required:
@@ -353,6 +299,25 @@ components:
           conversion_rate: '0.9517'
           markup: '0.03'
           ecb_markup: '0.01'
+    InvalidParams:
+      type: object
+      description: A single failed parameter from a 4xx validation response.
+      example:
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
+      properties:
+        path:
+          type: string
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
+          type: string
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
     DccResponse:
       title: DccResponse
       type: object
@@ -400,25 +365,60 @@ components:
       example:
         amount: 100
         currency: GBP
-    InvalidParams:
+    RefundRequest:
+      title: RefundRequest
       type: object
-      description: A single failed parameter from a 4xx validation response.
-      example:
-        path: requested_amount.amount
-        reason: Amount exceeds the tab's remaining balance
-      properties:
-        path:
-          type: string
-          description: Dot-notation path to the offending field on the request body, in snake_case.
-          example: requested_amount.amount
-        reason:
-          type: string
-          description: Human-readable explanation of why the parameter was rejected.
-          example: Amount exceeds the tab's remaining balance
+      description: A request to refund a transaction
       required:
-      - path
-      - reason
-      title: InvalidParams
+      - amount
+      - transaction_id
+      properties:
+        transaction_id:
+          type: string
+          description: The id of the original transaction that needs to be refunded
+          minLength: 1
+        terminal_id:
+          type: string
+          description: An optional terminal identifier for Delegated access
+          maxLength: 8
+          minLength: 1
+        merchant_reference:
+          type: string
+          description: An identifier referencing the transaction on the client's side
+          maxLength: 30
+          minLength: 1
+        amount:
+          type: integer
+          format: int64
+          description: A positive integer representing the total amount to refund in the smallest currency unit (e.g., 100 cents to charge $1). The currency is the same as the original transaction.
+          minimum: 0
+        currency:
+          type: string
+          description: The ISO 4217 currency code (e.g., 'EUR', 'USD'). Required for CIBA authentication flow
+        basket_transaction_id:
+          type: string
+          format: uuid
+          description: Unique identifier of basket-data transaction
+          example: 7979e979-f6ab-409d-b968-e336d552e20a
+      example:
+        transaction_id: tr_87de9bea-b32d-4ef5-a481-b8ba48764325
+        terminal_id: '12345678'
+        amount: 100
+        currency: EUR
+        merchant_reference: merchant-ref-123
+    RefundIssuerResult:
+      title: IssuerResult
+      type: object
+      properties:
+        approval_code:
+          type: string
+          description: Identifier of the authorisation returned by the issuer. When the transaction is not authorised, this field is empty
+        response_code:
+          type: string
+          description: Response code returned by the issuer, indicating the result of the operation
+      example:
+        approval_code: '123456'
+        response_code: '00'
   securitySchemes:
     authorisation:
       type: oauth2

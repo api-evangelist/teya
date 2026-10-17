@@ -309,27 +309,35 @@ paths:
                 description: Internal Server Error
 components:
   schemas:
-    ExceptionResponse:
+    InvalidParams:
       type: object
+      description: A single failed parameter from a 4xx validation response.
       example:
-        code: BAD_REQUEST
-        description: Bad Request
+        path: requested_amount.amount
+        reason: Amount exceeds the tab's remaining balance
       properties:
-        code:
+        path:
           type: string
-          format: enum
-          description: Error code
-          example: BAD_REQUEST
-        description:
+          description: Dot-notation path to the offending field on the request body, in snake_case.
+          example: requested_amount.amount
+        reason:
           type: string
-          description: Error description
-          example: Bad Request
-        invalid_params:
+          description: Human-readable explanation of why the parameter was rejected.
+          example: Amount exceeds the tab's remaining balance
+      required:
+      - path
+      - reason
+      title: InvalidParams
+    TerminalConfigsResponse:
+      type: object
+      properties:
+        configs:
           type: array
-          description: List of invalid request parameters. Populated for validation failures (400 / 422); omitted otherwise.
+          description: Configurations applicable to the terminal
           items:
-            $ref: '#/components/schemas/InvalidParams'
-      title: ExceptionResponse
+            $ref: '#/components/schemas/TerminalConfigItem'
+          title: Configurations
+      title: Configuration Response
     RetrieveStoreResponse:
       type: object
       example:
@@ -385,26 +393,6 @@ components:
           example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
           writeOnly: true
       title: Store
-    TerminalConfigItem:
-      type: object
-      properties:
-        config_key:
-          type: string
-          description: The configuration key
-          example: PAT_ENABLED
-          title: Configuration Key
-        value:
-          type: string
-          description: The configuration value
-          example: 'true'
-          title: Configuration Value
-        updated_at:
-          type: string
-          format: date-time
-          description: Timestamp of the last update to this entry, in ISO 8601 format
-          example: '2026-05-20T10:00:00Z'
-          title: Updated At
-      title: Configuration Item
     Address:
       type: object
       example:
@@ -437,6 +425,47 @@ components:
           description: Zip code of the store
           example: 4050-104
       title: Address
+    TerminalConfigItem:
+      type: object
+      properties:
+        config_key:
+          type: string
+          description: The configuration key
+          example: PAT_ENABLED
+          title: Configuration Key
+        value:
+          type: string
+          description: The configuration value
+          example: 'true'
+          title: Configuration Value
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp of the last update to this entry, in ISO 8601 format
+          example: '2026-05-20T10:00:00Z'
+          title: Updated At
+      title: Configuration Item
+    ExceptionResponse:
+      type: object
+      example:
+        code: BAD_REQUEST
+        description: Bad Request
+      properties:
+        code:
+          type: string
+          format: enum
+          description: Error code
+          example: BAD_REQUEST
+        description:
+          type: string
+          description: Error description
+          example: Bad Request
+        invalid_params:
+          type: array
+          description: List of invalid request parameters. Populated for validation failures (400 / 422); omitted otherwise.
+          items:
+            $ref: '#/components/schemas/InvalidParams'
+      title: ExceptionResponse
     UpdateTerminalConfigRequest:
       type: object
       properties:
@@ -446,35 +475,6 @@ components:
           example: 'true'
           title: Configuration Value
       title: Update Configuration Request
-    TerminalConfigsResponse:
-      type: object
-      properties:
-        configs:
-          type: array
-          description: Configurations applicable to the terminal
-          items:
-            $ref: '#/components/schemas/TerminalConfigItem'
-          title: Configurations
-      title: Configuration Response
-    InvalidParams:
-      type: object
-      description: A single failed parameter from a 4xx validation response.
-      example:
-        path: requested_amount.amount
-        reason: Amount exceeds the tab's remaining balance
-      properties:
-        path:
-          type: string
-          description: Dot-notation path to the offending field on the request body, in snake_case.
-          example: requested_amount.amount
-        reason:
-          type: string
-          description: Human-readable explanation of why the parameter was rejected.
-          example: Amount exceeds the tab's remaining balance
-      required:
-      - path
-      - reason
-      title: InvalidParams
   securitySchemes:
     authorisation:
       type: oauth2
